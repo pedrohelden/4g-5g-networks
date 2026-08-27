@@ -5,19 +5,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Index</title>
+<title>Segurança em Redes Móveis</title>
 
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
 
 <meta name="theme-color" content="#000000">
 
-
 </head>
 
-
 <body>
-
 
 <!-- SIDEBAR -->
 
@@ -117,18 +114,18 @@
         </div>
 
         <a href="#" data-page="cap14.html">
-            Capítulo 14: Futuro da Segurança em Redes Móveis (5G Advanced e além)
+            Capítulo 14: Futuro da Segurança em Redes Móveis
+            (5G Advanced e além)
         </a>
 
 
         <footer style="margin-top:30px; opacity:0.85;">
-            <p>📘 Fim do livro.</p>
+            <p>📘 Pedro Helden, 2026</p>
         </footer>
 
     </div>
 
 </div>
-
 
 
 <!-- CONTEÚDO -->
@@ -141,12 +138,7 @@
         Selecione um capítulo no índice para ler aqui.
     </p>
 
-<img src="images/cap01/figure-01.jpg" style="max-width:100%;">
-<img src="https://pedrohelden.github.io/seguranca-redes-moveis-1ed/br/images/cap01/figure-01.jpg"
-     style="max-width:100%;">
-
 </div>
-
 
 
 <!-- CAPA -->
@@ -192,6 +184,9 @@
 
 </div>
 
+
+<!-- SCRIPT -->
+
 <script>
 
 document.querySelectorAll(".sidebar a[data-page]").forEach(function(link) {
@@ -202,7 +197,7 @@ document.querySelectorAll(".sidebar a[data-page]").forEach(function(link) {
 
         const page = this.getAttribute("data-page");
 
-        document.getElementById("content").innerHTML = 
+        document.getElementById("content").innerHTML = `
             <iframe
                 src="${page}"
                 style="
@@ -212,7 +207,7 @@ document.querySelectorAll(".sidebar a[data-page]").forEach(function(link) {
                     display:block;
                 ">
             </iframe>
-        ;
+        `;
 
     });
 
@@ -222,4 +217,4 @@ document.querySelectorAll(".sidebar a[data-page]").forEach(function(link) {
 
 </body>
 
-</html> 
+</html>
