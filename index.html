@@ -13,11 +13,6 @@
 
 <meta name="theme-color" content="#000000">
 
-<script>
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-}
-</script>
 
 </head>
 
@@ -196,82 +191,51 @@ if ('serviceWorker' in navigator) {
 
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
 
-  document.querySelector(".sidebar").addEventListener("click", (e) => {
+    document.querySelectorAll(".sidebar a[data-page]").forEach(function (link) {
 
-    const link = e.target.closest("a[data-page]");
-    if (!link) return;
+        link.addEventListener("click", async function (e) {
 
-    e.preventDefault();
+            e.preventDefault();
 
-    loadChapter(link.getAttribute("data-page"));
-  });
+            const page = this.getAttribute("data-page");
+            const content = document.getElementById("content");
+
+            content.innerHTML = "<p>Carregando...</p>";
+
+            try {
+
+                const response = await fetch(page);
+
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status);
+                }
+
+                const html = await response.text();
+
+                const doc = new DOMParser().parseFromString(
+                    html,
+                    "text/html"
+                );
+
+                content.innerHTML = doc.body.innerHTML;
+
+            } catch (error) {
+
+                console.error(error);
+
+                content.innerHTML =
+                    "<h2>Erro ao carregar capítulo</h2>" +
+                    "<p>" + error.message + "</p>";
+            }
+
+        });
+
+    });
 
 });
-
-
-async function loadChapter(page) {
-
-  const content = document.getElementById("content");
-
-  try {
-
-    content.innerHTML = "<p>Carregando capítulo...</p>";
-
-    /*
-     * Os capítulos estão na mesma pasta do index:
-     *
-     * /br/index.html
-     * /br/cap01.html
-     */
-    const res = await fetch(page);
-
-    if (!res.ok) {
-      throw new Error("HTTP " + res.status);
-    }
-
-    const html = await res.text();
-
-    /*
-     * Lê o HTML completo do capítulo.
-     */
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-
-    /*
-     * Pega o conteúdo do body.
-     */
-    content.innerHTML = doc.body.innerHTML;
-
-    /*
-     * Corrige as imagens.
-     *
-     * O cap01.html usa:
-     *
-     * images/cap01/figure-01.jpg
-     *
-     * Como o index também está em /br/,
-     * esse caminho já é exatamente o correto.
-     *
-     * Portanto NÃO precisamos alterar o src.
-     */
-
-  } catch (err) {
-
-    console.error(err);
-
-    content.innerHTML = `
-      <h2>Erro ao carregar capítulo</h2>
-      <p>Não foi possível carregar: <strong>${page}</strong></p>
-      <p>Erro: ${err.message}</p>
-    `;
-
-  }
-
-}
 </script>
-
 
 </body>
 
