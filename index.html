@@ -231,176 +231,63 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-
 async function loadChapter(page) {
 
-    const content = document.getElementById("content");
+  try {
+
+    const res = await fetch(page);
+
+    if (!res.ok) {
+      throw new Error("HTTP " + res.status);
+    }
+
+    const html = await res.text();
+
+    const temp = document.createElement("div");
+    temp.innerHTML = html;
+
+    const body = temp.querySelector("body");
+
+    if (!body) {
+      throw new Error("Body não encontrado");
+    }
 
 
-    if (!content) {
+    // Corrige imagens
+    body.querySelectorAll("img").forEach(img => {
 
-        console.error("Elemento #content não encontrado.");
+      const src = img.getAttribute("src");
 
+      if (!src) return;
+
+      if (
+        src.startsWith("http://") ||
+        src.startsWith("https://") ||
+        src.startsWith("data:")
+      ) {
         return;
+      }
 
-    }
+      img.src = BASE + "/" + LANG + "/" + src;
 
-
-    content.innerHTML = `
-        <p style="text-align:center;">
-            Carregando capítulo...
-        </p>
-    `;
+    });
 
 
-    try {
+    document.getElementById("content").innerHTML =
+      body.innerHTML;
 
-        const response = await fetch(page);
+  }
 
+  catch (err) {
 
-        if (!response.ok) {
+    console.error(err);
 
-            throw new Error(
-                "HTTP " + response.status
-            );
+    document.getElementById("content").innerHTML =
+      "<h2>Erro ao carregar capítulo</h2>" +
+      "<p>" + page + "</p>" +
+      "<p>" + err.message + "</p>";
 
-        }
-
-
-        const html = await response.text();
-
-
-        const parser = new DOMParser();
-
-        const documentChapter =
-            parser.parseFromString(
-                html,
-                "text/html"
-            );
-
-
-        const chapterBody =
-            documentChapter.body;
-
-
-        if (!chapterBody) {
-
-            throw new Error(
-                "Body do capítulo não encontrado."
-            );
-
-        }
-
-
-        /*
-         * Corrige os caminhos das imagens.
-         *
-         * O capítulo continua usando:
-         *
-         * images/cap01/figure-01.jpg
-         *
-         * porque tudo está dentro de /br/.
-         */
-
-
-        const images =
-            chapterBody.querySelectorAll("img");
-
-
-        images.forEach(function (img) {
-
-            const src =
-                img.getAttribute("src");
-
-
-            if (!src) {
-                return;
-            }
-
-
-            /*
-             * Se for caminho relativo,
-             * transforma em caminho absoluto
-             * baseado no capítulo carregado.
-             */
-
-
-            const absoluteURL =
-                new URL(
-                    src,
-                    new URL(
-                        page,
-                        window.location.href
-                    )
-                );
-
-
-            img.setAttribute(
-                "src",
-                absoluteURL.href
-            );
-
-        });
-
-
-        /*
-         * Remove scripts do capítulo.
-         *
-         * O JavaScript do capítulo não deve
-         * ser executado dentro do index.
-         */
-
-
-        chapterBody
-            .querySelectorAll("script")
-            .forEach(function (script) {
-
-                script.remove();
-
-            });
-
-
-        /*
-         * Coloca o capítulo no centro.
-         */
-
-
-        content.innerHTML =
-            chapterBody.innerHTML;
-
-
-        console.log(
-            "Capítulo carregado:",
-            page
-        );
-
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Erro ao carregar capítulo:",
-            error
-        );
-
-
-        content.innerHTML = `
-
-            <h2>Erro ao carregar capítulo</h2>
-
-            <p>
-                Não foi possível carregar:
-                <strong>${page}</strong>
-            </p>
-
-            <p>
-                ${error.message}
-            </p>
-
-        `;
-
-    }
+  }
 
 }
 
