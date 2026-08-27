@@ -116,6 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+<script>
 async function loadChapter(page) {
   try {
     const res = await fetch(page);
@@ -123,18 +124,29 @@ async function loadChapter(page) {
 
     const html = await res.text();
 
-    const temp = document.createElement("div");
-    temp.innerHTML = html;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
 
-    const body = temp.querySelector("body");
-    const content = body ? body.innerHTML : temp.innerHTML;
+    const content = document.getElementById("content");
 
-    document.getElementById("content").innerHTML = content;
+    content.innerHTML = doc.body.innerHTML;
+
+    // Fix relative image paths based on the chapter location
+    const baseURL = new URL(page, window.location.href);
+
+    content.querySelectorAll("img").forEach(img => {
+      const src = img.getAttribute("src");
+
+      if (src) {
+        img.src = new URL(src, baseURL).href;
+      }
+    });
 
   } catch (err) {
     console.error(err);
+
     document.getElementById("content").innerHTML =
-      "<h2>Erro ao carregar capítulo</h2><p>" + page + "</p>";
+      "<h2>Error loading chapter</h2><p>" + page + "</p>";
   }
 }
 </script>
