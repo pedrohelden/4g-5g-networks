@@ -195,47 +195,43 @@ if ('serviceWorker' in navigator) {
 </div>
 
 
-
 <script>
+document.addEventListener("DOMContentLoaded", () => {
 
-document.addEventListener("DOMContentLoaded", function () {
+  document.querySelector(".sidebar").addEventListener("click", (e) => {
 
-    const sidebar = document.querySelector(".sidebar");
+    const link = e.target.closest("a[data-page]");
+    if (!link) return;
 
-    if (!sidebar) {
-        console.error("Sidebar não encontrada.");
-        return;
-    }
+    e.preventDefault();
 
+    const page = link.getAttribute("data-page");
 
-    sidebar.addEventListener("click", function (event) {
-
-        const link = event.target.closest("a[data-page]");
-
-        if (!link) {
-            return;
-        }
-
-
-        event.preventDefault();
-
-
-        const page = link.getAttribute("data-page");
-
-        console.log("Abrindo capítulo:", page);
-
-        loadChapter(page);
-
-    });
+    loadChapter(page);
+  });
 
 });
 
 
 async function loadChapter(page) {
 
+  const content = document.getElementById("content");
+
   try {
 
-    const res = await fetch(page);
+    content.innerHTML = `
+      <p style="text-align:center;">
+        Carregando capítulo...
+      </p>
+    `;
+
+    /*
+     * IMPORTANTE:
+     * Os capítulos estão dentro de /br/
+     */
+    const chapterURL = `${BASE}/${LANG}/${page}`;
+
+    const res = await fetch(chapterURL);
 
     if (!res.ok) {
       throw new Error("HTTP " + res.status);
@@ -249,48 +245,89 @@ async function loadChapter(page) {
     const body = temp.querySelector("body");
 
     if (!body) {
-      throw new Error("Body não encontrado");
+      throw new Error("Não foi possível encontrar o <body> do capítulo.");
     }
 
+    /*
+     * Corrige os caminhos das imagens.
+     *
+     * Exemplo:
+     *
+     * images/cap01/figure-01.jpg
+     *
+     * vira:
+     *
+     * /seguranca-redes-moveis-1ed/br/images/cap01/figure-01.jpg
+     */
 
-    // Corrige imagens
     body.querySelectorAll("img").forEach(img => {
 
       const src = img.getAttribute("src");
 
       if (!src) return;
 
+      /*
+       * Não mexer em URLs externas,
+       * data URLs ou caminhos absolutos.
+       */
       if (
         src.startsWith("http://") ||
         src.startsWith("https://") ||
+        src.startsWith("//") ||
+        src.startsWith("/") ||
         src.startsWith("data:")
       ) {
         return;
       }
 
-      img.src = BASE + "/" + LANG + "/" + src;
+      /*
+       * Converte o caminho relativo do capítulo
+       * para um caminho absoluto dentro de /br/
+       */
+      img.setAttribute(
+        "src",
+        `${BASE}/${LANG}/${src}`
+      );
 
     });
 
 
-    document.getElementById("content").innerHTML =
-      body.innerHTML;
+    /*
+     * Insere o capítulo na área central.
+     */
+    content.innerHTML = body.innerHTML;
 
-  }
 
-  catch (err) {
+    /*
+     * Debug:
+     * mostra no console exatamente quais imagens
+     * o navegador está tentando carregar.
+     */
+    content.querySelectorAll("img").forEach(img => {
+      console.log("Imagem:", img.src);
+    });
 
-    console.error(err);
 
-    document.getElementById("content").innerHTML =
-      "<h2>Erro ao carregar capítulo</h2>" +
-      "<p>" + page + "</p>" +
-      "<p>" + err.message + "</p>";
+  } catch (err) {
+
+    console.error("Erro ao carregar capítulo:", err);
+
+    content.innerHTML = `
+      <h2>Erro ao carregar capítulo</h2>
+
+      <p>
+        Não foi possível carregar:
+        <strong>${page}</strong>
+      </p>
+
+      <p>
+        Erro: ${err.message}
+      </p>
+    `;
 
   }
 
 }
-
 </script>
 
 
