@@ -189,52 +189,132 @@
 
 </div>
 
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    document.querySelectorAll(".sidebar a[data-page]").forEach(function (link) {
+    document.querySelector(".sidebar").addEventListener("click", function (e) {
 
-        link.addEventListener("click", async function (e) {
+        const link = e.target.closest("a[data-page]");
 
-            e.preventDefault();
+        if (!link) return;
 
-            const page = this.getAttribute("data-page");
-            const content = document.getElementById("content");
+        e.preventDefault();
 
-            content.innerHTML = "<p>Carregando...</p>";
-
-            try {
-
-                const response = await fetch(page);
-
-                if (!response.ok) {
-                    throw new Error("HTTP " + response.status);
-                }
-
-                const html = await response.text();
-
-                const doc = new DOMParser().parseFromString(
-                    html,
-                    "text/html"
-                );
-
-                content.innerHTML = doc.body.innerHTML;
-
-            } catch (error) {
-
-                console.error(error);
-
-                content.innerHTML =
-                    "<h2>Erro ao carregar capítulo</h2>" +
-                    "<p>" + error.message + "</p>";
-            }
-
-        });
-
+        loadChapter(link.getAttribute("data-page"));
     });
 
 });
+
+
+async function loadChapter(page) {
+
+    const content = document.getElementById("content");
+
+    try {
+
+        content.innerHTML = "<p>Carregando capítulo...</p>";
+
+        /*
+         * Monta a URL real do capítulo.
+         *
+         * Se estamos em:
+         * /seguranca-redes-moveis-1ed/br/index.html
+         *
+         * e page = cap01.html
+         *
+         * resulta em:
+         * /seguranca-redes-moveis-1ed/br/cap01.html
+         */
+        const chapterURL = new URL(page, window.location.href);
+
+        console.log("Capítulo:", chapterURL.href);
+
+
+        /*
+         * Carrega o capítulo.
+         */
+        const response = await fetch(chapterURL.href);
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        const html = await response.text();
+
+
+        /*
+         * Converte o HTML em documento.
+         */
+        const parser = new DOMParser();
+
+        const doc = parser.parseFromString(
+            html,
+            "text/html"
+        );
+
+
+        /*
+         * CORREÇÃO PRINCIPAL
+         *
+         * Resolve cada imagem em relação à URL
+         * original do capítulo.
+         *
+         * Exemplo:
+         *
+         * images/cap01/figure-01.jpg
+         *
+         * vira:
+         *
+         * https://pedrohelden.github.io/
+         * seguranca-redes-moveis-1ed/br/images/cap01/figure-01.jpg
+         */
+        doc.querySelectorAll("img").forEach(function (img) {
+
+            const src = img.getAttribute("src");
+
+            if (!src) return;
+
+            /*
+             * Não mexe em imagens externas ou data URI.
+             */
+            if (
+                src.startsWith("http://") ||
+                src.startsWith("https://") ||
+                src.startsWith("//") ||
+                src.startsWith("data:")
+            ) {
+                return;
+            }
+
+            const absoluteURL = new URL(src, chapterURL).href;
+
+            img.setAttribute("src", absoluteURL);
+
+            console.log("Imagem:", absoluteURL);
+        });
+
+
+        /*
+         * Insere o conteúdo do capítulo.
+         */
+        content.innerHTML = doc.body.innerHTML;
+
+
+    } catch (error) {
+
+        console.error("Erro:", error);
+
+        content.innerHTML =
+            "<h2>Erro ao carregar capítulo</h2>" +
+            "<p>Não foi possível carregar: <strong>" +
+            page +
+            "</strong></p>" +
+            "<p>Erro: " +
+            error.message +
+            "</p>";
+    }
+
+}
 </script>
 
 </body>
