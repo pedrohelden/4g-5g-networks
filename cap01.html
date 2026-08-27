@@ -1,1713 +1,1767 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chapter 1 - Mobile Networks Fundamentals and End-to-End Architecture</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Chapter 1 - Fundamentals of Mobile Networks and End-to-End Architecture</title>
+
 <style>
-  body {background-color: #1e2a38;color: #cbd5e1;margin: 40px;line-height: 1.7;font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;}
-  h1, h2, h3 {color: #60a5fa;}
-  table {border-collapse: collapse;width: 100%;max-width: 900px;margin: 20px 0;background: #293845;}
-  th, td {border: 1px solid #3e4f65;padding: 10px;}
-  th {background: #3b82f6;color: white;}
-  pre {background: #2d3b4e;padding: 10px;overflow-x: auto;}
-  ul, ol {max-width: 900px;}
-  p {max-width: 900px;}
+body {
+    background-color: #1e2a38;
+    color: #cbd5e1;
+    margin: 40px;
+    line-height: 1.7;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1, h2, h3, h4 {
+    color: #60a5fa;
+}
+
+h2 {
+    margin-top: 50px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #3e4f65;
+}
+
+h3 {
+    margin-top: 35px;
+}
+
+h4 {
+    margin-top: 25px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 900px;
+    margin: 20px 0;
+    background: #293845;
+}
+
+th, td {
+    border: 1px solid #3e4f65;
+    padding: 10px;
+}
+
+th {
+    background: #3b82f6;
+    color: white;
+}
+
+pre {
+    background: #2d3b4e;
+    padding: 15px;
+    overflow-x: auto;
+    max-width: 900px;
+    border-radius: 6px;
+}
+
+ul, ol {
+    max-width: 900px;
+}
+
+p {
+    max-width: 900px;
+}
+
+blockquote {
+    max-width: 850px;
+    margin: 25px 0;
+    padding: 10px 20px;
+    border-left: 4px solid #60a5fa;
+    background: #293845;
+}
 </style>
 </head>
+
+<body>
+
 <article class="chapter">
-  <header>
-      <h1>Chapter 1: Fundamentals of Mobile Networks and End-to-End Architecture</h1>
-  
-      <p>
-          Modern mobile networks are large distributed systems in which radio access,
-          IP networking, transport infrastructure, core network functions, cloud
-          platforms, and external data networks must operate as a single end-to-end
-          service. Understanding how these domains interact is essential for network
-          engineering, troubleshooting, performance analysis, deployment, and security.
-      </p>
-  
-      <p>
-          This chapter establishes the architectural and networking foundation used
-          throughout this book. The objective is not simply to describe the components
-          of a mobile network, but to develop an end-to-end understanding of how a
-          subscriber device establishes connectivity, how signaling and user traffic
-          traverse the network, and how an engineer can isolate failures across
-          multiple technological domains.
-      </p>
-  </header>
-  
-  
-  <section id="introduction">
-      <h2>1.1 Introduction to Mobile Network Architecture</h2>
-  
-      <p>
-          A mobile network can be understood as a distributed communication system
-          connecting user equipment to services through several logical and physical
-          domains. Although the technologies used by operators have changed
-          considerably from 2G to 5G, the fundamental engineering problem remains
-          similar: provide reliable connectivity between a subscriber and a
-          destination while simultaneously handling authentication, mobility,
-          addressing, policy, quality of service, charging, and security.
-      </p>
-  
-      <p>
-          A simplified end-to-end path can be represented as:
-      </p>
-  
-      <pre><code>UE
-  ```
-  
-  |
-  | Radio Access
-  v
-  RAN
-  |
-  | Transport Network
-  v
-  Mobile Core
-  |
-  | IP / Data Network
-  v
-  Internet / Enterprise Network / IMS / Application </code></pre>
-  
-  ```
-      <p>
-          Each domain has different technologies, protocols, operational procedures,
-          and failure modes. A radio problem may appear to the user as a complete
-          loss of connectivity, while the actual cause may be located in the IP
-          transport network, a core network function, a routing table, a GTP tunnel,
-          a DNS service, or an external application.
-      </p>
-  
-      <p>
-          For this reason, senior network engineers must avoid treating mobile
-          connectivity as a single technology. Effective troubleshooting requires
-          understanding the relationships between radio access, signaling, transport,
-          routing, packet forwarding, and service delivery.
-      </p>
-  </section>
-  
-  
-  <section id="network-evolution">
-      <h2>1.2 Evolution from 2G to 5G</h2>
-  
-      <p>
-          Mobile networks have evolved through several generations, with each
-          generation introducing new radio technologies, architectures, services,
-          and packet-processing models.
-      </p>
-  
-      <h3>1.2.1 2G</h3>
-  
-      <p>
-          Second-generation systems introduced digital cellular communication at
-          large scale. GSM became one of the most widely deployed 2G technologies.
-          The architecture separated the radio access network from the core network,
-          with dedicated functions for mobility management, authentication,
-          subscriber databases, and circuit-switched services.
-      </p>
-  
-      <p>
-          Packet-switched data was later introduced through GPRS and EDGE. This was
-          an important architectural transition because mobile networks began
-          transporting IP traffic in addition to traditional circuit-switched
-          voice services.
-      </p>
-  
-      <p>
-          From a networking perspective, the introduction of packet-switched data
-          established concepts that would become increasingly important in later
-          generations: tunneling, packet gateways, subscriber addressing, mobility
-          management, and packet-based charging.
-      </p>
-  
-  
-      <h3>1.2.2 3G</h3>
-  
-      <p>
-          Third-generation systems increased data capacity and introduced more
-          sophisticated packet services. UMTS, based on the 3GPP architecture,
-          separated radio access functions from the packet and circuit-switched
-          core.
-      </p>
-  
-      <p>
-          The evolution of 3G packet services continued the transition toward
-          IP-based mobile connectivity. Packet gateways provided access to external
-          packet networks while mobility management and subscriber databases
-          continued to coordinate authentication and session establishment.
-      </p>
-  
-  
-      <h3>1.2.3 4G LTE</h3>
-  
-      <p>
-          LTE represented a major architectural change. The radio access network
-          became the Evolved Universal Terrestrial Radio Access Network (E-UTRAN),
-          while the core evolved into the Evolved Packet Core (EPC).
-      </p>
-  
-      <p>
-          LTE adopted an almost entirely packet-based architecture. The traditional
-          circuit-switched architecture was no longer part of the LTE packet core.
-          Voice services could instead be delivered through IMS and VoLTE.
-      </p>
-  
-      <p>
-          The EPC introduced several functions that remain fundamental to mobile
-          networking:
-      </p>
-  
-      <ul>
-          <li>MME for control-plane mobility and session management.</li>
-          <li>SGW for user-plane mobility anchoring and packet forwarding.</li>
-          <li>PGW for connectivity toward external packet networks.</li>
-          <li>HSS for subscriber information and authentication-related data.</li>
-          <li>PCRF for policy and charging control.</li>
-      </ul>
-  
-      <p>
-          LTE also standardized extensive use of IP transport and tunneling. GTP
-          became a fundamental protocol for carrying subscriber traffic through
-          the packet core, while SCTP became important for signaling transport
-          between several network elements.
-      </p>
-  
-  
-      <h3>1.2.4 5G</h3>
-  
-      <p>
-          5G introduced another major architectural evolution. The 5G Core (5GC)
-          was designed around a Service-Based Architecture (SBA), allowing network
-          functions to expose services to other network functions through
-          standardized service interfaces.
-      </p>
-  
-      <p>
-          Important 5G Core functions include:
-      </p>
-  
-      <ul>
-          <li>AMF — Access and Mobility Management Function.</li>
-          <li>SMF — Session Management Function.</li>
-          <li>UPF — User Plane Function.</li>
-          <li>PCF — Policy Control Function.</li>
-          <li>UDM — Unified Data Management.</li>
-          <li>AUSF — Authentication Server Function.</li>
-          <li>NRF — Network Repository Function.</li>
-          <li>NSSF — Network Slice Selection Function.</li>
-          <li>NEF — Network Exposure Function.</li>
-          <li>UDR — Unified Data Repository.</li>
-      </ul>
-  
-      <p>
-          5G also introduced a stronger separation between control-plane logic and
-          user-plane packet forwarding, while enabling distributed deployment of
-          network functions closer to subscribers and applications.
-      </p>
-  
-      <p>
-          These changes make 5G significantly more software-oriented than previous
-          generations. Network functions may be implemented as virtualized network
-          functions or cloud-native network functions and deployed on general-purpose
-          compute infrastructure.
-      </p>
-  </section>
-  
-  
-  <section id="network-domains">
-      <h2>1.3 The Major Domains of a Mobile Network</h2>
-  
-      <p>
-          A practical mobile network can be divided into several domains. The exact
-          physical implementation differs between operators, vendors, and deployment
-          models, but the logical separation remains useful for engineering and
-          troubleshooting.
-      </p>
-  
-      <h3>1.3.1 User Equipment</h3>
-  
-      <p>
-          User Equipment (UE) represents the subscriber's device. This may be a
-          smartphone, modem, router, industrial device, vehicle, IoT device, or
-          another cellular endpoint.
-      </p>
-  
-      <p>
-          The UE participates in radio signaling with the RAN and establishes
-          connectivity through the mobile core. From an IP perspective, the device
-          eventually receives one or more IP addresses associated with its data
-          connectivity.
-      </p>
-  
-  
-      <h3>1.3.2 Radio Access Network</h3>
-  
-      <p>
-          The Radio Access Network (RAN) provides the radio interface between the UE
-          and the operator's network.
-      </p>
-  
-      <p>
-          In LTE, the primary radio access element is the eNodeB. In 5G NR, the
-          corresponding radio access element is the gNodeB.
-      </p>
-  
-      <p>
-          The RAN is responsible for radio-related functions such as scheduling,
-          radio resource management, mobility procedures, and communication with
-          the core network.
-      </p>
-  
-      <p>
-          Although the RAN is often viewed primarily as a radio domain, it is also
-          deeply connected to IP networking because traffic between RAN and core
-          functions is transported through IP-based infrastructure.
-      </p>
-  
-  
-      <h3>1.3.3 Transport Network</h3>
-  
-      <p>
-          The transport network provides connectivity between distributed network
-          elements. It may include Ethernet, IP routing, optical transport,
-          aggregation networks, routers, switches, and other infrastructure.
-      </p>
-  
-      <p>
-          Transport networks are especially important because failures in this
-          domain can affect multiple mobile services simultaneously.
-      </p>
-  
-      <p>
-          Typical transport-network functions include:
-      </p>
-  
-      <ul>
-          <li>Layer 2 connectivity.</li>
-          <li>Layer 3 routing.</li>
-          <li>Traffic engineering.</li>
-          <li>Redundancy and path protection.</li>
-          <li>Quality of Service.</li>
-          <li>Network synchronization.</li>
-          <li>Connectivity between geographically distributed sites.</li>
-      </ul>
-  
-  
-      <h3>1.3.4 Mobile Core</h3>
-  
-      <p>
-          The mobile core provides centralized or distributed control and connectivity
-          functions for subscribers.
-      </p>
-  
-      <p>
-          The core is responsible for functions such as authentication, mobility
-          management, session management, policy enforcement, packet forwarding,
-          subscriber data, and connectivity to external networks.
-      </p>
-  
-  
-      <h3>1.3.5 External Networks</h3>
-  
-      <p>
-          Mobile networks rarely terminate subscriber traffic internally. The
-          subscriber may access the public Internet, enterprise networks, private
-          applications, operator services, IMS, or other interconnected networks.
-      </p>
-  
-      <p>
-          The boundary between the mobile core and external networks is therefore
-          another important troubleshooting domain.
-      </p>
-  </section>
-  
-  
-  <section id="architecture">
-      <h2>1.4 High-Level 4G and 5G Architectures</h2>
-  
-      <h3>1.4.1 4G LTE Architecture</h3>
-  
-      <pre><code>                    +----------------+
-                  |      HSS       |
-                  +--------+-------+
-                           |
-                       Diameter
-                           |
-  ```
-  
-  +------+       S1        +---+---+
-  |  UE  | <-------------> |  MME  |
-  +--+---+                  +---+---+
-  |                          |
-  | LTE                      |
-  v                          |
-  +------+                  +---+---+
-  |eNodeB|------------------|  SGW  |
-  +------+      S1-U        +---+---+
-  |
-  | S5/S8
-  v
-  +----+----+
-  |   PGW   |
-  +----+----+
-  |
-  | SGi
-  v
-  External Network </code></pre>
-  
-  ```
-      <p>
-          This simplified architecture separates signaling from subscriber traffic.
-          The MME participates in control-plane procedures, while the SGW and PGW
-          participate in user-plane packet forwarding.
-      </p>
-  
-      <p>
-          The exact architecture becomes more complex when roaming, IMS, policy
-          control, charging, redundancy, and additional network functions are
-          considered. These topics are examined in greater depth in later chapters.
-      </p>
-  
-  
-      <h3>1.4.2 5G Standalone Architecture</h3>
-  
-      <pre><code>                         +-------+
-                       |  UDM  |
-                       +---+---+
-                           |
-                       +---+---+
-                       | AUSF  |
-                       +---+---+
-  
-                       +-------+
-                       |  NRF  |
-                       +---+---+
-                           |
-                           |
-  ```
-  
-  +------+       +---------+   |   +---------+
-  |  UE  | <---> |   gNB   |---+---|   AMF   |
-  +------+  NR   +----+----+       +----+----+
-  |                  |
-  | N3               | N11
-  |                  |
-  v                  v
-  +-------------------------+
-  |           UPF           |
-  +------------+------------+
-  |
-  | N6
-  v
-  Data Network </code></pre>
-  
-  ```
-      <p>
-          In 5G Standalone, the gNB connects directly to the 5G Core. The AMF handles
-          access and mobility management, while the SMF controls session establishment
-          and the UPF forwards user-plane traffic.
-      </p>
-  
-      <p>
-          The architecture also introduces a larger number of specialized network
-          functions communicating through service-based interfaces.
-      </p>
-  </section>
-  
-  
-  <section id="control-user-plane">
-      <h2>1.5 Control Plane and User Plane</h2>
-  
-      <p>
-          One of the most important concepts in mobile network engineering is the
-          distinction between the control plane and the user plane.
-      </p>
-  
-      <h3>1.5.1 Control Plane</h3>
-  
-      <p>
-          The control plane is responsible for signaling and decision-making.
-          Control-plane procedures establish the state required for communication
-          rather than carrying the subscriber's application payload itself.
-      </p>
-  
-      <p>
-          Examples include:
-      </p>
-  
-      <ul>
-          <li>Authentication.</li>
-          <li>Registration and attach procedures.</li>
-          <li>Mobility management.</li>
-          <li>Session establishment.</li>
-          <li>Bearer establishment.</li>
-          <li>Policy decisions.</li>
-          <li>Network-function discovery.</li>
-          <li>Subscriber authorization.</li>
-      </ul>
-  
-      <p>
-          A control-plane failure can prevent a subscriber from obtaining service
-          even when the physical and IP connectivity between network elements is
-          completely operational.
-      </p>
-  
-  
-      <h3>1.5.2 User Plane</h3>
-  
-      <p>
-          The user plane carries subscriber traffic. Examples include web browsing,
-          video streaming, application traffic, voice media, VPN traffic, and other
-          IP payloads.
-      </p>
-  
-      <p>
-          In LTE and 5G, GTP-U is commonly used to encapsulate subscriber packets
-          across the mobile transport network.
-      </p>
-  
-      <p>
-          User-plane traffic can therefore continue to fail even when all control
-          procedures have completed successfully. For example, a subscriber may
-          successfully register and establish a PDU session while packets are
-          dropped because of a routing error, incorrect GTP tunnel state, MTU
-          problems, firewall policies, or an unavailable external network.
-      </p>
-  
-  
-      <h3>1.5.3 Why the Distinction Matters</h3>
-  
-      <p>
-          A useful troubleshooting question is:
-      </p>
-  
-      <blockquote>
-          <p>
-              Is the failure preventing the network from establishing the required
-              state, or is the established state unable to forward traffic?
-          </p>
-      </blockquote>
-  
-      <p>
-          The first situation usually indicates a control-plane problem. The second
-          usually indicates a user-plane or data-path problem.
-      </p>
-  
-      <p>
-          This distinction dramatically reduces the troubleshooting search space.
-      </p>
-  </section>
-  
-  
-  <section id="layering">
-      <h2>1.6 Layered Networking in Mobile Systems</h2>
-  
-      <p>
-          Mobile networks use multiple protocol layers simultaneously. An engineer
-          must understand both traditional networking layers and telecom-specific
-          protocols.
-      </p>
-  
-      <p>
-          A simplified stack for an IP-based mobile network can be represented as:
-      </p>
-  
-      <pre><code>Application
-  |
-  ```
-  
-  Transport
-  |
-  IP
-  |
-  Ethernet
-  |
-  Physical Network </code></pre>
-  
-  ```
-      <p>
-          Mobile networking adds additional protocol layers and tunneling mechanisms.
-          For example, subscriber IP packets can be encapsulated in GTP-U and then
-          transported using UDP over an IP network.
-      </p>
-  
-      <pre><code>Subscriber IP Packet
-      |
-      v
-   GTP-U
-      |
-      v
-     UDP
-      |
-      v
-      IP
-      |
-      v
-  Ethernet
-  ```
-  
-  </code></pre>
-  
-  ```
-      <p>
-          This means that a packet capture may contain multiple logical layers that
-          must be interpreted together.
-      </p>
-  
-      <p>
-          A senior engineer should therefore be comfortable moving between packet
-          layers rather than analyzing each protocol in isolation.
-      </p>
-  </section>
-  
-  
-  <section id="ethernet">
-      <h2>1.7 Ethernet and Layer 2 Fundamentals</h2>
-  
-      <p>
-          Although mobile networks are commonly discussed in terms of 4G and 5G
-          protocols, Ethernet remains one of the fundamental technologies underneath
-          the IP transport infrastructure.
-      </p>
-  
-      <h3>1.7.1 MAC Addresses</h3>
-  
-      <p>
-          Ethernet uses MAC addresses to identify interfaces within a Layer 2
-          broadcast domain.
-      </p>
-  
-      <p>
-          Switches use MAC address tables to determine where Ethernet frames should
-          be forwarded. Incorrect or missing MAC learning can result in connectivity
-          problems even when Layer 3 configuration appears correct.
-      </p>
-  
-  
-      <h3>1.7.2 VLANs</h3>
-  
-      <p>
-          VLANs provide logical Layer 2 segmentation. Operators can use VLANs to
-          separate different traffic categories or network functions.
-      </p>
-  
-      <p>
-          Examples may include separate logical networks for:
-      </p>
-  
-      <ul>
-          <li>Management traffic.</li>
-          <li>Control-plane traffic.</li>
-          <li>User-plane traffic.</li>
-          <li>Synchronization.</li>
-          <li>Operations and maintenance.</li>
-      </ul>
-  
-      <p>
-          The exact segmentation model depends on the operator architecture.
-          Incorrect VLAN configuration can cause failures that appear at higher
-          layers as routing or application problems.
-      </p>
-  
-  
-      <h3>1.7.3 MTU</h3>
-  
-      <p>
-          Maximum Transmission Unit (MTU) defines the largest IP packet that can
-          normally be transmitted without fragmentation on a given Layer 3 interface.
-      </p>
-  
-      <p>
-          Mobile networks frequently use encapsulation and tunneling. Every additional
-          encapsulation header consumes part of the available packet size.
-      </p>
-  
-      <p>
-          Consequently, MTU mismatches can produce subtle failures in which small
-          packets work correctly while larger packets are lost.
-      </p>
-  
-      <p>
-          This is particularly important when troubleshooting GTP tunnels, VPNs,
-          IPv6 traffic, and cloud-native network environments.
-      </p>
-  </section>
-  
-  
-  <section id="ip">
-      <h2>1.8 IPv4 and IPv6 in Mobile Networks</h2>
-  
-      <h3>1.8.1 IPv4</h3>
-  
-      <p>
-          IPv4 remains widely deployed in mobile networks. Subscriber addresses may
-          be assigned dynamically and may be private addresses translated through
-          Carrier-Grade NAT before reaching the public Internet.
-      </p>
-  
-      <p>
-          Network engineers must understand subnetting, routing, default gateways,
-          address pools, and address translation when investigating subscriber
-          connectivity.
-      </p>
-  
-  
-      <h3>1.8.2 IPv6</h3>
-  
-      <p>
-          IPv6 provides a significantly larger address space and is increasingly
-          relevant to mobile networks.
-      </p>
-  
-      <p>
-          IPv6 introduces concepts such as Neighbor Discovery, Router Advertisements,
-          IPv6 prefixes, and link-local addresses. Troubleshooting IPv6 therefore
-          requires knowledge beyond traditional IPv4 ARP-based analysis.
-      </p>
-  
-  
-      <h3>1.8.3 Dual-Stack Deployments</h3>
-  
-      <p>
-          Many environments support both IPv4 and IPv6. Dual-stack operation creates
-          additional troubleshooting dimensions because an application may prefer one
-          protocol family while the underlying network behaves differently for the
-          other.
-      </p>
-  
-      <p>
-          A useful troubleshooting approach is to explicitly determine:
-      </p>
-  
-      <ul>
-          <li>Which address family the subscriber received.</li>
-          <li>Which address family the application is using.</li>
-          <li>Whether DNS returned IPv4 and IPv6 records.</li>
-          <li>Whether routing exists for the selected address family.</li>
-          <li>Whether security policies allow both protocols.</li>
-      </ul>
-  </section>
-  
-  
-  <section id="transport-protocols">
-      <h2>1.9 Transport Protocols: TCP, UDP and SCTP</h2>
-  
-      <h3>1.9.1 TCP</h3>
-  
-      <p>
-          Transmission Control Protocol provides reliable, connection-oriented
-          transport. TCP uses sequencing, acknowledgements, retransmission, and
-          congestion control.
-      </p>
-  
-      <p>
-          TCP is widely used by applications and by several network-control
-          technologies. In 5G Service-Based Architecture, HTTP/2-based communication
-          operates over TCP.
-      </p>
-  
-  
-      <h3>1.9.2 UDP</h3>
-  
-      <p>
-          User Datagram Protocol provides connectionless transport with minimal
-          overhead. It does not itself provide reliable delivery, sequencing, or
-          retransmission.
-      </p>
-  
-      <p>
-          UDP is particularly important in mobile user-plane networking because
-          GTP-U uses UDP as its transport protocol.
-      </p>
-  
-  
-      <h3>1.9.3 SCTP</h3>
-  
-      <p>
-          Stream Control Transmission Protocol provides message-oriented transport
-          with features designed for signaling applications.
-      </p>
-  
-      <p>
-          SCTP is particularly important in 4G networks, where S1AP signaling
-          between eNodeBs and MMEs is transported using SCTP over IP.
-      </p>
-  
-      <p>
-          From a troubleshooting perspective, this means that a failure in SCTP
-          association establishment can prevent higher-level mobile signaling from
-          operating even though basic IP connectivity exists.
-      </p>
-  
-      <p>
-          The engineer should therefore distinguish between:
-      </p>
-  
-      <pre><code>Physical connectivity
-      |
-  ```
-  
-  Ethernet connectivity
-  |
-  IP connectivity
-  |
-  SCTP association
-  |
-  Application signaling </code></pre> </section>
-  
-  ```
-  <section id="dns">
-      <h2>1.10 DNS in Mobile Networks</h2>
-  
-      <p>
-          Domain Name System (DNS) translates domain names into IP addresses and is
-          essential to modern service delivery.
-      </p>
-  
-      <p>
-          DNS can be involved in several different parts of a mobile environment.
-          Subscriber traffic may require DNS resolution when applications access
-          Internet services, while network functions themselves may rely on DNS or
-          service discovery mechanisms depending on the deployment architecture.
-      </p>
-  
-      <p>
-          A subscriber may therefore have a valid IP address and a working packet
-          path while applications still fail because DNS resolution is unavailable.
-      </p>
-  
-      <p>
-          When troubleshooting DNS-related problems, the engineer should separate
-          name resolution from packet forwarding.
-      </p>
-  
-      <pre><code>Application
-  |
-  ```
-  
-  DNS Resolution
-  |
-  Destination IP
-  |
-  Routing
-  |
-  Packet Forwarding </code></pre>
-  
-  ```
-      <p>
-          If DNS resolution fails, testing the destination by IP address can help
-          determine whether the underlying IP path is functional.
-      </p>
-  </section>
-  
-  
-  <section id="routing">
-      <h2>1.11 IP Routing Fundamentals</h2>
-  
-      <p>
-          Routing determines how packets move between different IP networks.
-          Mobile networks depend heavily on routing because RAN sites, core network
-          functions, data centers, cloud platforms, and external networks are
-          usually distributed across multiple IP subnets.
-      </p>
-  
-      <h3>1.11.1 Routing Table</h3>
-  
-      <p>
-          A router makes forwarding decisions based on its routing table. The
-          destination IP address of a packet is compared against available prefixes,
-          and the most specific matching route is normally selected.
-      </p>
-  
-      <p>
-          A routing problem can therefore occur even when all interfaces are up.
-          An interface being operational does not guarantee that the correct route
-          exists toward the destination.
-      </p>
-  
-  
-      <h3>1.11.2 Static Routing</h3>
-  
-      <p>
-          Static routes are manually configured and are useful in simple or
-          controlled environments. They can also be used for specific traffic paths,
-          default routes, or fallback scenarios.
-      </p>
-  
-      <p>
-          However, static routing becomes difficult to manage at large scale because
-          topology changes must be handled manually.
-      </p>
-  
-  
-      <h3>1.11.3 Dynamic Routing</h3>
-  
-      <p>
-          Dynamic routing protocols allow routers to exchange reachability
-          information and automatically adapt to topology changes.
-      </p>
-  
-      <p>
-          Protocols such as OSPF, IS-IS, and BGP are widely used in service-provider
-          and data-center environments. Their detailed operation is covered later
-          in this book.
-      </p>
-  
-      <p>
-          At this stage, the most important concept is that mobile traffic depends
-          on the underlying IP network having valid and converged routes between
-          network functions.
-      </p>
-  </section>
-  
-  
-  <section id="gtp">
-      <h2>1.12 GTP and Mobile Traffic Tunneling</h2>
-  
-      <p>
-          Mobile networks require a mechanism to maintain subscriber-specific traffic
-          paths while the subscriber moves through the radio network and while the
-          packet core remains distributed.
-      </p>
-  
-      <p>
-          GPRS Tunneling Protocol (GTP) provides this capability in several mobile
-          architectures.
-      </p>
-  
-      <h3>1.12.1 GTP Control Plane</h3>
-  
-      <p>
-          GTP-C is used for control-plane procedures associated with tunnels and
-          subscriber sessions.
-      </p>
-  
-      <p>
-          In LTE, GTP-C participates in procedures between EPC network functions.
-          These procedures create and modify the state required for subscriber
-          traffic forwarding.
-      </p>
-  
-  
-      <h3>1.12.2 GTP User Plane</h3>
-  
-      <p>
-          GTP-U encapsulates subscriber IP packets inside GTP tunnels.
-      </p>
-  
-      <pre><code>Original Subscriber Packet
-      |
-      v
-  ```
-  
-  +-------------------------+
-  |        GTP-U            |
-  +-------------------------+
-  |          UDP            |
-  +-------------------------+
-  |           IP            |
-  +-------------------------+
-  |        Ethernet         |
-  +-------------------------+ </code></pre>
-  
-  ```
-      <p>
-          The outer IP addresses identify the transport endpoints, while the GTP
-          tunnel identifies the logical subscriber traffic path.
-      </p>
-  
-      <p>
-          This distinction is fundamental during packet analysis. An engineer may
-          see a packet traveling between two core-network IP addresses while the
-          actual payload belongs to a subscriber communicating with a completely
-          different destination.
-      </p>
-  
-      <p>
-          GTP-U analysis therefore requires understanding both the outer transport
-          network and the encapsulated subscriber packet.
-      </p>
-  </section>
-  
-  
-  <section id="interfaces">
-      <h2>1.13 Mobile Network Interfaces</h2>
-  
-      <p>
-          Mobile architectures define standardized logical interfaces between
-          network functions. Understanding these interfaces allows an engineer to
-          identify where signaling or traffic should be observed.
-      </p>
-  
-      <h3>1.13.1 Important LTE Interfaces</h3>
-  
-      <ul>
-          <li>S1-MME — control-plane signaling between eNodeB and MME.</li>
-          <li>S1-U — user-plane traffic between eNodeB and SGW.</li>
-          <li>S5/S8 — connectivity between SGW and PGW.</li>
-          <li>S11 — signaling between MME and SGW.</li>
-          <li>SGi — connectivity between PGW and external packet networks.</li>
-          <li>S6a — Diameter-based signaling between MME and HSS.</li>
-      </ul>
-  
-      <p>
-          These interfaces provide a logical map for LTE troubleshooting. If an
-          attach procedure fails, the engineer can determine which signaling
-          interface should contain the relevant transaction.
-      </p>
-  
-  
-      <h3>1.13.2 Important 5G Interfaces</h3>
-  
-      <ul>
-          <li>N1 — signaling between UE and AMF.</li>
-          <li>N2 — control-plane signaling between gNB and AMF.</li>
-          <li>N3 — user-plane traffic between gNB and UPF.</li>
-          <li>N4 — control interface between SMF and UPF.</li>
-          <li>N6 — connection between UPF and the external data network.</li>
-          <li>N11 — interface between AMF and SMF.</li>
-      </ul>
-  
-      <p>
-          The 5G architecture also contains numerous service-based interfaces between
-          network functions. These are discussed in detail in the chapters dedicated
-          to 5G Core and Service-Based Architecture.
-      </p>
-  </section>
-  
-  
-  <section id="end-to-end-flow">
-      <h2>1.14 End-to-End Subscriber Connectivity</h2>
-  
-      <p>
-          The most useful way to understand a mobile network is to follow a
-          subscriber transaction from beginning to end.
-      </p>
-  
-      <p>
-          Consider a subscriber attempting to access an Internet application.
-          Several distinct stages are involved.
-      </p>
-  
-      <h3>1.14.1 Radio Connectivity</h3>
-  
-      <p>
-          The UE establishes radio connectivity with the serving cell. The RAN
-          exchanges signaling with the core network to initiate registration,
-          authentication, mobility management, and session procedures.
-      </p>
-  
-  
-      <h3>1.14.2 Authentication and Registration</h3>
-  
-      <p>
-          The mobile core validates the subscriber identity and establishes the
-          necessary security and mobility state.
-      </p>
-  
-      <p>
-          A failure at this stage prevents the subscriber from reaching subsequent
-          session-establishment procedures.
-      </p>
-  
-  
-      <h3>1.14.3 Session Establishment</h3>
-  
-      <p>
-          The network establishes the resources required for user-plane connectivity.
-          In LTE this involves bearer establishment. In 5G Standalone, the
-          corresponding concept is the PDU Session.
-      </p>
-  
-  
-      <h3>1.14.4 IP Address Assignment</h3>
-  
-      <p>
-          The subscriber receives an IP address or prefix according to the deployed
-          architecture and requested connectivity.
-      </p>
-  
-  
-      <h3>1.14.5 User-Plane Establishment</h3>
-  
-      <p>
-          The network establishes the user-plane path through the relevant packet
-          forwarding functions.
-      </p>
-  
-      <p>
-          In a simplified 5G path:
-      </p>
-  
-      <pre><code>UE
-  ```
-  
-  |
-  | Radio
-  v
-  gNB
-  |
-  | N3 / GTP-U
-  v
-  UPF
-  |
-  | N6
-  v
-  Data Network
-  |
-  v
-  Internet / Application </code></pre>
-  
-  ```
-      <h3>1.14.6 Application Connectivity</h3>
-  
-      <p>
-          Once the IP path is operational, the application can establish its own
-          transport and application sessions.
-      </p>
-  
-      <p>
-          At this point, the mobile network has successfully transformed a radio
-          subscriber into an IP endpoint capable of communicating with external
-          services.
-      </p>
-  </section>
-  
-  
-  <section id="failure-domains">
-      <h2>1.15 Failure Domains</h2>
-  
-      <p>
-          A major advantage of the end-to-end model is that it allows failures to
-          be divided into logical domains.
-      </p>
-  
-      <h3>1.15.1 Radio Failure</h3>
-  
-      <p>
-          The UE may fail to establish or maintain radio connectivity because of
-          coverage, interference, configuration, mobility, or radio-resource
-          problems.
-      </p>
-  
-  
-      <h3>1.15.2 Transport Failure</h3>
-  
-      <p>
-          The radio node may be operational while the IP transport path toward the
-          core is unavailable.
-      </p>
-  
-      <p>
-          Examples include:
-      </p>
-  
-      <ul>
-          <li>Broken Ethernet connectivity.</li>
-          <li>Incorrect VLAN configuration.</li>
-          <li>Missing routes.</li>
-          <li>Routing protocol failure.</li>
-          <li>Packet loss.</li>
-          <li>MTU problems.</li>
-          <li>Interface errors.</li>
-          <li>Congestion.</li>
-      </ul>
-  
-  
-      <h3>1.15.3 Core Control-Plane Failure</h3>
-  
-      <p>
-          IP connectivity between network functions may be completely operational
-          while signaling fails because of incorrect configuration, unavailable
-          network functions, authentication problems, protocol failures, or
-          subscriber-data inconsistencies.
-      </p>
-  
-  
-      <h3>1.15.4 User-Plane Failure</h3>
-  
-      <p>
-          The subscriber may successfully register and establish a session while
-          user traffic fails.
-      </p>
-  
-      <p>
-          Typical causes include:
-      </p>
-  
-      <ul>
-          <li>Missing routes.</li>
-          <li>Incorrect GTP tunnel state.</li>
-          <li>Firewall rules.</li>
-          <li>Incorrect packet-forwarding configuration.</li>
-          <li>MTU issues.</li>
-          <li>UPF or gateway failures.</li>
-          <li>External network failures.</li>
-          <li>Asymmetric routing.</li>
-      </ul>
-  
-  
-      <h3>1.15.5 Application Failure</h3>
-  
-      <p>
-          Finally, the mobile network may be functioning correctly while the
-          destination application is unavailable or malfunctioning.
-      </p>
-  
-      <p>
-          A senior engineer must therefore avoid automatically attributing every
-          subscriber problem to the mobile network.
-      </p>
-  </section>
-  
-  
-  <section id="troubleshooting-methodology">
-      <h2>1.16 End-to-End Troubleshooting Methodology</h2>
-  
-      <p>
-          Troubleshooting complex mobile networks requires a structured methodology.
-          Randomly checking devices often increases investigation time because each
-          engineer may examine a different layer without establishing a common
-          failure boundary.
-      </p>
-  
-      <p>
-          A practical methodology is:
-      </p>
-  
-      <ol>
-          <li>Define the exact symptom.</li>
-          <li>Identify the affected subscribers, sites, or services.</li>
-          <li>Determine whether the problem is isolated or systemic.</li>
-          <li>Identify the last confirmed working point.</li>
-          <li>Separate control-plane and user-plane behavior.</li>
-          <li>Validate Layer 1 and Layer 2 connectivity.</li>
-          <li>Validate IP addressing and routing.</li>
-          <li>Validate transport-layer connectivity.</li>
-          <li>Inspect the relevant telecom signaling.</li>
-          <li>Inspect the user-plane packet path.</li>
-          <li>Correlate logs, counters, alarms, and packet captures.</li>
-          <li>Identify the smallest failure domain consistent with the evidence.</li>
-      </ol>
-  
-  
-      <h3>1.16.1 Start with the Symptom</h3>
-  
-      <p>
-          "The network is down" is not a useful engineering symptom.
-      </p>
-  
-      <p>
-          A better statement would be:
-      </p>
-  
-      <blockquote>
-          <p>
-              LTE subscribers at Site Group A can attach successfully but cannot
-              reach external IPv4 destinations, while IPv6 connectivity remains
-              operational.
-          </p>
-      </blockquote>
-  
-      <p>
-          The second description immediately reduces the investigation scope.
-          It suggests that the radio and at least part of the control plane are
-          operational and points toward an IPv4-specific user-plane or external
-          network problem.
-      </p>
-  
-  
-      <h3>1.16.2 Determine the Scope</h3>
-  
-      <p>
-          Scope is one of the strongest diagnostic signals.
-      </p>
-  
-      <p>
-          If one subscriber is affected, subscriber-specific configuration may be
-          relevant. If thousands of subscribers across multiple sites are affected,
-          a shared infrastructure component becomes more likely.
-      </p>
-  
-      <p>
-          Examples of useful scope questions include:
-      </p>
-  
-      <ul>
-          <li>Is the problem affecting one UE or many UEs?</li>
-          <li>Is it limited to one cell?</li>
-          <li>Is it limited to one geographic region?</li>
-          <li>Is it limited to one APN or DNN?</li>
-          <li>Is it limited to IPv4 or IPv6?</li>
-          <li>Is it limited to one application?</li>
-          <li>Did the problem begin after a configuration change?</li>
-      </ul>
-  
-  
-      <h3>1.16.3 Find the Last Known Good Point</h3>
-  
-      <p>
-          The most valuable troubleshooting question is often:
-      </p>
-  
-      <blockquote>
-          <p>
-              Where does the expected behavior stop?
-          </p>
-      </blockquote>
-  
-      <p>
-          For example:
-      </p>
-  
-      <pre><code>UE
-  ```
-  
-  |
-  | Registration: SUCCESS
-  v
-  AMF
-  |
-  | PDU Session: SUCCESS
-  v
-  SMF
-  |
-  | PFCP: SUCCESS
-  v
-  UPF
-  |
-  | User traffic: FAILURE
-  v
-  External Network </code></pre>
-  
-  ```
-      <p>
-          In this example, investigating radio registration would be inefficient
-          because the evidence already demonstrates that registration is working.
-      </p>
-  </section>
-  
-  
-  <section id="packet-analysis">
-      <h2>1.17 Packet Capture and Protocol Analysis</h2>
-  
-      <p>
-          Packet captures are among the most powerful sources of evidence available
-          to a network engineer.
-      </p>
-  
-      <p>
-          Tools such as Wireshark and TShark allow engineers to inspect packets at
-          multiple protocol layers and correlate network behavior with signaling
-          procedures.
-      </p>
-  
-      <h3>1.17.1 Layer-by-Layer Analysis</h3>
-  
-      <p>
-          A useful packet-analysis strategy is to move from lower layers toward the
-          application rather than immediately searching for a specific message.
-      </p>
-  
-      <pre><code>Ethernet
-  ```
-  
-  |
-  IP
-  |
-  Transport
-  |
-  Telecom Protocol
-  |
-  Tunnel
-  |
-  Subscriber Packet
-  |
-  Application </code></pre>
-  
-  ```
-      <p>
-          For example, when analyzing GTP-U, the engineer should first confirm that
-          the outer IP and UDP packets are present, then inspect the GTP tunnel
-          information, and finally decode the encapsulated subscriber packet.
-      </p>
-  
-  
-      <h3>1.17.2 Capture Points Matter</h3>
-  
-      <p>
-          A packet capture is meaningful only in the context of where it was
-          collected.
-      </p>
-  
-      <p>
-          A packet observed entering a network function does not prove that it was
-          forwarded successfully out of that function.
-      </p>
-  
-      <p>
-          Comparing captures at multiple points can therefore identify the precise
-          location where packets disappear.
-      </p>
-  
-      <p>
-          For example:
-      </p>
-  
-      <pre><code>Capture A              Capture B              Capture C
-  ```
-  
-  gNB                    UPF                    External Router
-  |                      |                      |
-  | Packet present       | Packet present       | Packet absent
-  |--------------------->|--------------------->| </code></pre>
-  
-  ```
-      <p>
-          This evidence strongly suggests that the failure occurs between the UPF
-          and the external router, rather than between the UE and the UPF.
-      </p>
-  </section>
-  
-  
-  <section id="observability">
-      <h2>1.18 Logs, Counters, Alarms and Metrics</h2>
-  
-      <p>
-          Packet captures provide detailed protocol evidence, but production
-          troubleshooting rarely depends on packet captures alone.
-      </p>
-  
-      <p>
-          A complete investigation typically correlates several observability
-          sources.
-      </p>
-  
-      <ul>
-          <li>System logs.</li>
-          <li>Protocol traces.</li>
-          <li>Interface counters.</li>
-          <li>Network alarms.</li>
-          <li>CPU and memory metrics.</li>
-          <li>Packet-loss statistics.</li>
-          <li>Latency measurements.</li>
-          <li>Session counters.</li>
-          <li>Throughput statistics.</li>
-          <li>Application logs.</li>
-      </ul>
-  
-      <p>
-          The key principle is correlation. A single metric rarely identifies a
-          root cause by itself.
-      </p>
-  
-      <p>
-          For example, high packet loss combined with increasing interface errors
-          and a corresponding increase in retransmissions provides much stronger
-          evidence than packet loss alone.
-      </p>
-  </section>
-  
-  
-  <section id="performance">
-      <h2>1.19 Performance and Quality of Service</h2>
-  
-      <p>
-          Functional connectivity is only one dimension of network quality.
-          Production mobile networks must also satisfy performance requirements.
-      </p>
-  
-      <p>
-          Important metrics include:
-      </p>
-  
-      <ul>
-          <li>Latency.</li>
-          <li>Jitter.</li>
-          <li>Packet loss.</li>
-          <li>Throughput.</li>
-          <li>Connection setup time.</li>
-          <li>Session establishment success rate.</li>
-          <li>CPU utilization.</li>
-          <li>Memory utilization.</li>
-          <li>Interface utilization.</li>
-          <li>Packet-per-second capacity.</li>
-      </ul>
-  
-      <p>
-          Quality of Service mechanisms allow networks to treat different traffic
-          classes according to defined policies.
-      </p>
-  
-      <p>
-          In mobile networks, QoS is closely associated with subscriber sessions,
-          bearers, QoS flows, policy control, and packet forwarding. These concepts
-          are developed in detail in later chapters.
-      </p>
-  </section>
-  
-  
-  <section id="redundancy">
-      <h2>1.20 Redundancy and High Availability</h2>
-  
-      <p>
-          Carrier-grade networks cannot depend on individual network elements
-          remaining operational indefinitely. Redundancy is therefore an architectural
-          requirement.
-      </p>
-  
-      <p>
-          Redundancy can exist at multiple levels:
-      </p>
-  
-      <ul>
-          <li>Physical interface redundancy.</li>
-          <li>Link redundancy.</li>
-          <li>Router redundancy.</li>
-          <li>Network-function redundancy.</li>
-          <li>Data-center redundancy.</li>
-          <li>Geographic redundancy.</li>
-          <li>Cloud-platform redundancy.</li>
-      </ul>
-  
-      <p>
-          A network engineer must understand not only the primary path but also how
-          traffic is expected to behave when that path fails.
-      </p>
-  
-      <p>
-          This introduces additional engineering concepts such as convergence,
-          failover time, route withdrawal, state synchronization, load balancing,
-          and session persistence.
-      </p>
-  </section>
-  
-  
-  <section id="practical-scenario">
-      <h2>1.21 Practical Troubleshooting Scenario</h2>
-  
-      <p>
-          Consider a 5G Standalone deployment in which subscribers report that they
-          can successfully register on the network but cannot access the Internet.
-      </p>
-  
-      <h3>Observed Symptoms</h3>
-  
-      <ul>
-          <li>UE detects the 5G cell.</li>
-          <li>Registration completes successfully.</li>
-          <li>Authentication succeeds.</li>
-          <li>PDU Session Establishment succeeds.</li>
-          <li>The UE receives an IP address.</li>
-          <li>Internet applications fail.</li>
-      </ul>
-  
-      <h3>Initial Analysis</h3>
-  
-      <p>
-          The evidence already eliminates several potential failure domains.
-          Radio access is functioning sufficiently for registration. Authentication
-          is functioning. The control plane has successfully established a PDU
-          Session.
-      </p>
-  
-      <p>
-          The investigation should therefore move toward the user plane.
-      </p>
-  
-      <h3>Recommended Investigation</h3>
-  
-      <ol>
-          <li>Verify that the PDU Session is active in the SMF.</li>
-          <li>Verify the corresponding PFCP state between SMF and UPF.</li>
-          <li>Verify the expected GTP-U tunnel parameters.</li>
-          <li>Capture traffic on the N3 interface.</li>
-          <li>Confirm that subscriber packets reach the UPF.</li>
-          <li>Inspect the N6 interface.</li>
-          <li>Verify routing toward the external data network.</li>
-          <li>Verify return routing toward the subscriber address pool.</li>
-          <li>Check firewall and security policies.</li>
-          <li>Check MTU and fragmentation behavior.</li>
-          <li>Test connectivity using both packet capture and active probes.</li>
-      </ol>
-  
-      <p>
-          Suppose the capture shows packets arriving at the UPF through N3 but no
-          corresponding packets leaving N6. The investigation can now focus on the
-          UPF forwarding behavior, routing, policy, or packet-processing configuration.
-      </p>
-  
-      <p>
-          If packets leave the UPF but no response returns from the external network,
-          the investigation moves toward routing, firewall policies, NAT, or the
-          external network.
-      </p>
-  
-      <p>
-          This illustrates a fundamental principle:
-      </p>
-  
-      <blockquote>
-          <p>
-              Troubleshooting should follow evidence across the packet path rather
-              than assumptions about which technology is responsible.
-          </p>
-      </blockquote>
-  </section>
-  
-  
-  <section id="engineering-mindset">
-      <h2>1.22 The Network Engineer's Mental Model</h2>
-  
-      <p>
-          A senior network engineer should maintain several simultaneous views of
-          the network.
-      </p>
-  
-      <h3>Architectural View</h3>
-  
-      <p>
-          Understand which network functions exist, why they exist, and how they
-          interact.
-      </p>
-  
-      <h3>Protocol View</h3>
-  
-      <p>
-          Understand which protocol should be present on each interface and what
-          messages or packet types indicate normal operation.
-      </p>
-  
-      <h3>Packet View</h3>
-  
-      <p>
-          Understand how data is encapsulated and forwarded through the network.
-      </p>
-  
-      <h3>Routing View</h3>
-  
-      <p>
-          Understand how the network determines the next hop toward each destination.
-      </p>
-  
-      <h3>Operational View</h3>
-  
-      <p>
-          Understand alarms, logs, metrics, changes, deployments, failures, and
-          recovery procedures.
-      </p>
-  
-      <h3>Performance View</h3>
-  
-      <p>
-          Understand whether the network is merely functioning or actually meeting
-          its capacity, latency, availability, and QoS objectives.
-      </p>
-  
-      <p>
-          The ability to move between these perspectives is one of the defining
-          characteristics of senior-level network engineering.
-      </p>
-  </section>
-  
-  
-  <section id="summary">
-      <h2>1.23 Chapter Summary</h2>
-  
-      <p>
-          Mobile networks are distributed systems that combine radio access,
-          Ethernet, IP routing, transport protocols, telecom signaling, packet
-          tunneling, cloud infrastructure, and external data networks.
-      </p>
-  
-      <p>
-          The evolution from 2G to 4G and 5G progressively increased the role of
-          packet networking and software-based network functions. LTE introduced
-          the EPC and an extensively IP-based architecture, while 5G introduced
-          the Service-Based Architecture and a more cloud-oriented approach to
-          network functions.
-      </p>
-  
-      <p>
-          The distinction between control plane and user plane is fundamental.
-          Control-plane procedures establish the state required for communication,
-          while the user plane carries subscriber traffic.
-      </p>
-  
-      <p>
-          Ethernet, VLANs, IP addressing, routing, TCP, UDP, SCTP, DNS, and GTP
-          form important parts of the networking foundation underneath mobile
-          services.
-      </p>
-  
-      <p>
-          Effective troubleshooting requires an end-to-end approach. Engineers
-          should define the symptom, determine the scope, identify the last known
-          good point, separate control-plane and user-plane behavior, validate
-          lower-layer connectivity, inspect signaling and packet flows, and
-          correlate packet captures with logs, counters, alarms, and metrics.
-      </p>
-  
-      <p>
-          The following chapters build upon this foundation by examining IP
-          networking in greater depth, followed by detailed 4G and 5G Core
-          architectures, signaling, user-plane behavior, cloud-native infrastructure,
-          security, observability, testing, deployment, and automation.
-      </p>
-  </section>
-  
-  
-  <section id="key-concepts">
-      <h2>1.24 Key Concepts</h2>
-  
-      <ul>
-          <li>Mobile networks consist of UE, RAN, transport, core, and external network domains.</li>
-          <li>LTE introduced the EPC as an IP-centric mobile core architecture.</li>
-          <li>5G introduced the 5G Core and Service-Based Architecture.</li>
-          <li>Control-plane and user-plane functions must be analyzed separately.</li>
-          <li>Ethernet and IP networking provide fundamental transport capabilities for mobile networks.</li>
-          <li>TCP, UDP, and SCTP serve different transport requirements.</li>
-          <li>GTP provides essential tunneling capabilities in mobile networks.</li>
-          <li>Routing determines how packets reach distributed network functions and external networks.</li>
-          <li>DNS can affect service availability independently of basic IP connectivity.</li>
-          <li>Packet captures provide evidence of actual protocol behavior.</li>
-          <li>Logs, metrics, counters, and alarms complement packet-level analysis.</li>
-          <li>End-to-end troubleshooting should identify the smallest failure domain consistent with the available evidence.</li>
-          <li>Successful session establishment does not necessarily guarantee successful user-plane connectivity.</li>
-      </ul>
-  </section>
-  
-  
-  <section id="engineering-checklist">
-      <h2>1.25 Engineering Checklist</h2>
-  
-      <p>
-          When investigating a mobile connectivity problem, an engineer should be
-          able to answer the following questions:
-      </p>
-  
-      <ol>
-          <li>What exactly is the observed symptom?</li>
-          <li>How many subscribers or network elements are affected?</li>
-          <li>Which geographical areas are affected?</li>
-          <li>Is radio connectivity operational?</li>
-          <li>Is control-plane signaling operational?</li>
-          <li>Has the subscriber successfully authenticated?</li>
-          <li>Has a session or bearer been established?</li>
-          <li>Has an IP address or prefix been assigned?</li>
-          <li>Is the user-plane tunnel operational?</li>
-          <li>Does the expected route exist?</li>
-          <li>Are packets arriving at the expected interface?</li>
-          <li>Are packets leaving the expected interface?</li>
-          <li>Is return traffic following a valid path?</li>
-          <li>Could MTU, fragmentation, or packet loss be involved?</li>
-          <li>Could a firewall or security policy be blocking the traffic?</li>
-          <li>Did a recent configuration or network change precede the problem?</li>
-          <li>Can the failure be reproduced and verified with packet captures or active tests?</li>
-      </ol>
-  </section>
- 
-  </article>
+
+<header>
+
+<h1>Chapter 1: Fundamentals of Mobile Networks and End-to-End Architecture</h1>
+
+<p>
+Modern mobile networks are large distributed systems in which radio access,
+IP networking, transport infrastructure, core network functions, cloud
+platforms, and external data networks must operate as a single end-to-end
+service. Understanding how these domains interact is essential for network
+engineering, troubleshooting, performance analysis, deployment, and security.
+</p>
+
+<p>
+This chapter establishes the architectural and networking foundation used
+throughout this book. The objective is not simply to describe the components
+of a mobile network, but to develop an end-to-end understanding of how a
+subscriber device establishes connectivity, how signaling and user traffic
+traverse the network, and how an engineer can isolate failures across
+multiple technological domains.
+</p>
+
+</header>
+
+
+<!-- ========================================================= -->
+<!-- INTRODUCTION -->
+<!-- ========================================================= -->
+
+<section id="introduction">
+
+<h2>Introduction</h2>
+
+<h3>Introduction to Mobile Network Architecture</h3>
+
+<p>
+A mobile network can be understood as a distributed communication system
+connecting user equipment to services through several logical and physical
+domains. Although the technologies used by operators have changed
+considerably from 2G to 5G, the fundamental engineering problem remains
+similar: provide reliable connectivity between a subscriber and a
+destination while simultaneously handling authentication, mobility,
+addressing, policy, quality of service, charging, and security.
+</p>
+
+<p>
+A simplified end-to-end path can be represented as:
+</p>
+
+<pre><code>UE
+ |
+ | Radio Access
+ v
+RAN
+ |
+ | Transport Network
+ v
+Mobile Core
+ |
+ | IP / Data Network
+ v
+Internet / Enterprise Network / IMS / Application</code></pre>
+
+<p>
+Each domain has different technologies, protocols, operational procedures,
+and failure modes. A radio problem may appear to the user as a complete
+loss of connectivity, while the actual cause may be located in the IP
+transport network, a core network function, a routing table, a GTP tunnel,
+a DNS service, or an external application.
+</p>
+
+<p>
+For this reason, senior network engineers must avoid treating mobile
+connectivity as a single technology. Effective troubleshooting requires
+understanding the relationships between radio access, signaling, transport,
+routing, packet forwarding, and service delivery.
+</p>
+
+
+<h3>Evolution of Mobile Networks</h3>
+
+<h4>2G</h4>
+
+<p>
+Mobile networks have evolved through several generations, with each
+generation introducing new radio technologies, architectures, services,
+and packet-processing models.
+</p>
+
+<p>
+Second-generation systems introduced digital cellular communication at
+large scale. GSM became one of the most widely deployed 2G technologies.
+The architecture separated the radio access network from the core network,
+with dedicated functions for mobility management, authentication,
+subscriber databases, and circuit-switched services.
+</p>
+
+<p>
+Packet-switched data was later introduced through GPRS and EDGE. This was
+an important architectural transition because mobile networks began
+transporting IP traffic in addition to traditional circuit-switched
+voice services.
+</p>
+
+<p>
+From a networking perspective, the introduction of packet-switched data
+established concepts that would become increasingly important in later
+generations: tunneling, packet gateways, subscriber addressing, mobility
+management, and packet-based charging.
+</p>
+
+
+<h4>3G</h4>
+
+<p>
+Third-generation systems increased data capacity and introduced more
+sophisticated packet services. UMTS, based on the 3GPP architecture,
+separated radio access functions from the packet and circuit-switched
+core.
+</p>
+
+<p>
+The evolution of 3G packet services continued the transition toward
+IP-based mobile connectivity. Packet gateways provided access to external
+packet networks while mobility management and subscriber databases
+continued to coordinate authentication and session establishment.
+</p>
+
+
+<h4>4G LTE</h4>
+
+<p>
+LTE represented a major architectural change. The radio access network
+became the Evolved Universal Terrestrial Radio Access Network (E-UTRAN),
+while the core evolved into the Evolved Packet Core (EPC).
+</p>
+
+<p>
+LTE adopted an almost entirely packet-based architecture. The traditional
+circuit-switched architecture was no longer part of the LTE packet core.
+Voice services could instead be delivered through IMS and VoLTE.
+</p>
+
+<p>
+The EPC introduced several functions that remain fundamental to mobile
+networking:
+</p>
+
+<ul>
+<li>MME for control-plane mobility and session management.</li>
+<li>SGW for user-plane mobility anchoring and packet forwarding.</li>
+<li>PGW for connectivity toward external packet networks.</li>
+<li>HSS for subscriber information and authentication-related data.</li>
+<li>PCRF for policy and charging control.</li>
+</ul>
+
+<p>
+LTE also standardized extensive use of IP transport and tunneling. GTP
+became a fundamental protocol for carrying subscriber traffic through
+the packet core, while SCTP became important for signaling transport
+between several network elements.
+</p>
+
+
+<h4>5G</h4>
+
+<p>
+5G introduced another major architectural evolution. The 5G Core (5GC)
+was designed around a Service-Based Architecture (SBA), allowing network
+functions to expose services to other network functions through
+standardized service interfaces.
+</p>
+
+<p>
+Important 5G Core functions include:
+</p>
+
+<ul>
+<li>AMF — Access and Mobility Management Function.</li>
+<li>SMF — Session Management Function.</li>
+<li>UPF — User Plane Function.</li>
+<li>PCF — Policy Control Function.</li>
+<li>UDM — Unified Data Management.</li>
+<li>AUSF — Authentication Server Function.</li>
+<li>NRF — Network Repository Function.</li>
+<li>NSSF — Network Slice Selection Function.</li>
+<li>NEF — Network Exposure Function.</li>
+<li>UDR — Unified Data Repository.</li>
+</ul>
+
+<p>
+5G also introduced a stronger separation between control-plane logic and
+user-plane packet forwarding, while enabling distributed deployment of
+network functions closer to subscribers and applications.
+</p>
+
+<p>
+These changes make 5G significantly more software-oriented than previous
+generations. Network functions may be implemented as virtualized network
+functions or cloud-native network functions and deployed on general-purpose
+compute infrastructure.
+</p>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- MOBILE NETWORK ARCHITECTURE -->
+<!-- ========================================================= -->
+
+<section id="network-architecture">
+
+<h2>The Mobile Network Architecture</h2>
+
+<h3>The Major Domains of a Mobile Network</h3>
+
+<p>
+A practical mobile network can be divided into several domains. The exact
+physical implementation differs between operators, vendors, and deployment
+models, but the logical separation remains useful for engineering and
+troubleshooting.
+</p>
+
+<h4>User Equipment</h4>
+
+<p>
+User Equipment (UE) represents the subscriber's device. This may be a
+smartphone, modem, router, industrial device, vehicle, IoT device, or
+another cellular endpoint.
+</p>
+
+<p>
+The UE participates in radio signaling with the RAN and establishes
+connectivity through the mobile core. From an IP perspective, the device
+eventually receives one or more IP addresses associated with its data
+connectivity.
+</p>
+
+
+<h4>Radio Access Network</h4>
+
+<p>
+The Radio Access Network (RAN) provides the radio interface between the UE
+and the operator's network.
+</p>
+
+<p>
+In LTE, the primary radio access element is the eNodeB. In 5G NR, the
+corresponding radio access element is the gNodeB.
+</p>
+
+<p>
+The RAN is responsible for radio-related functions such as scheduling,
+radio resource management, mobility procedures, and communication with
+the core network.
+</p>
+
+<p>
+Although the RAN is often viewed primarily as a radio domain, it is also
+deeply connected to IP networking because traffic between RAN and core
+functions is transported through IP-based infrastructure.
+</p>
+
+
+<h4>Transport Network</h4>
+
+<p>
+The transport network provides connectivity between distributed network
+elements. It may include Ethernet, IP routing, optical transport,
+aggregation networks, routers, switches, and other infrastructure.
+</p>
+
+<p>
+Transport networks are especially important because failures in this
+domain can affect multiple mobile services simultaneously.
+</p>
+
+<p>
+Typical transport-network functions include:
+</p>
+
+<ul>
+<li>Layer 2 connectivity.</li>
+<li>Layer 3 routing.</li>
+<li>Traffic engineering.</li>
+<li>Redundancy and path protection.</li>
+<li>Quality of Service.</li>
+<li>Network synchronization.</li>
+<li>Connectivity between geographically distributed sites.</li>
+</ul>
+
+
+<h4>Mobile Core</h4>
+
+<p>
+The mobile core provides centralized or distributed control and connectivity
+functions for subscribers.
+</p>
+
+<p>
+The core is responsible for functions such as authentication, mobility
+management, session management, policy enforcement, packet forwarding,
+subscriber data, and connectivity to external networks.
+</p>
+
+
+<h4>External Networks</h4>
+
+<p>
+Mobile networks rarely terminate subscriber traffic internally. The
+subscriber may access the public Internet, enterprise networks, private
+applications, operator services, IMS, or other interconnected networks.
+</p>
+
+<p>
+The boundary between the mobile core and external networks is therefore
+another important troubleshooting domain.
+</p>
+
+
+<h3>High-Level 4G and 5G Architectures</h3>
+
+<h4>4G LTE Architecture</h4>
+
+<pre><code>                    +----------------+
+                    |      HSS       |
+                    +--------+-------+
+                             |
+                         Diameter
+                             |
++------+       S1        +---+---+
+|  UE  | &lt;-------------&gt; |  MME  |
++--+---+                  +---+---+
+   |                          |
+   | LTE                      |
+   v                          |
++------+                  +---+---+
+|eNodeB|------------------|  SGW  |
++------+      S1-U        +---+---+
+                              |
+                              | S5/S8
+                              v
+                         +----+----+
+                         |   PGW   |
+                         +----+----+
+                              |
+                              | SGi
+                              v
+                       External Network</code></pre>
+
+<p>
+This simplified architecture separates signaling from subscriber traffic.
+The MME participates in control-plane procedures, while the SGW and PGW
+participate in user-plane packet forwarding.
+</p>
+
+<p>
+The exact architecture becomes more complex when roaming, IMS, policy
+control, charging, redundancy, and additional network functions are
+considered. These topics are examined in greater depth in later chapters.
+</p>
+
+
+<h4>5G Standalone Architecture</h4>
+
+<pre><code>                         +-------+
+                         |  UDM  |
+                         +---+---+
+                             |
+                         +---+---+
+                         | AUSF  |
+                         +---+---+
+
+                         +-------+
+                         |  NRF  |
+                         +---+---+
+                             |
+                             |
++------+       +---------+   |   +---------+
+|  UE  | &lt;---&gt; |   gNB   |---+---|   AMF   |
++------+   NR  +----+----+       +----+----+
+                    |
+                    | N3
+                    |
+                    v
+              +----------------+
+              |      UPF       |
+              +-------+--------+
+                      |
+                      | N6
+                      v
+                Data Network</code></pre>
+
+<p>
+In 5G Standalone, the gNB connects directly to the 5G Core. The AMF handles
+access and mobility management, while the SMF controls session establishment
+and the UPF forwards user-plane traffic.
+</p>
+
+<p>
+The architecture also introduces a larger number of specialized network
+functions communicating through service-based interfaces. These are
+discussed in detail in the chapters dedicated to 5G Core and
+Service-Based Architecture.
+</p>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- TRAFFIC AND PROTOCOLS -->
+<!-- ========================================================= -->
+
+<section id="traffic-and-protocols">
+
+<h2>How Mobile Networks Carry Traffic</h2>
+
+<h3>Control Plane and User Plane</h3>
+
+<p>
+One of the most important concepts in mobile network engineering is the
+distinction between the control plane and the user plane.
+</p>
+
+<h4>Control Plane</h4>
+
+<p>
+The control plane is responsible for signaling and decision-making.
+Control-plane procedures establish the state required for communication
+rather than carrying the subscriber's application payload itself.
+</p>
+
+<p>
+Examples include:
+</p>
+
+<ul>
+<li>Authentication.</li>
+<li>Registration and attach procedures.</li>
+<li>Mobility management.</li>
+<li>Session establishment.</li>
+<li>Bearer establishment.</li>
+<li>Policy decisions.</li>
+<li>Network-function discovery.</li>
+<li>Subscriber authorization.</li>
+</ul>
+
+<p>
+A control-plane failure can prevent a subscriber from obtaining service
+even when the physical and IP connectivity between network elements is
+completely operational.
+</p>
+
+
+<h4>User Plane</h4>
+
+<p>
+The user plane carries subscriber traffic. Examples include web browsing,
+video streaming, application traffic, voice media, VPN traffic, and other
+IP payloads.
+</p>
+
+<p>
+In LTE and 5G, GTP-U is commonly used to encapsulate subscriber packets
+across the mobile transport network.
+</p>
+
+<p>
+User-plane traffic can therefore continue to fail even when all control
+procedures have completed successfully. For example, a subscriber may
+successfully register and establish a PDU session while packets are
+dropped because of a routing error, incorrect GTP tunnel state, MTU
+problems, firewall policies, or an unavailable external network.
+</p>
+
+
+<h4>Why the Distinction Matters</h4>
+
+<p>
+A useful troubleshooting question is:
+</p>
+
+<blockquote>
+<p>
+Is the failure preventing the network from establishing the required
+state, or is the established state unable to forward traffic?
+</p>
+</blockquote>
+
+<p>
+The first situation usually indicates a control-plane problem. The second
+usually indicates a user-plane or data-path problem.
+</p>
+
+<p>
+This distinction dramatically reduces the troubleshooting search space.
+</p>
+
+
+<h3>Layered Networking in Mobile Systems</h3>
+
+<p>
+Mobile networks use multiple protocol layers simultaneously. An engineer
+must understand both traditional networking layers and telecom-specific
+protocols.
+</p>
+
+<p>
+A simplified stack for an IP-based mobile network can be represented as:
+</p>
+
+<pre><code>Application
+    |
+Transport
+    |
+IP
+    |
+Ethernet
+    |
+Physical Network</code></pre>
+
+<p>
+Mobile networking adds additional protocol layers and tunneling mechanisms.
+For example, subscriber IP packets can be encapsulated in GTP-U and then
+transported using UDP over an IP network.
+</p>
+
+<pre><code>Subscriber IP Packet
+        |
+        v
+      GTP-U
+        |
+        v
+       UDP
+        |
+        v
+        IP
+        |
+        v
+     Ethernet</code></pre>
+
+<p>
+This means that a packet capture may contain multiple logical layers that
+must be interpreted together.
+</p>
+
+<p>
+A senior engineer should therefore be comfortable moving between packet
+layers rather than analyzing each protocol in isolation.
+</p>
+
+
+<h3>Ethernet and Layer 2 Fundamentals</h3>
+
+<h4>MAC Addresses</h4>
+
+<p>
+Ethernet uses MAC addresses to identify interfaces within a Layer 2
+broadcast domain.
+</p>
+
+<p>
+Switches use MAC address tables to determine where Ethernet frames should
+be forwarded. Incorrect or missing MAC learning can result in connectivity
+problems even when Layer 3 configuration appears correct.
+</p>
+
+
+<h4>VLANs</h4>
+
+<p>
+VLANs provide logical Layer 2 segmentation. Operators can use VLANs to
+separate different traffic categories or network functions.
+</p>
+
+<p>
+Examples may include separate logical networks for:
+</p>
+
+<ul>
+<li>Management traffic.</li>
+<li>Control-plane traffic.</li>
+<li>User-plane traffic.</li>
+<li>Synchronization.</li>
+<li>Operations and maintenance.</li>
+</ul>
+
+<p>
+The exact segmentation model depends on the operator architecture.
+Incorrect VLAN configuration can cause failures that appear at higher
+layers as routing or application problems.
+</p>
+
+
+<h4>MTU</h4>
+
+<p>
+Maximum Transmission Unit (MTU) defines the largest IP packet that can
+normally be transmitted without fragmentation on a given Layer 3 interface.
+</p>
+
+<p>
+Mobile networks frequently use encapsulation and tunneling. Every additional
+encapsulation header consumes part of the available packet size.
+</p>
+
+<p>
+Consequently, MTU mismatches can produce subtle failures in which small
+packets work correctly while larger packets are lost.
+</p>
+
+<p>
+This is particularly important when troubleshooting GTP tunnels, VPNs,
+IPv6 traffic, and cloud-native network environments.
+</p>
+
+
+<h3>IPv4 and IPv6 in Mobile Networks</h3>
+
+<h4>IPv4</h4>
+
+<p>
+IPv4 remains widely deployed in mobile networks. Subscriber addresses may
+be assigned dynamically and may be private addresses translated through
+Carrier-Grade NAT before reaching the public Internet.
+</p>
+
+<p>
+Network engineers must understand subnetting, routing, default gateways,
+address pools, and address translation when investigating subscriber
+connectivity.
+</p>
+
+
+<h4>IPv6</h4>
+
+<p>
+IPv6 provides a significantly larger address space and is increasingly
+relevant to mobile networks.
+</p>
+
+<p>
+IPv6 introduces concepts such as Neighbor Discovery, Router Advertisements,
+IPv6 prefixes, and link-local addresses. Troubleshooting IPv6 therefore
+requires knowledge beyond traditional IPv4 ARP-based analysis.
+</p>
+
+
+<h4>Dual-Stack Deployments</h4>
+
+<p>
+Many environments support both IPv4 and IPv6. Dual-stack operation creates
+additional troubleshooting dimensions because an application may prefer one
+protocol family while the underlying network behaves differently for the
+other.
+</p>
+
+<p>
+A useful troubleshooting approach is to explicitly determine:
+</p>
+
+<ul>
+<li>Which address family the subscriber received.</li>
+<li>Which address family the application is using.</li>
+<li>Whether DNS returned IPv4 and IPv6 records.</li>
+<li>Whether routing exists for the selected address family.</li>
+<li>Whether security policies allow both protocols.</li>
+</ul>
+
+
+<h3>Transport Protocols: TCP, UDP and SCTP</h3>
+
+<h4>TCP</h4>
+
+<p>
+Transmission Control Protocol provides reliable, connection-oriented
+transport. TCP uses sequencing, acknowledgements, retransmission, and
+congestion control.
+</p>
+
+<p>
+TCP is widely used by applications and by several network-control
+technologies. In 5G Service-Based Architecture, HTTP/2-based communication
+operates over TCP.
+</p>
+
+
+<h4>UDP</h4>
+
+<p>
+User Datagram Protocol provides connectionless transport with minimal
+overhead. It does not itself provide reliable delivery, sequencing, or
+retransmission.
+</p>
+
+<p>
+UDP is particularly important in mobile user-plane networking because
+GTP-U uses UDP as its transport protocol.
+</p>
+
+
+<h4>SCTP</h4>
+
+<p>
+Stream Control Transmission Protocol provides message-oriented transport
+with features designed for signaling applications.
+</p>
+
+<p>
+SCTP is particularly important in 4G networks, where S1AP signaling
+between eNodeBs and MMEs is transported using SCTP over IP.
+</p>
+
+<p>
+From a troubleshooting perspective, this means that a failure in SCTP
+association establishment can prevent higher-level mobile signaling from
+operating even though basic IP connectivity exists.
+</p>
+
+<p>
+The engineer should therefore distinguish between:
+</p>
+
+<pre><code>Physical connectivity
+        |
+Ethernet connectivity
+        |
+IP connectivity
+        |
+SCTP association
+        |
+Application signaling</code></pre>
+
+
+<h3>DNS in Mobile Networks</h3>
+
+<p>
+Domain Name System (DNS) translates domain names into IP addresses and is
+essential to modern service delivery.
+</p>
+
+<p>
+DNS can be involved in several different parts of a mobile environment.
+Subscriber traffic may require DNS resolution when applications access
+Internet services, while network functions themselves may rely on DNS or
+service discovery mechanisms depending on the deployment architecture.
+</p>
+
+<p>
+A subscriber may therefore have a valid IP address and a working packet
+path while applications still fail because DNS resolution is unavailable.
+</p>
+
+<p>
+When troubleshooting DNS-related problems, the engineer should separate
+name resolution from packet forwarding.
+</p>
+
+<pre><code>Application
+    |
+DNS Resolution
+    |
+Destination IP
+    |
+Routing
+    |
+Packet Forwarding</code></pre>
+
+<p>
+If DNS resolution fails, testing the destination by IP address can help
+determine whether the underlying IP path is functional.
+</p>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- CONNECTIVITY -->
+<!-- ========================================================= -->
+
+<section id="connectivity">
+
+<h2>Mobile Network Connectivity</h2>
+
+<h3>IP Routing Fundamentals</h3>
+
+<p>
+Routing determines how packets move between different IP networks.
+Mobile networks depend heavily on routing because RAN sites, core network
+functions, data centers, cloud platforms, and external networks are
+usually distributed across multiple IP subnets.
+</p>
+
+<h4>Routing Table</h4>
+
+<p>
+A router makes forwarding decisions based on its routing table. The
+destination IP address of a packet is compared against available prefixes,
+and the most specific matching route is normally selected.
+</p>
+
+<p>
+A routing problem can therefore occur even when all interfaces are up.
+An interface being operational does not guarantee that the correct route
+exists toward the destination.
+</p>
+
+
+<h4>Static Routing</h4>
+
+<p>
+Static routes are manually configured and are useful in simple or
+controlled environments. They can also be used for specific traffic paths,
+default routes, or fallback scenarios.
+</p>
+
+<p>
+However, static routing becomes difficult to manage at large scale because
+topology changes must be handled manually.
+</p>
+
+
+<h4>Dynamic Routing</h4>
+
+<p>
+Dynamic routing protocols allow routers to exchange reachability
+information and automatically adapt to topology changes.
+</p>
+
+<p>
+Protocols such as OSPF, IS-IS, and BGP are widely used in service-provider
+and data-center environments. Their detailed operation is covered later
+in this book.
+</p>
+
+<p>
+At this stage, the most important concept is that mobile traffic depends
+on the underlying IP network having valid and converged routes between
+network functions.
+</p>
+
+
+<h3>GTP and Mobile Traffic Tunneling</h3>
+
+<p>
+Mobile networks require a mechanism to maintain subscriber-specific traffic
+paths while the subscriber moves through the radio network and while the
+packet core remains distributed.
+</p>
+
+<p>
+GPRS Tunneling Protocol (GTP) provides this capability in several mobile
+architectures.
+</p>
+
+<h4>GTP Control Plane</h4>
+
+<p>
+GTP-C is used for control-plane procedures associated with tunnels and
+subscriber sessions.
+</p>
+
+<p>
+In LTE, GTP-C participates in procedures between EPC network functions.
+These procedures create and modify the state required for subscriber
+traffic forwarding.
+</p>
+
+
+<h4>GTP User Plane</h4>
+
+<p>
+GTP-U encapsulates subscriber IP packets inside GTP tunnels.
+</p>
+
+<pre><code>Original Subscriber Packet
+        |
+        v
++-------------------------+
+|        GTP-U            |
++-------------------------+
+|          UDP            |
++-------------------------+
+|           IP            |
++-------------------------+
+|        Ethernet         |
++-------------------------+</code></pre>
+
+<p>
+The outer IP addresses identify the transport endpoints, while the GTP
+tunnel identifies the logical subscriber traffic path.
+</p>
+
+<p>
+This distinction is fundamental during packet analysis. An engineer may
+see a packet traveling between two core-network IP addresses while the
+actual payload belongs to a subscriber communicating with a completely
+different destination.
+</p>
+
+<p>
+GTP-U analysis therefore requires understanding both the outer transport
+network and the encapsulated subscriber packet.
+</p>
+
+
+<h3>Mobile Network Interfaces</h3>
+
+<p>
+Mobile architectures define standardized logical interfaces between
+network functions. Understanding these interfaces allows an engineer to
+identify where signaling or traffic should be observed.
+</p>
+
+<h4>Important LTE Interfaces</h4>
+
+<ul>
+<li>S1-MME — control-plane signaling between eNodeB and MME.</li>
+<li>S1-U — user-plane traffic between eNodeB and SGW.</li>
+<li>S5/S8 — connectivity between SGW and PGW.</li>
+<li>S11 — signaling between MME and SGW.</li>
+<li>SGi — connectivity between PGW and external packet networks.</li>
+<li>S6a — Diameter-based signaling between MME and HSS.</li>
+</ul>
+
+<p>
+These interfaces provide a logical map for LTE troubleshooting. If an
+attach procedure fails, the engineer can determine which signaling
+interface should contain the relevant transaction.
+</p>
+
+
+<h4>Important 5G Interfaces</h4>
+
+<ul>
+<li>N1 — signaling between UE and AMF.</li>
+<li>N2 — control-plane signaling between gNB and AMF.</li>
+<li>N3 — user-plane traffic between gNB and UPF.</li>
+<li>N4 — control interface between SMF and UPF.</li>
+<li>N6 — connection between UPF and the external data network.</li>
+<li>N11 — interface between AMF and SMF.</li>
+</ul>
+
+<p>
+The 5G architecture also contains numerous service-based interfaces between
+network functions. These are discussed in detail in the chapters dedicated
+to 5G Core and Service-Based Architecture.
+</p>
+
+
+<h3>End-to-End Subscriber Connectivity</h3>
+
+<p>
+The most useful way to understand a mobile network is to follow a
+subscriber transaction from beginning to end.
+</p>
+
+<p>
+Consider a subscriber attempting to access an Internet application.
+Several distinct stages are involved.
+</p>
+
+<h4>Radio Connectivity</h4>
+
+<p>
+The UE establishes radio connectivity with the serving cell. The RAN
+exchanges signaling with the core network to initiate registration,
+authentication, mobility management, and session procedures.
+</p>
+
+
+<h4>Authentication and Registration</h4>
+
+<p>
+The mobile core validates the subscriber identity and establishes the
+necessary security and mobility state.
+</p>
+
+<p>
+A failure at this stage prevents the subscriber from reaching subsequent
+session-establishment procedures.
+</p>
+
+
+<h4>Session Establishment</h4>
+
+<p>
+The network establishes the resources required for user-plane connectivity.
+In LTE this involves bearer establishment. In 5G Standalone, the
+corresponding concept is the PDU Session.
+</p>
+
+
+<h4>IP Address Assignment</h4>
+
+<p>
+The subscriber receives an IP address or prefix according to the deployed
+architecture and requested connectivity.
+</p>
+
+
+<h4>User-Plane Establishment</h4>
+
+<p>
+The network establishes the user-plane path through the relevant packet
+forwarding functions.
+</p>
+
+<p>
+In a simplified 5G path:
+</p>
+
+<pre><code>UE
+ |
+ | Radio
+ v
+gNB
+ |
+ | N3 / GTP-U
+ v
+UPF
+ |
+ | N6
+ v
+Data Network
+ |
+ v
+Internet / Application</code></pre>
+
+
+<h4>Application Connectivity</h4>
+
+<p>
+Once the IP path is operational, the application can establish its own
+transport and application sessions.
+</p>
+
+<p>
+At this point, the mobile network has successfully transformed a radio
+subscriber into an IP endpoint capable of communicating with external
+services.
+</p>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- TROUBLESHOOTING -->
+<!-- ========================================================= -->
+
+<section id="troubleshooting">
+
+<h2>Troubleshooting and Operations</h2>
+
+<h3>Failure Domains</h3>
+
+<p>
+A major advantage of the end-to-end model is that it allows failures to
+be divided into logical domains.
+</p>
+
+<h4>Radio Failure</h4>
+
+<p>
+The UE may fail to establish or maintain radio connectivity because of
+coverage, interference, configuration, mobility, or radio-resource
+problems.
+</p>
+
+
+<h4>Transport Failure</h4>
+
+<p>
+The radio node may be operational while the IP transport path toward the
+core is unavailable.
+</p>
+
+<p>
+Examples include:
+</p>
+
+<ul>
+<li>Broken Ethernet connectivity.</li>
+<li>Incorrect VLAN configuration.</li>
+<li>Missing routes.</li>
+<li>Routing protocol failure.</li>
+<li>Packet loss.</li>
+<li>MTU problems.</li>
+<li>Interface errors.</li>
+<li>Congestion.</li>
+</ul>
+
+
+<h4>Core Control-Plane Failure</h4>
+
+<p>
+IP connectivity between network functions may be completely operational
+while signaling fails because of incorrect configuration, unavailable
+network functions, authentication problems, protocol failures, or
+subscriber-data inconsistencies.
+</p>
+
+
+<h4>User-Plane Failure</h4>
+
+<p>
+The subscriber may successfully register and establish a session while
+user traffic fails.
+</p>
+
+<p>
+Typical causes include:
+</p>
+
+<ul>
+<li>Missing routes.</li>
+<li>Incorrect GTP tunnel state.</li>
+<li>Firewall rules.</li>
+<li>Incorrect packet-forwarding configuration.</li>
+<li>MTU issues.</li>
+<li>UPF or gateway failures.</li>
+<li>External network failures.</li>
+<li>Asymmetric routing.</li>
+</ul>
+
+
+<h4>Application Failure</h4>
+
+<p>
+Finally, the mobile network may be functioning correctly while the
+destination application is unavailable or malfunctioning.
+</p>
+
+<p>
+A senior engineer must therefore avoid automatically attributing every
+subscriber problem to the mobile network.
+</p>
+
+
+<h3>End-to-End Troubleshooting Methodology</h3>
+
+<p>
+Troubleshooting complex mobile networks requires a structured methodology.
+Randomly checking devices often increases investigation time because each
+engineer may examine a different layer without establishing a common
+failure boundary.
+</p>
+
+<p>
+A practical methodology is:
+</p>
+
+<ol>
+<li>Define the exact symptom.</li>
+<li>Identify the affected subscribers, sites, or services.</li>
+<li>Determine whether the problem is isolated or systemic.</li>
+<li>Identify the last confirmed working point.</li>
+<li>Separate control-plane and user-plane behavior.</li>
+<li>Validate Layer 1 and Layer 2 connectivity.</li>
+<li>Validate IP addressing and routing.</li>
+<li>Validate transport-layer connectivity.</li>
+<li>Inspect the relevant telecom signaling.</li>
+<li>Inspect the user-plane packet path.</li>
+<li>Correlate logs, counters, alarms, and packet captures.</li>
+<li>Identify the smallest failure domain consistent with the evidence.</li>
+</ol>
+
+
+<h4>Start with the Symptom</h4>
+
+<p>
+"The network is down" is not a useful engineering symptom.
+</p>
+
+<p>
+A better statement would be:
+</p>
+
+<blockquote>
+<p>
+LTE subscribers at Site Group A can attach successfully but cannot
+reach external IPv4 destinations, while IPv6 connectivity remains
+operational.
+</p>
+</blockquote>
+
+<p>
+The second description immediately reduces the investigation scope.
+It suggests that the radio and at least part of the control plane are
+operational and points toward an IPv4-specific user-plane or external
+network problem.
+</p>
+
+
+<h4>Determine the Scope</h4>
+
+<p>
+Scope is one of the strongest diagnostic signals.
+</p>
+
+<p>
+If one subscriber is affected, subscriber-specific configuration may be
+relevant. If thousands of subscribers across multiple sites are affected,
+a shared infrastructure component becomes more likely.
+</p>
+
+<p>
+Examples of useful scope questions include:
+</p>
+
+<ul>
+<li>Is the problem affecting one UE or many UEs?</li>
+<li>Is it limited to one cell?</li>
+<li>Is it limited to one geographic region?</li>
+<li>Is it limited to one APN or DNN?</li>
+<li>Is it limited to IPv4 or IPv6?</li>
+<li>Is it limited to one application?</li>
+<li>Did the problem begin after a configuration change?</li>
+</ul>
+
+
+<h4>Find the Last Known Good Point</h4>
+
+<p>
+The most valuable troubleshooting question is often:
+</p>
+
+<blockquote>
+<p>
+Where does the expected behavior stop?
+</p>
+</blockquote>
+
+<p>
+For example:
+</p>
+
+<pre><code>UE
+ |
+ | Registration: SUCCESS
+ v
+AMF
+ |
+ | PDU Session: SUCCESS
+ v
+SMF
+ |
+ | PFCP: SUCCESS
+ v
+UPF
+ |
+ | User traffic: FAILURE
+ v
+External Network</code></pre>
+
+<p>
+In this example, investigating radio registration would be inefficient
+because the evidence already demonstrates that registration is working.
+</p>
+
+
+<h3>Packet Capture and Protocol Analysis</h3>
+
+<p>
+Packet captures are among the most powerful sources of evidence available
+to a network engineer.
+</p>
+
+<p>
+Tools such as Wireshark and TShark allow engineers to inspect packets at
+multiple protocol layers and correlate network behavior with signaling
+procedures.
+</p>
+
+
+<h4>Layer-by-Layer Analysis</h4>
+
+<p>
+A useful packet-analysis strategy is to move from lower layers toward the
+application rather than immediately searching for a specific message.
+</p>
+
+<pre><code>Ethernet
+ |
+IP
+ |
+Transport
+ |
+Telecom Protocol
+ |
+Tunnel
+ |
+Subscriber Packet
+ |
+Application</code></pre>
+
+<p>
+For example, when analyzing GTP-U, the engineer should first confirm that
+the outer IP and UDP packets are present, then inspect the GTP tunnel
+information, and finally decode the encapsulated subscriber packet.
+</p>
+
+
+<h4>Capture Points Matter</h4>
+
+<p>
+A packet capture is meaningful only in the context of where it was
+collected.
+</p>
+
+<p>
+A packet observed entering a network function does not prove that it was
+forwarded successfully out of that function.
+</p>
+
+<p>
+Comparing captures at multiple points can therefore identify the precise
+location where packets disappear.
+</p>
+
+<p>
+For example:
+</p>
+
+<pre><code>Capture A              Capture B              Capture C
+gNB                    UPF                    External Router
+ |                      |                      |
+ | Packet present       | Packet present       | Packet absent
+ |--------------------->|--------------------->|</code></pre>
+
+<p>
+This evidence strongly suggests that the failure occurs between the UPF
+and the external router, rather than between the UE and the UPF.
+</p>
+
+
+<h3>Logs, Counters, Alarms and Metrics</h3>
+
+<p>
+Packet captures provide detailed protocol evidence, but production
+troubleshooting rarely depends on packet captures alone.
+</p>
+
+<p>
+A complete investigation typically correlates several observability
+sources.
+</p>
+
+<ul>
+<li>System logs.</li>
+<li>Protocol traces.</li>
+<li>Interface counters.</li>
+<li>Network alarms.</li>
+<li>CPU and memory metrics.</li>
+<li>Packet-loss statistics.</li>
+<li>Latency measurements.</li>
+<li>Session counters.</li>
+<li>Throughput statistics.</li>
+<li>Application logs.</li>
+</ul>
+
+<p>
+The key principle is correlation. A single metric rarely identifies a
+root cause by itself.
+</p>
+
+<p>
+For example, high packet loss combined with increasing interface errors
+and a corresponding increase in retransmissions provides much stronger
+evidence than packet loss alone.
+</p>
+
+
+<h3>Performance and Quality of Service</h3>
+
+<p>
+Functional connectivity is only one dimension of network quality.
+Production mobile networks must also satisfy performance requirements.
+</p>
+
+<p>
+Important metrics include:
+</p>
+
+<ul>
+<li>Latency.</li>
+<li>Jitter.</li>
+<li>Packet loss.</li>
+<li>Throughput.</li>
+<li>Connection setup time.</li>
+<li>Session establishment success rate.</li>
+<li>CPU utilization.</li>
+<li>Memory utilization.</li>
+<li>Interface utilization.</li>
+<li>Packet-per-second capacity.</li>
+</ul>
+
+<p>
+Quality of Service mechanisms allow networks to treat different traffic
+classes according to defined policies.
+</p>
+
+<p>
+In mobile networks, QoS is closely associated with subscriber sessions,
+bearers, QoS flows, policy control, and packet forwarding. These concepts
+are developed in detail in later chapters.
+</p>
+
+
+<h3>Redundancy and High Availability</h3>
+
+<p>
+Carrier-grade networks cannot depend on individual network elements
+remaining operational indefinitely. Redundancy is therefore an
+architectural requirement.
+</p>
+
+<p>
+Redundancy can exist at multiple levels:
+</p>
+
+<ul>
+<li>Physical interface redundancy.</li>
+<li>Link redundancy.</li>
+<li>Router redundancy.</li>
+<li>Network-function redundancy.</li>
+<li>Data-center redundancy.</li>
+<li>Geographic redundancy.</li>
+<li>Cloud-platform redundancy.</li>
+</ul>
+
+<p>
+A network engineer must understand not only the primary path but also how
+traffic is expected to behave when that path fails.
+</p>
+
+<p>
+This introduces additional engineering concepts such as convergence,
+failover time, route withdrawal, state synchronization, load balancing,
+and session persistence.
+</p>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- PRACTICAL APPLICATION -->
+<!-- ========================================================= -->
+
+<section id="practical-application">
+
+<h2>Putting It Into Practice</h2>
+
+<h3>Practical Troubleshooting Scenario</h3>
+
+<p>
+Consider a 5G Standalone deployment in which subscribers report that they
+can successfully register on the network but cannot access the Internet.
+</p>
+
+<h4>Observed Symptoms</h4>
+
+<ul>
+<li>UE detects the 5G cell.</li>
+<li>Registration completes successfully.</li>
+<li>Authentication succeeds.</li>
+<li>PDU Session Establishment succeeds.</li>
+<li>The UE receives an IP address.</li>
+<li>Internet applications fail.</li>
+</ul>
+
+<h4>Initial Analysis</h4>
+
+<p>
+The evidence already eliminates several potential failure domains.
+Radio access is functioning sufficiently for registration. Authentication
+is functioning. The control plane has successfully established a PDU
+Session.
+</p>
+
+<p>
+The investigation should therefore move toward the user plane.
+</p>
+
+<h4>Recommended Investigation</h4>
+
+<ol>
+<li>Verify that the PDU Session is active in the SMF.</li>
+<li>Verify the corresponding PFCP state between SMF and UPF.</li>
+<li>Verify the expected GTP-U tunnel parameters.</li>
+<li>Capture traffic on the N3 interface.</li>
+<li>Confirm that subscriber packets reach the UPF.</li>
+<li>Inspect the N6 interface.</li>
+<li>Verify routing toward the external data network.</li>
+<li>Verify return routing toward the subscriber address pool.</li>
+<li>Check firewall and security policies.</li>
+<li>Check MTU and fragmentation behavior.</li>
+<li>Test connectivity using both packet capture and active probes.</li>
+</ol>
+
+<p>
+Suppose the capture shows packets arriving at the UPF through N3 but no
+corresponding packets leaving N6. The investigation can now focus on the
+UPF forwarding behavior, routing, policy, or packet-processing configuration.
+</p>
+
+<p>
+If packets leave the UPF but no response returns from the external network,
+the investigation moves toward routing, firewall policies, NAT, or the
+external network.
+</p>
+
+<p>
+This illustrates a fundamental principle:
+</p>
+
+<blockquote>
+<p>
+Troubleshooting should follow evidence across the packet path rather
+than assumptions about which technology is responsible.
+</p>
+</blockquote>
+
+
+<h3>The Network Engineer's Mental Model</h3>
+
+<p>
+A senior network engineer should maintain several simultaneous views of
+the network.
+</p>
+
+<h4>Architectural View</h4>
+
+<p>
+Understand which network functions exist, why they exist, and how they
+interact.
+</p>
+
+<h4>Protocol View</h4>
+
+<p>
+Understand which protocol should be present on each interface and what
+messages or packet types indicate normal operation.
+</p>
+
+<h4>Packet View</h4>
+
+<p>
+Understand how data is encapsulated and forwarded through the network.
+</p>
+
+<h4>Routing View</h4>
+
+<p>
+Understand how the network determines the next hop toward each destination.
+</p>
+
+<h4>Operational View</h4>
+
+<p>
+Understand alarms, logs, metrics, changes, deployments, failures, and
+recovery procedures.
+</p>
+
+<h4>Performance View</h4>
+
+<p>
+Understand whether the network is merely functioning or actually meeting
+its capacity, latency, availability, and QoS objectives.
+</p>
+
+<p>
+The ability to move between these perspectives is one of the defining
+characteristics of senior-level network engineering.
+</p>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- REFERENCE -->
+<!-- ========================================================= -->
+
+<section id="chapter-reference">
+
+<h2>Chapter Reference</h2>
+
+<h3>Chapter Summary</h3>
+
+<p>
+Mobile networks are distributed systems that combine radio access,
+Ethernet, IP routing, transport protocols, telecom signaling, packet
+tunneling, cloud infrastructure, and external data networks.
+</p>
+
+<p>
+The evolution from 2G to 4G and 5G progressively increased the role of
+packet networking and software-based network functions. LTE introduced
+the EPC and an extensively IP-based architecture, while 5G introduced
+the Service-Based Architecture and a more cloud-oriented approach to
+network functions.
+</p>
+
+<p>
+The distinction between control plane and user plane is fundamental.
+Control-plane procedures establish the state required for communication,
+while the user plane carries subscriber traffic.
+</p>
+
+<p>
+Ethernet, VLANs, IP addressing, routing, TCP, UDP, SCTP, DNS, and GTP
+form important parts of the networking foundation underneath mobile
+services.
+</p>
+
+<p>
+Effective troubleshooting requires an end-to-end approach. Engineers
+should define the symptom, determine the scope, identify the last known
+good point, separate control-plane and user-plane behavior, validate
+lower-layer connectivity, inspect signaling and packet flows, and
+correlate packet captures with logs, counters, alarms, and metrics.
+</p>
+
+<p>
+The following chapters build upon this foundation by examining IP
+networking in greater depth, followed by detailed 4G and 5G Core
+architectures, signaling, user-plane behavior, cloud-native infrastructure,
+security, observability, testing, deployment, and automation.
+</p>
+
+
+<h3>Key Concepts</h3>
+
+<ul>
+<li>Mobile networks consist of UE, RAN, transport, core, and external network domains.</li>
+<li>LTE introduced the EPC as an IP-centric mobile core architecture.</li>
+<li>5G introduced the 5G Core and Service-Based Architecture.</li>
+<li>Control-plane and user-plane functions must be analyzed separately.</li>
+<li>Ethernet and IP networking provide fundamental transport capabilities for mobile networks.</li>
+<li>TCP, UDP, and SCTP serve different transport requirements.</li>
+<li>GTP provides essential tunneling capabilities in mobile networks.</li>
+<li>Routing determines how packets reach distributed network functions and external networks.</li>
+<li>DNS can affect service availability independently of basic IP connectivity.</li>
+<li>Packet captures provide evidence of actual protocol behavior.</li>
+<li>Logs, metrics, counters, and alarms complement packet-level analysis.</li>
+<li>End-to-end troubleshooting should identify the smallest failure domain consistent with the available evidence.</li>
+<li>Successful session establishment does not necessarily guarantee successful user-plane connectivity.</li>
+</ul>
+
+
+<h3>Engineering Checklist</h3>
+
+<p>
+When investigating a mobile connectivity problem, an engineer should be
+able to answer the following questions:
+</p>
+
+<ol>
+<li>What exactly is the observed symptom?</li>
+<li>How many subscribers or network elements are affected?</li>
+<li>Which geographical areas are affected?</li>
+<li>Is radio connectivity operational?</li>
+<li>Is control-plane signaling operational?</li>
+<li>Has the subscriber successfully authenticated?</li>
+<li>Has a session or bearer been established?</li>
+<li>Has an IP address or prefix been assigned?</li>
+<li>Is the user-plane tunnel operational?</li>
+<li>Does the expected route exist?</li>
+<li>Are packets arriving at the expected interface?</li>
+<li>Are packets leaving the expected interface?</li>
+<li>Is return traffic following a valid path?</li>
+<li>Could MTU, fragmentation, or packet loss be involved?</li>
+<li>Could a firewall or security policy be blocking the traffic?</li>
+<li>Did a recent configuration or network change precede the problem?</li>
+<li>Can the failure be reproduced and verified with packet captures or active tests?</li>
+</ol>
+
+</section>
+
+</article>
+
+</body>
+</html>
   
