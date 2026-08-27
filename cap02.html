@@ -1,255 +1,1047 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Capítulo 2 – Segurança em Redes Móveis (SS7, 4G e 5G)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capítulo 2 — Roteadores Cisco e Troubleshooting de Redes</title>
 <style>
-  body {
-    background-color: #1e2a38;
-    color: #cbd5e1;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    line-height: 1.7;
-  }
-  h1, h2, h3 {
-    color: #60a5fa;
-    margin-bottom: 0.7em;
-  }
-  p, li {
-    max-width: 900px;
-  }
-  p {
-    margin-bottom: 1.4em;
-    font-size: 1.1em;
-  }
-  ul {
-    max-width: 900px;
-    padding-left: 25px;
-    margin-bottom: 2em;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 900px;
-    margin: 1.5em 0 3em 0;
-    background: #293845;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #3e4f65;
-    vertical-align: top;
-  }
-  th {
-    background-color: #3b82f6;
-    color: #fff;
-  }
+:root { --bg:#0f1115; --fg:#e7eaf0; --muted:#aeb6c3; --card:#171a21; --line:#303642; --accent:#7db7ff; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial,Helvetica,sans-serif; line-height:1.65; }
+main { max-width:1050px; margin:0 auto; padding:50px 28px 90px; }
+h1 { font-size:2.5rem; margin-bottom:.3rem; }
+h2 { margin-top:3rem; padding-bottom:.45rem; border-bottom:1px solid var(--line); font-size:1.65rem; }
+h3 { margin-top:2rem; font-size:1.25rem; color:var(--accent); }
+h4 { margin-bottom:.3rem; color:var(--muted); }
+p { font-size:1.02rem; }
+li { margin:.45rem 0; }
+.diagram { margin:1.6rem 0; padding:18px; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:auto; }
+.diagram figcaption { font-weight:bold; margin-bottom:12px; color:var(--accent); }
+pre { font-family:"Cascadia Mono","Consolas","Liberation Mono",monospace; font-size:.9rem; line-height:1.45; white-space:pre; }
+.cli { background:#0a0c10; border:1px solid var(--line); border-radius:8px; padding:16px; overflow:auto; }
+.cover { padding:25px 0 35px; border-bottom:2px solid var(--line); }
+.meta { color:var(--muted); }
+.note { background:var(--card); border-left:4px solid var(--accent); padding:12px 16px; }
+@media print {
+  body { background:white; color:black; }
+  main { max-width:none; padding:15mm; }
+  .diagram, .cli { break-inside:avoid; }
+}
 </style>
 </head>
-
 <body>
+<main>
+<section class="cover">
+<h1>Capítulo 2 — Roteadores Cisco e Troubleshooting de Redes</h1>
+<p class="meta">Arquitetura, famílias de equipamentos, CLI, routing, IP/MPLS e integração com redes 4G/5G</p>
+<p>Este capítulo foi estruturado para servir como material técnico de estudo e também como referência para entrevistas de engenharia de redes. Os diagramas são propositalmente textuais: cada um pode posteriormente ser convertido em uma figura gráfica.</p>
+</section>
+<h2>Objetivos do capítulo</h2><p>Este capítulo apresenta os roteadores como elementos de engenharia de rede, e não apenas como equipamentos que recebem comandos. O objetivo é entender onde o roteador fica na arquitetura, como o plano de controle e o plano de encaminhamento trabalham juntos, como as principais famílias Cisco se diferenciam e como diagnosticar problemas de forma sistemática.</p><ul><li>Entender a função de um roteador em redes corporativas, de operadoras e de data centers.</li><li>Reconhecer as principais famílias Cisco: ISR, Catalyst, ASR 1000, ASR 9000, NCS e Nexus.</li><li>Dominar a lógica básica da CLI Cisco IOS/IOS XE e reconhecer diferenças importantes do IOS XR e NX-OS.</li><li>Configurar interfaces, endereçamento IPv4/IPv6, rotas estáticas, OSPF, IS-IS, BGP, VRF, VLANs, subinterfaces, ACLs e recursos de alta disponibilidade.</li><li>Relacionar roteamento IP com MPLS, redes móveis 4G e 5G e troubleshooting de tráfego de sinalização e user plane.</li><li>Desenvolver um método de troubleshooting que começa na camada física e termina na aplicação ou no serviço.</li></ul><h2>2.1 O roteador dentro da rede</h2><p>Um roteador toma decisões de encaminhamento entre redes IP diferentes. Em termos simples, ele recebe um pacote em uma interface, consulta sua tabela de encaminhamento e envia o pacote pela próxima interface ou próximo salto. Em uma rede de operadora, porém, essa descrição é apenas o começo: o equipamento também pode participar de BGP, OSPF ou IS-IS, MPLS, VRF, QoS, políticas de engenharia de tráfego, proteção de caminho e integração com sistemas de transporte e serviços.</p><figure class="diagram"><figcaption>Figura 2.1 — Conceito fundamental de roteamento</figcaption><pre>                 REDE A
+             10.10.10.0/24
+                   |
+                   |
+             +-----------+
+             |  ROUTER   |
+             |     R1    |
+             +-----------+
+                   |
+                   |
+                 REDE B
+             10.20.20.0/24
 
-<h1>Capítulo 2 – Segurança em Redes Móveis (SS7, 4G e 5G)</h1>
+R1 recebe um pacote destinado a 10.20.20.25.
+A tabela de roteamento informa qual é a saída adequada.
+O roteador encaminha o pacote pela interface/next-hop correspondente.</pre></figure><p><strong>Ideia central:</strong> o roteador não precisa conhecer todos os dispositivos finais para encaminhar um pacote. Ele precisa conhecer as redes e os próximos saltos necessários para alcançar essas redes.</p><h3>Roteador não é sinônimo de Internet</h3><p>O mesmo princípio aparece em uma LAN pequena, em um backbone IP/MPLS de uma operadora e no transporte de uma rede 4G/5G. O que muda é escala, capacidade, protocolos, redundância, número de tabelas de roteamento, políticas e requisitos de disponibilidade.</p><h2>2.2 Plano de controle e plano de encaminhamento</h2><p>Uma distinção fundamental em equipamentos modernos é entre o plano de controle e o plano de encaminhamento. O plano de controle executa protocolos e calcula informações. O plano de encaminhamento usa essas informações para encaminhar pacotes com alta velocidade.</p><figure class="diagram"><figcaption>Figura 2.2 — Control plane e forwarding plane</figcaption><pre>                  ROUTER
+        +-------------------------+
+        |       CONTROL PLANE      |
+        |-------------------------|
+        | OSPF | IS-IS | BGP       |
+        | ARP  | LDP   | políticas |
+        | Rotas | adjacências      |
+        +------------+------------+
+                     |
+             FIB / estruturas
+             de encaminhamento
+                     |
+        +------------v------------+
+        |     FORWARDING PLANE    |
+        |-------------------------|
+        | Lookup | ACL | QoS       |
+        | Rewrite | Encaminhamento|
+        +-------------------------+
+                     |
+             Interfaces / ASICs
+</pre></figure><p>Em plataformas de alta capacidade, o forwarding pode ser realizado por ASICs, NPUs ou outras estruturas especializadas. Isso permite que o processamento de pacotes ocorra em velocidades muito superiores ao que seria possível tratando cada pacote exclusivamente por software de propósito geral.</p><h2>2.3 RIB, FIB e a decisão de encaminhamento</h2><p>A RIB, Routing Information Base, representa as rotas conhecidas pelo sistema de roteamento. A FIB, Forwarding Information Base, é a estrutura otimizada usada para o encaminhamento de pacotes. Uma rota pode existir na RIB e não necessariamente ser instalada na FIB, dependendo de sua condição, preferência, resolução do next-hop e política da plataforma.</p><figure class="diagram"><figcaption>Figura 2.3 — Da descoberta da rota ao encaminhamento</figcaption><pre>Protocolos
+OSPF / IS-IS / BGP / Static
+          |
+          v
++-------------------+
+|        RIB        |
+| rotas conhecidas  |
++---------+---------+
+          |
+          | melhor rota
+          v
++-------------------+
+|        FIB        |
+| lookup rápido     |
++---------+---------+
+          |
+          v
+Pacote -&gt; interface de saída -&gt; próximo salto
+</pre></figure><h4>Comandos básicos para observar rotas</h4><pre class="cli">show ip route
+show ip route 10.20.20.0
+show ip cef
+show ip cef 10.20.20.25 detail</pre><h2>2.4 Famílias Cisco: visão geral</h2><p>A Cisco possui diversas famílias de plataformas. Para entrevistas e troubleshooting, é mais importante entender o papel de cada família do que memorizar cada modelo individual.</p><figure class="diagram"><figcaption>Figura 2.4 — Mapa simplificado das famílias</figcaption><pre>                    CISCO
+                      |
+      +---------------+----------------+
+      |               |                |
+   Enterprise     Service Provider   Data Center
+      |               |                |
+  Catalyst / ISR   ASR / NCS          Nexus
+      |               |                |
+   LAN / WAN       IP/MPLS / WAN     Switching /
+   Branch          Core / Edge       DC Fabric
+</pre></figure><ul><li><strong>ISR:</strong> Integrated Services Router, muito associado a filiais, WAN e ambientes corporativos.</li><li><strong>Catalyst:</strong> família fortemente associada a switching e campus, mas diversos modelos também fazem roteamento Layer 3.</li><li><strong>ASR 1000:</strong> edge/WAN/services, com foco em roteamento, serviços e conectividade de alto desempenho.</li><li><strong>ASR 9000:</strong> plataforma de Service Provider para agregação, edge e core IP/MPLS.</li><li><strong>NCS:</strong> Network Convergence System, voltado a redes de operadoras, transporte e ambientes de alta escala.</li><li><strong>Nexus:</strong> família orientada principalmente a data centers e switching/fabric, com capacidades Layer 3 importantes.</li></ul><h2>2.5 Cisco ISR — roteadores de serviços integrados</h2><p>Os ISR são encontrados tradicionalmente em ambientes corporativos, filiais e WAN. A proposta combina roteamento com diferentes serviços em uma mesma plataforma. Dependendo da geração, aparecem famílias como ISR G2 e ISR 4000 Series.</p><figure class="diagram"><figcaption>Figura 2.5 — Exemplo de posição de um ISR</figcaption><pre>                 WAN / ISP
+                    |
+                    |
+              +-----------+
+              |   ISR     |
+              | Router    |
+              +-----------+
+               /    |    \
+              /     |     \
+             LAN   Voice   VPN
+             |      |       |
+          Usuários  IP    Filiais
+</pre></figure><h4>Verificação inicial em IOS/IOS XE</h4><pre class="cli">show version
+show inventory
+show platform
+show ip interface brief
+show interfaces
+show ip route</pre><p>Em uma entrevista, a resposta forte não é apenas dizer que ISR é um roteador. É explicar que a família é historicamente associada a serviços de branch/WAN e que o modelo exato, a geração e o sistema operacional determinam recursos e sintaxe.</p><h2>2.6 Cisco Catalyst com roteamento Layer 3</h2><p>A família Catalyst é fortemente associada a switching, mas muitos Catalyst executam roteamento Layer 3. Em uma rede corporativa, um Catalyst pode ser o gateway de VLANs e executar OSPF, EIGRP, BGP ou rotas estáticas conforme o modelo e o software.</p><figure class="diagram"><figcaption>Figura 2.6 — Catalyst como gateway Layer 3</figcaption><pre> VLAN 10              VLAN 20
+10.10.10.0/24       10.20.20.0/24
+     |                    |
+     +---------+----------+
+               |
+        +--------------+
+        |   Catalyst   |
+        |   L3 Switch  |
+        +------+-------+
+               |
+          Upstream Router
+</pre></figure><h4>Exemplo de SVI</h4><pre class="cli">interface Vlan10
+ description USERS
+ ip address 10.10.10.1 255.255.255.0
+ no shutdown
 
-<p>Agora que você já entende como as redes móveis funcionam, é hora de explorar um dos temas mais importantes — e menos visíveis — desse universo: <strong>a segurança</strong>.</p>
+interface Vlan20
+ description SERVERS
+ ip address 10.20.20.1 255.255.255.0
+ no shutdown
 
-<p>As redes móveis evoluíram muito em velocidade e capacidade, mas a segurança nem sempre acompanhou esse crescimento da mesma forma. Isso abriu espaço para ataques que podem afetar usuários, operadoras e até sistemas financeiros.</p>
+ip routing</pre><h2>2.7 ASR 1000 — edge, WAN e serviços</h2><p>A série ASR 1000 é voltada para roteamento de edge/WAN e serviços. É comum encontrar recursos relacionados a VPN, NAT, QoS, conectividade WAN e integração com redes corporativas ou de provedores.</p><figure class="diagram"><figcaption>Figura 2.7 — ASR 1000 em um edge WAN</figcaption><pre>                 INTERNET / ISP
+                      |
+                 +---------+
+                 | ASR1000 |
+                 +----+----+
+                      |
+             +--------+--------+
+             |                 |
+          MPLS/SD-WAN       VPN/Services
+             |                 |
+          Sites/Cloud       Usuários/Apps
+</pre></figure><p>A escolha entre um ASR 1000 e um ASR 9000 não deve ser tratada como simples diferença de velocidade. A arquitetura, escala, posicionamento na rede e sistema operacional são diferentes.</p><h2>2.8 ASR 9000 — Service Provider</h2><p>O ASR 9000 é particularmente relevante para ambientes de operadoras. É uma plataforma de agregação, edge e core de redes IP/MPLS, construída para grande volume de tráfego e alta disponibilidade.</p><figure class="diagram"><figcaption>Figura 2.8 — ASR 9000 em rede de operadora</figcaption><pre>                CORE / PE
+                   |
+            +------+------+
+            |  ASR 9000   |
+            |   PE/Edge   |
+            +------+------+
+                   |
+              AGGREGATION
+             /     |      \
+            /      |       \
+         eNodeB   IP RAN   BNG
+            |       |        |
+          LTE     Transport  Broadband
+</pre></figure><p>O ASR 9000 normalmente aparece em discussões de IP/MPLS, BGP, IS-IS, OSPF, LDP, Segment Routing, VRF e serviços de operadora. A família utiliza Cisco IOS XR, o que é uma diferença importante em relação a muitas plataformas tradicionais IOS/IOS XE.</p><h2>2.9 NCS — Network Convergence System</h2><p>A família NCS foi desenvolvida para redes de operadoras e transporte em escala. Dependendo da série, o foco pode envolver routing, transporte IP, agregação, backbone e integração com arquiteturas ópticas ou de convergência.</p><figure class="diagram"><figcaption>Figura 2.9 — NCS no backbone</figcaption><pre>       PE                         PE
+        |                          |
+        |                          |
+      +---+------------------------+---+
+      |             NCS                |
+      |       Backbone / Transport     |
+      +--------------------------------+
+              |              |
+           Core Node       Core Node
+</pre></figure><p>Para uma entrevista, é suficiente reconhecer NCS como família de infraestrutura de Service Provider e saber explicar que o papel exato depende da subfamília e da arquitetura implantada.</p><h2>2.10 Nexus — data center</h2><p>Nexus é uma família fortemente orientada a data centers. O modelo de operação pode envolver switching Layer 2, routing Layer 3, VXLAN/EVPN e arquiteturas de fabric. A CLI e os conceitos têm semelhanças com IOS, mas NX-OS possui diferenças próprias.</p><figure class="diagram"><figcaption>Figura 2.10 — Nexus em uma arquitetura de data center</figcaption><pre>              SPINE
+       +--------+--------+
+       |        |        |
+     +---+    +---+    +---+
+     |S1 |    |S2 |    |S3 |
+     +---+    +---+    +---+
+       |        |        |
+    Servers   Servers   Servers
+</pre></figure><h4>Comandos iniciais em NX-OS</h4><pre class="cli">show version
+show interface status
+show interface brief
+show ip route
+show vlan
+show mac address-table
+show running-config</pre><h2>2.11 IOS, IOS XE, IOS XR e NX-OS</h2><p>A palavra Cisco não significa um único sistema operacional. A família do equipamento influencia profundamente a forma de configuração e troubleshooting.</p><figure class="diagram"><figcaption>Figura 2.11 — Sistemas operacionais Cisco</figcaption><pre>Cisco platforms
+      |
+      +----------------+
+      |                |
+  IOS / IOS XE      IOS XR
+      |                |
+Enterprise / Edge   Service Provider
+                       |
+                    ASR/NCS
 
-<h2>2.1 O problema fundamental</h2>
+             NX-OS
+                |
+             Nexus
+             Data Center
+</pre></figure><ul><li><strong>IOS:</strong> sistema operacional clássico presente em muitas plataformas Cisco.</li><li><strong>IOS XE:</strong> arquitetura moderna baseada em Linux, usada em várias plataformas Enterprise e Edge.</li><li><strong>IOS XR:</strong> voltado especialmente para Service Provider e grandes redes, com arquitetura modular e forte foco em disponibilidade.</li><li><strong>NX-OS:</strong> sistema operacional de data center usado na família Nexus.</li></ul><p>Comandos parecidos não significam comportamento idêntico. Em troubleshooting real, sempre confirme a plataforma e a versão antes de assumir que uma sintaxe ou recurso existe.</p><h2>2.12 A CLI Cisco</h2><p>A CLI segue uma estrutura de modos. O operador entra no modo EXEC, acessa configuração global, entra em configurações de interfaces, protocolos ou outros objetos e retorna ao nível anterior.</p><figure class="diagram"><figcaption>Figura 2.12 — Hierarquia simplificada da CLI</figcaption><pre>Router&gt;
+  |
+  +-- enable
+  |
+Router#
+  |
+  +-- configure terminal
+  |
+Router(config)#
+  |
+  +-- interface GigabitEthernet0/0
+  |
+Router(config-if)#
+</pre></figure><h4>Navegação básica</h4><pre class="cli">Router&gt; enable
+Router# configure terminal
+Router(config)# interface GigabitEthernet0/0
+Router(config-if)# exit
+Router(config)# end
+Router#</pre><p>O comando <strong>?</strong> é uma ferramenta de troubleshooting e aprendizado. Em uma situação de entrevista, demonstrar que você usa help contextual é melhor do que tentar memorizar cada comando.</p><h2>2.13 Configuração de hostname e acesso básico</h2><h4>Exemplo</h4><pre class="cli">configure terminal
+hostname R1
+no ip domain-lookup
+enable secret &lt;senha&gt;
+line console 0
+ logging synchronous
+ exit
+end
+write memory</pre><p>Em ambientes modernos, o armazenamento e o processo de commit variam conforme a plataforma. Em IOS tradicional, comandos como copy running-config startup-config ou write memory são comuns. Em IOS XR, a lógica de configuração e commit é diferente.</p><h2>2.14 Interfaces e estados</h2><p>Uma interface precisa ser analisada em pelo menos dois níveis: estado administrativo e estado operacional. Uma interface administratively down normalmente foi desabilitada por configuração. Uma interface down/down pode indicar ausência de sinal, cabo, módulo, remoto desligado ou problema físico, dependendo da plataforma.</p><figure class="diagram"><figcaption>Figura 2.13 — Estados de uma interface</figcaption><pre>                 INTERFACE
+                     |
+          +----------+----------+
+          |                     |
+    Administrative          Operational
+          |                     |
+       shutdown             up / down
+          |
+       no shutdown
+</pre></figure><h4>Comandos essenciais</h4><pre class="cli">show ip interface brief
+show interfaces GigabitEthernet0/0
+show interfaces GigabitEthernet0/0 counters errors
+show interfaces description</pre><ul><li>Observe status e protocol.</li><li>Confira velocidade e duplex.</li><li>Procure CRC, input errors, drops e overruns.</li><li>Confirme MTU.</li><li>Verifique descrição e papel da interface.</li><li>Compare os dois lados do enlace.</li></ul><h2>2.15 Configurando IPv4</h2><h4>Endereço IPv4 em interface</h4><pre class="cli">interface GigabitEthernet0/0
+ description UPLINK_TO_R2
+ ip address 10.0.12.1 255.255.255.252
+ no shutdown</pre><figure class="diagram"><figcaption>Figura 2.14 — Link ponto a ponto IPv4</figcaption><pre> R1                                         R2
++------+                                  +------+
+| Gi0/0| 10.0.12.1/30       10.0.12.2/30 |Gi0/0|
++--+---+==================================+---+--+
+   |                                          |
+ LAN A                                      LAN B
+</pre></figure><p>Em enlaces ponto a ponto, /30 foi historicamente muito usado. Redes modernas também utilizam /31 quando suportado e apropriado, economizando endereços IPv4.</p><h2>2.16 IPv6</h2><h4>Exemplo IPv6</h4><pre class="cli">interface GigabitEthernet0/0
+ ipv6 address 2001:db8:12::1/64
+ ipv6 enable
+ no shutdown
 
-<p><strong>“Todas as operadoras são confiáveis.”</strong></p>
+ipv6 unicast-routing</pre><h4>Verificação</h4><pre class="cli">show ipv6 interface brief
+show ipv6 route
+ping ipv6 2001:db8:12::2</pre><p>Em redes de operadoras, IPv6 pode coexistir com IPv4 por diferentes mecanismos de transição. O princípio de troubleshooting continua sendo o mesmo: validar conectividade local, rota, next-hop, política e caminho.</p><h2>2.17 ARP e vizinhança local</h2><p>ARP relaciona endereços IPv4 a endereços MAC em redes Ethernet. Antes de procurar problemas complexos de routing, confirme se o equipamento consegue resolver o próximo salto local.</p><h4>Comandos</h4><pre class="cli">show arp
+show ip arp
+clear arp-cache</pre><figure class="diagram"><figcaption>Figura 2.15 — Resolução ARP</figcaption><pre>R1                         Switch                    R2
+ |                            |                      |
+ |--- Who has 10.0.12.2? ----&gt;|--------------------&gt;|
+ |                            |&lt;---- MAC of R2 ------|
+ |&lt;---------------------------|                      |
+ |                                                   
+Tabela ARP:
+10.0.12.2 -&gt; MAC de R2
+</pre></figure><h2>2.18 Rotas diretamente conectadas</h2><p>Uma interface configurada e operacional gera uma rota connected e normalmente uma rota local para o próprio endereço. Se a rede conectada não aparece na tabela, algo fundamental precisa ser investigado.</p><h4>Exemplo de saída esperada</h4><pre class="cli">show ip route connected
+show ip route local</pre><figure class="diagram"><figcaption>Figura 2.16 — Connected e Local</figcaption><pre>Interface Gi0/0
+10.10.10.1/24
+      |
+      +---- C 10.10.10.0/24
+      |
+      +---- L 10.10.10.1/32
+</pre></figure><h2>2.19 Rotas estáticas</h2><p>Rotas estáticas são úteis em redes pequenas, caminhos específicos, default routes e situações controladas. Em grandes backbones, protocolos dinâmicos normalmente são usados para escalar o conhecimento da topologia.</p><h4>Rota estática</h4><pre class="cli">ip route 10.20.20.0 255.255.255.0 10.0.12.2</pre><h4>Default route</h4><pre class="cli">ip route 0.0.0.0 0.0.0.0 10.0.12.2</pre><figure class="diagram"><figcaption>Figura 2.17 — Rota estática</figcaption><pre>LAN A                 R1                    R2                 LAN B
+10.10.10.0/24          |                    |              10.20.20.0/24
+     |             +---+---+              +-+---+              |
+     +-------------|       |--------------|     |--------------+
+                   +-------+              +-----+
 
-<p>👉 Resultado: redes externas podem enviar comandos maliciosos.</p>
+R1:
+10.20.20.0/24 -&gt; next-hop 10.0.12.2
+</pre></figure><h2>2.20 Administrative Distance</h2><p>Quando diferentes fontes fornecem uma rota para o mesmo prefixo, o Cisco pode usar Administrative Distance para escolher a fonte preferida, antes da comparação de métricas dentro do protocolo.</p><figure class="diagram"><figcaption>Figura 2.18 — Conceito de Administrative Distance</figcaption><pre>Mesmo prefixo:
+10.20.20.0/24
 
-<h2>2.2 Evolução da segurança nas redes móveis</h2>
+Static       AD 1
+OSPF         AD 110
+IS-IS        AD dependente da plataforma
+BGP eBGP     AD 20
 
-<table>
-<tr><th>Geração</th><th>Protocolo</th><th>Modelo de segurança</th></tr>
-<tr><td>2G / 3G</td><td>SS7</td><td>Confiança implícita</td></tr>
-<tr><td>4G</td><td>Diameter</td><td>Confiança entre parceiros</td></tr>
-<tr><td>5G</td><td>APIs (HTTP/2)</td><td>Arquitetura baseada em serviços</td></tr>
-</table>
+Quanto menor a AD, mais preferida é a fonte de rota,
+considerando as regras aplicáveis à plataforma.
+</pre></figure><p>Não confunda Administrative Distance com métrica de routing protocol. A AD compara fontes de informação; a métrica normalmente compara caminhos dentro de um protocolo.</p><h2>2.21 OSPF</h2><p>OSPF é um IGP link-state. Roteadores formam adjacências, trocam informações de estado de enlace e calculam caminhos usando SPF.</p><figure class="diagram"><figcaption>Figura 2.19 — OSPF e adjacências</figcaption><pre>             R2
+            /  \
+           /    \
+          /      \
+        R1--------R3
+          \      /
+           \    /
+            \  /
+             R4
 
-<ul>
-<li>SS7 é vulnerável por design</li>
-<li>4G ainda confia em parceiros</li>
-<li>5G expõe funções via APIs</li>
-</ul>
+Cada roteador constrói conhecimento da topologia.
+O algoritmo SPF calcula os melhores caminhos.
+</pre></figure><h4>Configuração OSPF simples</h4><pre class="cli">router ospf 100
+ router-id 1.1.1.1
+ network 10.0.12.0 0.0.0.3 area 0
+ network 10.1.1.0 0.0.0.255 area 0</pre><h4>Troubleshooting OSPF</h4><pre class="cli">show ip ospf neighbor
+show ip ospf interface brief
+show ip ospf database
+show ip route ospf
+debug ip ospf adj</pre><p>Em produção, debug deve ser usado com cautela. Em equipamentos de alta escala, prefira comandos show e ferramentas específicas de diagnóstico antes de habilitar debug indiscriminadamente.</p><h2>2.22 IS-IS</h2><p>IS-IS é outro IGP link-state muito comum em redes de operadoras. Em grandes backbones, sua simplicidade operacional e escalabilidade fazem com que seja uma escolha frequente.</p><figure class="diagram"><figcaption>Figura 2.20 — IS-IS em backbone</figcaption><pre>        PE1 -------- P1 -------- P2 -------- PE2
+          \          |          |          /
+           \---------P3----------P4-------/
 
-<h2>2.3 Metodologia de avaliação de risco</h2>
+IS-IS fornece reachability do backbone.
+BGP pode fornecer informação de serviços/prefixos.
+MPLS pode usar o IGP para alcançar os LSRs.
+</pre></figure><h4>Comandos de verificação</h4><pre class="cli">show isis neighbors
+show isis database
+show ip route isis
+show isis topology</pre><p>A sintaxe exata depende do IOS/IOS XE/IOS XR. Em uma plataforma IOS XR, os comandos e o modelo de configuração devem ser tratados de acordo com a release específica.</p><h2>2.23 BGP</h2><p>BGP é o protocolo de roteamento usado para troca de informação entre Autonomous Systems e também é amplamente usado dentro de grandes redes de provedores como BGP interno. Diferentemente de um IGP, BGP trabalha com atributos e políticas.</p><figure class="diagram"><figcaption>Figura 2.21 — eBGP entre sistemas autônomos</figcaption><pre>      AS 65001                         AS 65002
+     +--------+                      +--------+
+     |   R1   |====== eBGP =========|   R2   |
+     +--------+                      +--------+
+         |                                 |
+       LAN A                             LAN B
+</pre></figure><h4>BGP básico</h4><pre class="cli">router bgp 65001
+ neighbor 10.0.12.2 remote-as 65002
+ network 10.10.10.0 mask 255.255.255.0</pre><h4>Verificação</h4><pre class="cli">show ip bgp summary
+show ip bgp
+show ip bgp 10.20.20.0
+show ip route bgp</pre><p>Uma sessão BGP estabelecida não garante que um prefixo esteja sendo anunciado, aceito ou instalado na RIB. Essa distinção é essencial em troubleshooting.</p><h2>2.24 Atributos BGP</h2><p>Entre os atributos mais conhecidos estão Local Preference, AS Path, MED, Origin, Next Hop e comunidades. A ordem de seleção de melhor caminho é dependente da implementação e configuração, mas a lógica geral é: políticas e atributos determinam qual caminho é preferido.</p><figure class="diagram"><figcaption>Figura 2.22 — BGP como sistema de políticas</figcaption><pre>                    PREFIXO
+                       |
+          +------------+------------+
+          |                         |
+        PATH A                    PATH B
+       AS-PATH 2                 AS-PATH 4
+       LocalPref 100             LocalPref 100
+          |                         |
+          +------------+------------+
+                       |
+                 Best Path
+                       |
+                      FIB
+</pre></figure><h4>Comandos úteis</h4><pre class="cli">show ip bgp
+show ip bgp neighbors
+show ip bgp neighbors 10.0.12.2 advertised-routes
+show ip bgp neighbors 10.0.12.2 received-routes</pre><h2>2.25 Route filtering</h2><p>Em ambientes reais, não basta formar adjacência. É necessário controlar quais prefixos podem entrar e sair. Prefix-lists, route-maps e políticas equivalentes são ferramentas fundamentais.</p><h4>Prefix-list simples</h4><pre class="cli">ip prefix-list CUSTOMER seq 10 permit 10.20.0.0/16 le 24</pre><h4>Aplicação em BGP</h4><pre class="cli">router bgp 65001
+ neighbor 10.0.12.2 prefix-list CUSTOMER in</pre><p>Uma política mal aplicada pode causar perda de rotas ou anúncio indevido de prefixos. Por isso, alterações de BGP devem ser tratadas como mudanças de serviço.</p><h2>2.26 VLANs e subinterfaces</h2><p>Um roteador pode fazer inter-VLAN routing usando interfaces físicas distintas ou uma única interface trunk com subinterfaces 802.1Q.</p><figure class="diagram"><figcaption>Figura 2.23 — Router-on-a-stick</figcaption><pre>VLAN 10 --------\
+                 \
+VLAN 20 ----------+--- SW === trunk === R1
+                 /
+VLAN 30 --------/
 
-<ul>
-<li>Severidade: Low (+1), Medium (+2), High (+3), Critical (+4)</li>
-<li>Uso de MSISDN: +2</li>
-<li>Impacto em localização: +3</li>
-<li>Impacto em interceptação: +3</li>
-<li>Origem externa: +2</li>
-</ul>
+R1:
+Gi0/0.10 -&gt; VLAN 10
+Gi0/0.20 -&gt; VLAN 20
+Gi0/0.30 -&gt; VLAN 30
+</pre></figure><h4>Subinterfaces</h4><pre class="cli">interface GigabitEthernet0/0
+ no shutdown
 
-<p>👉 Quanto maior o score, maior a prioridade.</p>
+interface GigabitEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 10.10.10.1 255.255.255.0
 
-<h2>2.4 Visão executiva de riscos</h2>
+interface GigabitEthernet0/0.20
+ encapsulation dot1Q 20
+ ip address 10.20.20.1 255.255.255.0</pre><h2>2.27 VRF</h2><p>VRF permite manter tabelas de roteamento separadas no mesmo equipamento. Isso é fundamental em Service Provider, especialmente para serviços MPLS L3VPN.</p><figure class="diagram"><figcaption>Figura 2.24 — VRFs separadas</figcaption><pre>                    ROUTER
+          +-----------------------+
+          |                       |
+       VRF CUST-A              VRF CUST-B
+          |                       |
+     10.10.0.0/16            10.10.0.0/16
+          |                       |
+       Customer A              Customer B
 
-<table>
-<tr><th>Categoria</th><th>Risco Médio</th><th>Impacto</th></tr>
-<tr><td>📍 Tracking</td><td>🔴 Muito Alto</td><td>Localização</td></tr>
-<tr><td>📡 Interceptação</td><td>🔴 Crítico</td><td>Chamadas/SMS</td></tr>
-<tr><td>🔓 Data Disclosure</td><td>🔴 Crítico</td><td>Dados</td></tr>
-<tr><td>💸 Fraude</td><td>🟠 Alto</td><td>Financeiro</td></tr>
-<tr><td>⚙️ DoS</td><td>🟠 Alto</td><td>Disponibilidade</td></tr>
-</table>
+Mesmo prefixo pode existir em VRFs diferentes
+sem conflito de roteamento.
+</pre></figure><h4>VRF em IOS/IOS XE — exemplo conceitual</h4><pre class="cli">ip vrf CUSTOMER_A
+ rd 65000:100
 
-<h2>2.5 Principais categorias de ataque</h2>
+interface GigabitEthernet0/1
+ ip vrf forwarding CUSTOMER_A
+ ip address 10.10.10.1 255.255.255.0</pre><h4>Verificação</h4><pre class="cli">show ip vrf
+show ip route vrf CUSTOMER_A
+ping vrf CUSTOMER_A 10.10.10.2</pre><p>Em IOS XR, a configuração de VRF e serviços segue o modelo de configuração próprio da plataforma.</p><h2>2.28 MPLS</h2><p>MPLS adiciona labels ao encaminhamento e permite construir serviços e caminhos em redes de provedores. Em uma arquitetura clássica, equipamentos podem atuar como PE e P, enquanto CE representa o equipamento do cliente.</p><figure class="diagram"><figcaption>Figura 2.25 — PE, P e CE</figcaption><pre>CE-A          PE1             P1             PE2          CE-B
+ |             |              |              |             |
+ +-------------+==============+==============+-------------+
+               &lt;------------- MPLS ---------&gt;
 
-<h3>📍 Tracking</h3>
-<table>
-<tr><th>Tecnologia</th><th>Exemplo</th><th>Score</th></tr>
-<tr><td>SS7</td><td>AnyTimeInterrogation</td><td>10/10</td></tr>
-<tr><td>4G</td><td>Provide Subscriber Info</td><td>9/10</td></tr>
-<tr><td>5G</td><td>APIs</td><td>7/10</td></tr>
-</table>
+CE = Customer Edge
+PE = Provider Edge
+P  = Provider / core router
+</pre></figure><p>No core MPLS, o roteamento IP/IGP fornece reachability dos loopbacks. Protocolos de distribuição de labels ou Segment Routing podem fornecer o mecanismo de encaminhamento baseado em labels.</p><h4>Comandos tradicionais de verificação MPLS</h4><pre class="cli">show mpls interfaces
+show mpls ldp neighbor
+show mpls forwarding-table
+show ip route
+show ip cef</pre><h2>2.29 MPLS L3VPN e VRF</h2><p>Em L3VPN, cada cliente pode possuir uma VRF no PE. O backbone transporta o tráfego entre PEs sem misturar as tabelas de roteamento dos clientes.</p><figure class="diagram"><figcaption>Figura 2.26 — L3VPN simplificada</figcaption><pre>Customer A                             Customer A
+   CE1 -- PE1 ==== P1 ==== P2 ==== PE2 -- CE2
+             \       MPLS       /
+              \_______________/
 
-<h3>📡 Interceptação</h3>
-<table>
-<tr><th>Tecnologia</th><th>Exemplo</th><th>Score</th></tr>
-<tr><td>SS7</td><td>SendRoutingInfo</td><td>10/10</td></tr>
-<tr><td>4G</td><td>Update Location</td><td>9/10</td></tr>
-<tr><td>5G</td><td>Controle sessão</td><td>7/10</td></tr>
-</table>
+Customer B possui outra VRF:
+   CE3 -- PE1 ==== P1 ==== P2 ==== PE2 -- CE4
 
-<h3>🔓 Data Disclosure</h3>
-<table>
-<tr><th>Tecnologia</th><th>Exemplo</th><th>Score</th></tr>
-<tr><td>SS7</td><td>SendIMSI</td><td>10/10</td></tr>
-<tr><td>4G</td><td>AIR</td><td>9/10</td></tr>
-<tr><td>5G</td><td>APIs UDM</td><td>7/10</td></tr>
-</table>
+O backbone transporta os serviços sem unir
+as tabelas IPv4 dos clientes.
+</pre></figure><h2>2.30 ACL — controle de tráfego</h2><p>ACLs filtram tráfego com base em critérios como endereço, protocolo e portas. Em troubleshooting, é comum encontrar conectividade parcial causada por uma ACL.</p><h4>ACL IPv4 simples</h4><pre class="cli">ip access-list extended ALLOW_APP
+ permit tcp 10.10.10.0 0.0.0.255 host 10.20.20.10 eq 443
+ deny ip any any log
 
-<h2>2.6 Prioridades</h2>
+interface GigabitEthernet0/1
+ ip access-group ALLOW_APP in</pre><h4>Verificação</h4><pre class="cli">show access-lists
+show ip interface GigabitEthernet0/1</pre><p>Uma regra importante: sempre raciocine sobre direção. Uma ACL inbound na interface de entrada não é equivalente a uma ACL outbound na interface de saída.</p><h2>2.31 NAT</h2><p>NAT traduz endereços entre domínios. É comum em redes corporativas e edge, embora o desenho exato varie muito em ambientes de operadora.</p><figure class="diagram"><figcaption>Figura 2.27 — NAT básico</figcaption><pre>LAN PRIVADA                  ROTEADOR                 INTERNET
+10.10.10.10  ------------&gt;  200.1.1.10  -----------&gt;  8.8.8.8
 
-<ul>
-<li>🔴 Crítico: Tracking e interceptação</li>
-<li>🟠 Alto: Fraude</li>
-<li>🟡 Médio: DoS</li>
-</ul>
+Antes:
+src = 10.10.10.10
 
-<h2>2.7 Explicação didática</h2>
+Depois da tradução:
+src = 200.1.1.10
+</pre></figure><h4>Exemplo conceitual de PAT</h4><pre class="cli">access-list 10 permit 10.10.10.0 0.0.0.255
+ip nat inside source list 10 interface GigabitEthernet0/0 overload
 
-<ul>
-<li>SS7 = sem segurança</li>
-<li>4G = confiança parcial</li>
-<li>5G = APIs expostas</li>
-</ul>
+interface GigabitEthernet0/0
+ ip nat outside
 
-<h2>2.8 Proteção</h2>
+interface GigabitEthernet0/1
+ ip nat inside</pre><h4>Verificação</h4><pre class="cli">show ip nat translations
+show ip nat statistics</pre><h2>2.32 QoS</h2><p>Em redes de operadoras, simplesmente ter banda disponível não significa que todo tráfego terá o mesmo tratamento. QoS permite classificar, marcar, enfileirar e priorizar tráfego.</p><figure class="diagram"><figcaption>Figura 2.28 — Pipeline simplificado de QoS</figcaption><pre>Pacote
+  |
+  v
+Classificação
+  |
+  v
+Marking
+  |
+  v
+Queue / Scheduling
+  |
+  v
+Shaping / Policing
+  |
+  v
+Saída
+</pre></figure><p>Em redes móveis, QoS pode ser relacionada a classes de serviço, aplicações de voz, sinalização e user plane. O detalhe da política depende da arquitetura de transporte e do domínio em questão.</p><h2>2.33 MTU e fragmentação</h2><p>MTU incompatível pode produzir sintomas extremamente traiçoeiros: ping pequeno funciona, enquanto aplicações maiores falham. Em túneis, MPLS, IPsec e encapsulamentos móveis, o overhead adicional precisa ser considerado.</p><figure class="diagram"><figcaption>Figura 2.29 — MTU e encapsulamento</figcaption><pre>Payload
++-------------------------+
+|         IP packet       |
++-------------------------+
+| GTP-U / tunnel overhead |
++-------------------------+
+| MPLS label(s)           |
++-------------------------+
+| Ethernet                |
++-------------------------+
 
-<ul>
-<li>Firewall SS7/Diameter</li>
-<li>Proteção de APIs</li>
-<li>Monitoramento</li>
-</ul>
+Cada encapsulamento pode consumir bytes adicionais.
+</pre></figure><h4>Comandos</h4><pre class="cli">show interfaces | include MTU
+ping 10.20.20.1 size 1400 df-bit
+ping 10.20.20.1 size 1500 df-bit</pre><p>O tamanho exato que funciona depende do caminho. O objetivo do teste é descobrir o maior pacote sem fragmentação ou identificar onde o PMTUD está falhando.</p><h2>2.34 ECMP</h2><p>Equal-Cost Multi-Path permite usar múltiplos caminhos de custo equivalente. É comum em backbones e data centers, aumentando capacidade e resiliência.</p><figure class="diagram"><figcaption>Figura 2.30 — ECMP</figcaption><pre>                 R2
+                /  \
+               /    \
+R1 ------------      ------------ R4
+               \    /
+                \  /
+                 R3
 
-<h2>2.9 Conclusão</h2>
+R1 possui dois caminhos de custo equivalente
+para alcançar R4.
+</pre></figure><p>O equipamento pode distribuir fluxos usando hashing. Isso significa que ECMP não necessariamente divide cada pacote individual igualmente.</p><h2>2.35 Alta disponibilidade</h2><p>Roteadores de produção podem usar redundância de fontes, módulos, links, protocolos e até equipamentos. FHRPs como HSRP e VRRP fornecem um gateway virtual em ambientes apropriados.</p><figure class="diagram"><figcaption>Figura 2.31 — Gateway redundante</figcaption><pre>             Virtual Gateway
+               10.10.10.1
+                    |
+          +---------+---------+
+          |                   |
+       +--+--+             +--+--+
+       | R1  |             | R2  |
+       +-----+             +-----+
+          Active             Standby
+</pre></figure><h4>HSRP conceitual</h4><pre class="cli">interface GigabitEthernet0/1
+ standby 10 ip 10.10.10.1
+ standby 10 priority 110
+ standby 10 preempt</pre><p>Em Service Provider, alta disponibilidade também envolve redundância de links, BGP multipath, IGP convergence, MPLS protection, graceful restart e mecanismos específicos da plataforma.</p><h2>2.36 Logging e NTP</h2><p>Logs e sincronização de tempo são fundamentais para troubleshooting. Sem horário consistente, correlacionar eventos entre roteadores, firewalls, servidores e elementos móveis pode ser extremamente difícil.</p><h4>Syslog e NTP — exemplo</h4><pre class="cli">logging host 10.100.0.10
+logging trap warnings
+ntp server 10.100.0.20
+show logging
+show ntp associations
+show clock</pre><figure class="diagram"><figcaption>Figura 2.32 — Correlação de eventos</figcaption><pre>R1 --------\
+R2 ----------+------&gt; Syslog / SIEM
+Firewall ----/
+Core --------/
 
-<p>A segurança evoluiu, mas os riscos continuam.</p>
+Todos os equipamentos precisam de horário confiável
+para correlacionar eventos.
+</pre></figure><h2>2.37 SNMP e telemetria</h2><p>SNMP tradicionalmente fornece coleta e monitoramento. Plataformas modernas também oferecem streaming telemetry, APIs e mecanismos mais eficientes para observabilidade.</p><h4>Comandos de referência</h4><pre class="cli">show snmp
+show processes cpu
+show processes memory
+show interfaces counters</pre><p>Em operações modernas, o objetivo não é apenas perguntar ao equipamento se está saudável. É construir métricas, logs e eventos suficientes para detectar degradação antes de uma falha total.</p><h2>2.38 Troubleshooting: comece pelo básico</h2><p>Um dos erros mais comuns em troubleshooting é começar pelo protocolo sofisticado antes de confirmar o básico. A sequência correta depende do caso, mas uma abordagem por camadas reduz drasticamente o espaço de busca.</p><figure class="diagram"><figcaption>Figura 2.33 — Escada de troubleshooting</figcaption><pre>1. FÍSICO
+   cabo, óptica, potência, interface
 
-<ul>
-<li>SS7 → vulnerável por design</li>
-<li>4G → vulnerável por confiança</li>
-<li>5G → vulnerável por APIs</li>
-</ul>
+2. L2
+   VLAN, trunk, MAC, ARP
 
-<h2>2.10 Pontuação detalhada dos ataques</h2>
+3. L3
+   IP, máscara, gateway, rota
 
-<p>Abaixo estão exemplos reais com a pontuação explicada:</p>
+4. ROUTING
+   OSPF, IS-IS, BGP, políticas
 
-<table>
-<tr>
-<th>Ataque</th>
-<th>Score</th>
-<th>Como foi calculado</th>
-</tr>
+5. SECURITY
+   ACL, firewall, NAT
 
-<tr>
-<td>AnyTimeInterrogation (MSISDN)</td>
-<td><strong>10/10</strong></td>
-<td>
-Critical (+4)<br>
-MSISDN (+2)<br>
-Localização (+3)<br>
-Externo (+2)<br>
-Total: 11 → 10
-</td>
-</tr>
+6. TRANSPORT
+   TCP / UDP / SCTP
 
-<tr>
-<td>SendRoutingInfo</td>
-<td><strong>10/10</strong></td>
-<td>
-Critical (+4)<br>
-Interceptação (+3)<br>
-MSISDN (+2)<br>
-Externo (+2)<br>
-Total: 11 → 10
-</td>
-</tr>
+7. TÚNEL / SERVIÇO
+   GTP-U, GTP-C, IPsec, MPLS
 
-<tr>
-<td>SendIdentification</td>
-<td><strong>10/10</strong></td>
-<td>
-Critical (+4)<br>
-IMSI exposure (+3)<br>
-Externo (+2)<br>
-Total: 9 → ajustado para 10
-</td>
-</tr>
+8. APLICAÇÃO
+   DNS, HTTP, SIP, APIs
+</pre></figure><p><strong>Regra prática:</strong> não avance para uma camada superior enquanto houver evidência de falha em uma camada inferior.</p><h2>2.39 Primeiro comando: show ip interface brief</h2><h4>Comando</h4><pre class="cli">show ip interface brief</pre><p>Esse comando oferece uma fotografia rápida das interfaces e seus endereços. É frequentemente o melhor primeiro comando quando alguém relata que um roteador perdeu conectividade.</p><figure class="diagram"><figcaption>Figura 2.34 — Exemplo de interpretação</figcaption><pre>Interface              IP-Address      Status       Protocol
+Gi0/0                  10.0.12.1       up           up
+Gi0/1                  10.10.10.1      up           up
+Gi0/2                  unassigned      administratively down down
 
-<tr>
-<td>ActivateSS</td>
-<td><strong>8/10</strong></td>
-<td>
-High (+3)<br>
-Fraude (+3)<br>
-Externo (+2)<br>
-Total: 8
-</td>
-</tr>
+Interpretação:
+Gi0/0 -&gt; operacional
+Gi0/1 -&gt; operacional
+Gi0/2 -&gt; desabilitada por configuração
+</pre></figure><h2>2.40 show interfaces</h2><h4>Comando</h4><pre class="cli">show interfaces GigabitEthernet0/0</pre><ul><li>Line protocol.</li><li>MTU.</li><li>Input/output rate.</li><li>Errors.</li><li>CRC.</li><li>Drops.</li><li>Duplex e velocidade.</li><li>Encapsulation.</li><li>Last input/output.</li><li>Counters.</li></ul><p>Counters acumulados podem esconder a diferença entre um problema histórico e um problema atual. Sempre que possível, observe a evolução dos contadores ao longo do tempo.</p><h2>2.41 show ip route</h2><h4>Comandos</h4><pre class="cli">show ip route
+show ip route 10.20.20.0
+show ip route 0.0.0.0
+show ip route vrf CUSTOMER_A 10.20.20.0</pre><figure class="diagram"><figcaption>Figura 2.35 — Como ler uma rota</figcaption><pre>O 10.20.20.0/24 [110/20] via 10.0.12.2, 00:10:15, Gi0/0
 
-<tr>
-<td>CAMEL InitiateCallAttempt</td>
-<td><strong>6/10</strong></td>
-<td>
-Medium (+2)<br>
-Fraude (+2)<br>
-Externo (+2)<br>
-Total: 6
-</td>
-</tr>
+O       = OSPF
+10.20.20.0/24 = prefixo
+110     = Administrative Distance
+20      = métrica
+10.0.12.2 = next-hop
+Gi0/0   = interface de saída
+</pre></figure><h2>2.42 Ping não é prova de que o serviço funciona</h2><p>Ping testa ICMP. Ele é excelente para verificar uma parte do caminho, mas não comprova que uma aplicação, sessão TCP, UDP ou protocolo de sinalização esteja funcionando.</p><figure class="diagram"><figcaption>Figura 2.36 — ICMP funciona, aplicação falha</figcaption><pre>                 R1                  Firewall                 R2
+                  |                     |                    |
+ping ICMP --------+--------------------&gt;+-------------------&gt;+  OK
+                  |                     |                    |
+UDP/Service ------+--------------------&gt;X                    |  BLOCKED
 
-<tr>
-<td>FailureReport</td>
-<td><strong>3/10</strong></td>
-<td>
-Low (+1)<br>
-Externo (+2)<br>
-Total: 3
-</td>
-</tr>
+Conclusão:
+ICMP OK != serviço OK
+</pre></figure><p>Esse princípio é particularmente importante em redes móveis. Um teste ICMP entre dois endereços não prova que GTP-U, GTP-C, SCTP ou uma sessão de usuário esteja funcionando.</p><h2>2.43 Traceroute</h2><h4>Comandos</h4><pre class="cli">traceroute 10.20.20.25
+traceroute vrf CUSTOMER_A 10.20.20.25</pre><p>Traceroute ajuda a identificar até onde o caminho avança. Porém, firewalls, MPLS, filtros ICMP e políticas de segurança podem tornar a resposta incompleta.</p><h2>2.44 Troubleshooting de OSPF</h2><figure class="diagram"><figcaption>Figura 2.37 — Checklist OSPF</figcaption><pre>OSPF neighbor down?
+      |
+      +-- Interface up/up?
+      |
+      +-- IP/máscara corretos?
+      |
+      +-- Área correta?
+      |
+      +-- Hello/Dead timers iguais?
+      |
+      +-- Authentication?
+      |
+      +-- MTU?
+      |
+      +-- Network type?
+      |
+      +-- ACL bloqueando protocolo OSPF?
+</pre></figure><h4>Comandos</h4><pre class="cli">show ip ospf neighbor
+show ip ospf interface
+show ip ospf interface brief
+show ip route ospf</pre><h2>2.45 Troubleshooting de BGP</h2><figure class="diagram"><figcaption>Figura 2.38 — Checklist BGP</figcaption><pre>BGP Established?
+      |
+      +-- Não --&gt; IP reachability?
+      |             |
+      |             +-- TCP/179 permitido?
+      |             |
+      |             +-- remote-as correto?
+      |             |
+      |             +-- update-source correto?
+      |
+      +-- Sim --&gt; Prefixo recebido?
+                    |
+                    +-- Política de entrada?
+                    |
+                    +-- Prefixo válido?
+                    |
+                    +-- Melhor caminho?
+                    |
+                    +-- Instalado na RIB/FIB?
+</pre></figure><h4>Comandos</h4><pre class="cli">show ip bgp summary
+show ip bgp neighbors
+show ip bgp neighbors 10.0.12.2 routes
+show ip bgp 10.20.20.0
+show ip route 10.20.20.0</pre><h2>2.46 Troubleshooting de IS-IS</h2><h4>Comandos</h4><pre class="cli">show isis neighbors
+show isis database
+show isis topology
+show ip route isis</pre><p>Em uma rede de backbone, uma adjacência IS-IS perdida pode causar muito mais impacto do que um único prefixo. Verifique primeiro o estado dos enlaces e a adjacência; depois determine quais prefixos desapareceram.</p><h2>2.47 Troubleshooting de ACL</h2><figure class="diagram"><figcaption>Figura 2.39 — ACL como ponto de bloqueio</figcaption><pre>Client
+  |
+  v
+[Router]
+  |
+  +---- ACL IN ----&gt; permit? ----&gt; next hop
+                       |
+                       +----&gt; deny
+</pre></figure><h4>Comandos</h4><pre class="cli">show access-lists
+show running-config interface GigabitEthernet0/1
+show ip interface GigabitEthernet0/1</pre><p>Contadores de ACL podem mostrar que uma regra está sendo atingida. Isso ajuda a transformar uma hipótese em evidência.</p><h2>2.48 Troubleshooting em 4G</h2><p>Em redes 4G, o roteador IP pode participar do transporte entre eNodeB, EPC e outros domínios. Dependendo da arquitetura, aparecem interfaces e protocolos como S1AP sobre SCTP, GTP-C e GTP-U.</p><figure class="diagram"><figcaption>Figura 2.40 — Caminho simplificado 4G</figcaption><pre>UE
+ |
+eNodeB
+ |
+ | S1-C / SCTP
+ v
+MME
+ |
+ | controle
+ v
+SGW -------- GTP-C / GTP-U -------- PGW
+                                      |
+                                      |
+                                    PDN
+                                      |
+                                   Internet
 
-</table>
+O transporte IP pode atravessar múltiplos
+roteadores entre esses elementos.
+</pre></figure><p>No user plane, GTP-U utiliza UDP. Portanto, uma política que permite ICMP mas bloqueia UDP pode produzir a situação em que o ping funciona e o tráfego de usuário não.</p><h2>2.49 GTP-U e roteadores</h2><figure class="diagram"><figcaption>Figura 2.41 — Encapsulamento GTP-U</figcaption><pre>+--------------------------------------------------+
+| Outer IP header                                  |
+| src = SGW/UPF transport IP                       |
+| dst = PGW/UPF transport IP                       |
++--------------------------------------------------+
+| UDP                                              |
+| port 2152                                        |
++--------------------------------------------------+
+| GTP-U                                            |
+| TEID                                             |
++--------------------------------------------------+
+| Inner IP packet                                  |
+| UE &lt;-----------------------------------------&gt; App|
++--------------------------------------------------+
+</pre></figure><p>O roteador de transporte normalmente enxerga o pacote IP externo. Para troubleshooting, isso significa verificar reachability entre os endpoints de transporte, UDP/2152 quando aplicável, ACLs, MTU e encaminhamento.</p><h4>Exemplos de comandos úteis</h4><pre class="cli">show ip route &lt;transport-prefix&gt;
+show ip cef &lt;transport-ip&gt;
+show access-lists
+show interfaces counters errors
+ping &lt;transport-ip&gt;</pre><h2>2.50 SCTP e S1AP</h2><p>O plano de controle LTE usa SCTP em várias interfaces, incluindo S1-MME/S1-C. Isso cria uma diferença importante em relação ao teste ICMP.</p><figure class="diagram"><figcaption>Figura 2.42 — Controle LTE</figcaption><pre>eNodeB                         MME
+  |                             |
+  |--------- SCTP --------------|
+  |--------- S1AP --------------|
+  |                             |
 
-<p><strong>Interpretação:</strong></p>
-<ul>
-<li>9–10: crítico</li>
-<li>7–8: alto</li>
-<li>5–6: médio</li>
-<li>0–4: baixo</li>
-</ul>
+Teste ICMP:
+  IP reachability
 
-<footer>
-<p>Fim do Capítulo 2 – Segurança em Redes Móveis</p>
-</footer>
+Teste real:
+  SCTP association + S1AP procedures
+</pre></figure><p>Se ICMP funciona, ainda é necessário confirmar se o caminho permite SCTP e se os endpoints estão configurados corretamente.</p><h2>2.51 5G NSA e o roteador</h2><p>Em 5G NSA, a rede 5G pode continuar ancorada no EPC 4G. Isso significa que a infraestrutura IP de transporte continua sendo extremamente importante para a experiência 5G.</p><figure class="diagram"><figcaption>Figura 2.43 — NSA simplificado</figcaption><pre>             4G EPC
+          +----------+
+          | MME/SGW  |
+          |   PGW    |
+          +----+-----+
+               |
+          +----+----+
+          | Network |
+          | Transport|
+          +----+----+
+               |
+       +-------+-------+
+       |               |
+    eNodeB           gNodeB
+       |               |
+       +------ UE -----+
 
+NSA mantém dependências importantes
+com a infraestrutura LTE/EPC.
+</pre></figure><p>Para um engenheiro de transporte, o ponto central é entender quais endereços são de controle, quais são de user plane e quais interfaces dependem de cada caminho.</p><h2>2.52 5G SA — mudança de arquitetura</h2><p>Em 5G SA, o 5G Core introduz funções como AMF, SMF e UPF. O transporte IP continua sendo a base que conecta essas funções e os acessos.</p><figure class="diagram"><figcaption>Figura 2.44 — 5G SA simplificado</figcaption><pre>                 5G Core
+        +-----------------------+
+        | AMF       SMF         |
+        |              \        |
+        |               UPF      |
+        +----------------+------+
+                         |
+                    IP Transport
+                         |
+                       gNB
+                         |
+                         UE
+
+Controle e user plane possuem
+dependências de transporte distintas.
+</pre></figure><p>Para troubleshooting, separar control plane de user plane evita misturar sintomas. Uma sessão de sinalização pode estar estabelecida enquanto o user plane apresenta perda, MTU, QoS ou bloqueio de tráfego.</p><h2>2.53 Uma metodologia de troubleshooting para entrevista</h2><figure class="diagram"><figcaption>Figura 2.45 — Fluxo de diagnóstico</figcaption><pre>INCIDENTE
+   |
+   v
+Qual serviço está falhando?
+   |
+   v
+Quais IPs / interfaces participam?
+   |
+   v
+L1/L2 OK?
+   |
+   v
+Existe rota?
+   |
+   v
+Next-hop alcançável?
+   |
+   v
+ACL/NAT/QoS?
+   |
+   v
+Protocolo de transporte?
+   |
+   v
+Túnel / serviço?
+   |
+   v
+Aplicação?
+</pre></figure><p>Essa sequência demonstra raciocínio. O entrevistador normalmente está menos interessado em uma lista de comandos decorados e mais interessado em saber como você reduz o problema.</p><h2>2.54 Caso prático — rota desapareceu</h2><p>Imagine que uma rede 10.20.20.0/24 estava acessível e deixou de responder.</p><h4>Passo 1</h4><pre class="cli">show ip route 10.20.20.0</pre><p>Se não existe rota, descubra de onde ela deveria vir.</p><h4>Passo 2</h4><pre class="cli">show ip ospf neighbor
+show ip bgp 10.20.20.0
+show isis neighbors</pre><p>Se a rota aparece no protocolo, mas não está na tabela global, investigue seleção, política, next-hop e conflitos.</p><h4>Passo 3</h4><pre class="cli">show ip route 10.20.20.0
+show ip cef 10.20.20.0 detail</pre><h2>2.55 Caso prático — BGP Established, mas prefixo ausente</h2><figure class="diagram"><figcaption>Figura 2.46 — BGP estabelecido não significa rota utilizável</figcaption><pre>BGP TCP session
+       |
+       +---- Established
+               |
+               v
+        Prefixo recebido?
+          /        \
+        NÃO        SIM
+        |           |
+   política?     best path?
+   anúncio?      next-hop?
+                 RIB/FIB?
+</pre></figure><p>Essa distinção é muito valorizada em troubleshooting de redes de provedores.</p><h2>2.56 Caso prático — ping funciona, GTP-U não</h2><figure class="diagram"><figcaption>Figura 2.47 — Diagnóstico de user plane</figcaption><pre>Ping ICMP
+  |
+  +---- OK
+        |
+        +---- rota existe
+        |
+        +---- mas GTP-U falha
+                    |
+                    +-- UDP 2152?
+                    |
+                    +-- ACL?
+                    |
+                    +-- MTU?
+                    |
+                    +-- TEID/endpoints?
+                    |
+                    +-- QoS/drop?
+</pre></figure><p>A hipótese mais forte deve ser testada com evidência. Não conclua imediatamente que o roteador é o culpado.</p><h2>2.57 Comandos Cisco que vale dominar</h2><h4>Kit essencial</h4><pre class="cli">show version
+show inventory
+show ip interface brief
+show interfaces
+show interfaces description
+show arp
+show ip route
+show ip route &lt;prefix&gt;
+show ip cef &lt;address&gt; detail
+show ip ospf neighbor
+show ip ospf database
+show isis neighbors
+show isis database
+show ip bgp summary
+show ip bgp
+show ip bgp &lt;prefix&gt;
+show access-lists
+show logging
+show processes cpu
+show processes memory
+show running-config
+show startup-config</pre><p>O objetivo não é executar todos os comandos. É saber qual pergunta cada comando responde.</p><h2>2.58 Pergunta → comando</h2><figure class="diagram"><figcaption>Figura 2.48 — Mapa mental de comandos</figcaption><pre>Pergunta                              Comando
+
+Interface está UP?                    show ip interface brief
+Erros físicos?                        show interfaces
+Qual MAC corresponde ao IP?           show arp
+Existe rota?                          show ip route
+Qual caminho será usado?              show ip cef
+OSPF formou vizinhança?               show ip ospf neighbor
+IS-IS formou vizinhança?              show isis neighbors
+BGP está estabelecido?                show ip bgp summary
+Prefixo está no BGP?                  show ip bgp &lt;prefix&gt;
+ACL está bloqueando?                  show access-lists
+Há mensagens do sistema?              show logging
+CPU está alta?                        show processes cpu
+Memória está alta?                    show processes memory
+</pre></figure><h2>2.59 Diferença entre configuração e operação</h2><p>Uma configuração correta no running-config não prova que o serviço esteja operacional. Da mesma forma, uma interface up não prova que o caminho completo esteja funcionando.</p><figure class="diagram"><figcaption>Figura 2.49 — Configuração versus estado real</figcaption><pre>RUNNING-CONFIG
+      |
+      v
+Estado administrativo
+      |
+      v
+Estado operacional
+      |
+      v
+Protocolos
+      |
+      v
+RIB
+      |
+      v
+FIB
+      |
+      v
+Tráfego real
+</pre></figure><p>O troubleshooting profissional acompanha essa cadeia até encontrar a primeira etapa em que o comportamento diverge do esperado.</p><h2>2.60 Boas práticas de configuração</h2><ul><li>Use descriptions nas interfaces.</li><li>Faça mudanças pequenas e verificáveis.</li><li>Registre o estado anterior quando possível.</li><li>Valide o impacto antes de salvar alterações permanentes.</li><li>Use autenticação e controle de acesso adequados.</li><li>Evite comandos destrutivos sem entender o impacto.</li><li>Mantenha horário e logging consistentes.</li><li>Padronize nomes, interfaces, loopbacks e políticas.</li></ul><h4>Exemplo de descrição</h4><pre class="cli">interface TenGigabitEthernet0/0/0
+ description TO_PE1_CORE_PRIMARY</pre><h2>2.61 Loopback interfaces</h2><p>Loopbacks fornecem endereços estáveis e são muito usados como Router ID, endpoint de protocolos de routing e identificação de equipamentos.</p><h4>Exemplo</h4><pre class="cli">interface Loopback0
+ description ROUTER_ID
+ ip address 1.1.1.1 255.255.255.255</pre><figure class="diagram"><figcaption>Figura 2.50 — Loopback no backbone</figcaption><pre>             Loopback0
+              1.1.1.1
+                 |
+                 |
+             +---+---+
+             | Router|
+             +---+---+
+                 |
+              Links
+                 |
+               Core
+</pre></figure><p>Como uma loopback não depende de um único link físico, ela pode permanecer alcançável por múltiplos caminhos quando o IGP está corretamente configurado.</p><h2>2.62 BGP e loopbacks</h2><p>Em redes de provedores, sessões BGP podem ser estabelecidas usando loopbacks e multihop, aumentando a independência em relação a um único enlace físico.</p><h4>Exemplo conceitual</h4><pre class="cli">router bgp 65001
+ neighbor 2.2.2.2 remote-as 65002
+ neighbor 2.2.2.2 update-source Loopback0
+ neighbor 2.2.2.2 ebgp-multihop 2</pre><p>A configuração real depende da topologia e das políticas. O ponto conceitual é que o IGP precisa fornecer reachability para as loopbacks usadas como endpoints.</p><h2>2.63 Redundância de caminhos</h2><figure class="diagram"><figcaption>Figura 2.51 — Backbone resiliente</figcaption><pre>             +------ R2 ------+
+             |                |
+            R1                R4
+             |                |
+             +------ R3 ------+
+
+R1 -&gt; R4 pode seguir:
+R1-R2-R4
+ou
+R1-R3-R4
+
+Se um caminho falhar, protocolos de routing
+podem convergir para o caminho alternativo.
+</pre></figure><p>Convergência é o tempo e o processo necessário para que a rede reconheça uma mudança e passe a usar o novo estado. Em redes críticas, convergência e proteção são requisitos de serviço.</p><h2>2.64 O que muda em equipamentos de alta escala</h2><p>Em um roteador pequeno, uma tabela de rotas de algumas centenas ou milhares de prefixos pode ser suficiente. Em um backbone, podem existir enormes tabelas BGP, múltiplas VRFs, milhões de entradas de encaminhamento, grande volume de ACLs e exigências de disponibilidade muito maiores.</p><figure class="diagram"><figcaption>Figura 2.52 — Escala</figcaption><pre>Branch Router
+   |
+   +-- dezenas/centenas de interfaces lógicas
+   +-- poucas VRFs
+   +-- routing corporativo
+
+Provider Router
+   |
+   +-- muitas interfaces
+   +-- muitas VRFs
+   +-- BGP / IGP
+   +-- MPLS / SR
+   +-- grande FIB
+   +-- alta disponibilidade
+   +-- enorme volume de tráfego
+</pre></figure><h2>2.65 Router versus switch</h2><p>A diferença clássica é que switches Ethernet encaminham principalmente com base em MAC dentro de um domínio Layer 2, enquanto roteadores encaminham entre redes Layer 3. Porém, equipamentos modernos podem executar ambos os papéis.</p><figure class="diagram"><figcaption>Figura 2.53 — Layer 2 e Layer 3</figcaption><pre>HOST A
+  |
+  | Ethernet / MAC
+  v
+SWITCH
+  |
+  | VLAN
+  v
+ROUTER / L3 SWITCH
+  |
+  | IP routing
+  v
+OUTRA REDE
+</pre></figure><p>Por isso, em uma entrevista, evite responder com definições rígidas demais. Explique a função principal e depois reconheça as capacidades modernas do equipamento.</p><h2>2.66 Equipamentos em uma rede móvel</h2><figure class="diagram"><figcaption>Figura 2.54 — Visão de transporte móvel</figcaption><pre>      RAN                    Transport                 Core
++-------------+        +----------------+        +-------------+
+| eNodeB/gNB  |========| Routers / MPLS |========| EPC / 5GC   |
++-------------+        +----------------+        +-------------+
+       |                       |                        |
+       |                       |                        |
+     Access                  IP/MPLS                 Services
+</pre></figure><p>O roteador de transporte pode não conhecer o significado de cada mensagem de aplicação. Ele encaminha pacotes segundo informações de rede, enquanto as funções móveis interpretam protocolos como S1AP, GTP ou procedimentos 5G.</p><h2>2.67 Separando control plane e user plane no troubleshooting móvel</h2><figure class="diagram"><figcaption>Figura 2.55 — Dois problemas diferentes</figcaption><pre>CONTROL PLANE
+eNodeB/gNB ---- SCTP ---- MME/AMF
+        |
+        +---- signaling
+
+USER PLANE
+eNodeB/gNB ---- GTP-U ---- SGW/UPF
+        |
+        +---- user traffic
+
+É possível:
+Control Plane = OK
+User Plane   = FAIL
+</pre></figure><p>Quando o control plane está funcionando e o user plane não, não é razoável começar investigando a formação da sessão de sinalização. O foco deve migrar para os endpoints de transporte, UDP/GTP-U, MTU, QoS, ACLs e forwarding.</p><h2>2.68 Interface física: óptica e erros</h2><p>Em ambientes de alta velocidade, problemas físicos podem se manifestar como perda intermitente, CRC, flaps e aumento de drops. O troubleshooting deve incluir óptica, transceiver, potência, fibra e compatibilidade.</p><h4>Comandos genéricos</h4><pre class="cli">show interfaces
+show interfaces counters errors
+show interfaces transceiver
+show inventory</pre><p>A disponibilidade desses comandos varia por plataforma. Em IOS XR e equipamentos de Service Provider, existem comandos específicos para optics, hardware e plataforma.</p><h2>2.69 Interface flapping</h2><figure class="diagram"><figcaption>Figura 2.56 — Interface flapping</figcaption><pre>UP ---- UP ---- DOWN ---- UP ---- DOWN
+          |                 |
+          +-- problema -----+
+
+Possíveis causas:
+- fibra
+- óptica
+- remoto
+- energia
+- hardware
+- negociação
+- configuração
+</pre></figure><p>O primeiro objetivo é provar se o flap é físico ou lógico. Logs com timestamps e counters ajudam a correlacionar o evento.</p><h2>2.70 CPU e memória</h2><p>CPU alta pode causar sintomas de controle, mas não significa automaticamente que o forwarding esteja saturado. Em plataformas com forwarding dedicado, plano de controle e forwarding podem apresentar comportamentos diferentes.</p><h4>Comandos</h4><pre class="cli">show processes cpu sorted
+show processes memory
+show platform resources</pre><figure class="diagram"><figcaption>Figura 2.57 — Separação de recursos</figcaption><pre>CONTROL PLANE
+CPU / processes
+       |
+       +---- routing
+       +---- management
+       +---- protocols
+
+FORWARDING PLANE
+ASIC / NPU
+       |
+       +---- packet lookup
+       +---- ACL/QoS
+       +---- forwarding
+</pre></figure><h2>2.71 O conceito de next-hop</h2><p>A rota indica um destino e um próximo salto. O roteador precisa resolver esse next-hop para uma interface ou adjacência de camada 2, salvo situações específicas em que a interface de saída seja suficiente.</p><figure class="diagram"><figcaption>Figura 2.58 — Next-hop</figcaption><pre>Destino: 10.20.20.0/24
+        |
+        v
+Next-hop: 10.0.12.2
+        |
+        v
+Interface: Gi0/0
+        |
+        v
+ARP 10.0.12.2 -&gt; MAC
+        |
+        v
+Ethernet frame
+</pre></figure><h2>2.72 Recursive lookup</h2><p>Uma rota pode apontar para um next-hop que, por sua vez, precisa ser resolvido por outra rota. Isso é conhecido como resolução recursiva.</p><figure class="diagram"><figcaption>Figura 2.59 — Lookup recursivo</figcaption><pre>10.20.20.0/24
+      |
+      v
+next-hop 10.0.12.2
+      |
+      v
+10.0.12.0/30
+      |
+      v
+Gi0/0
+</pre></figure><p>Se o next-hop não puder ser resolvido, a rota pode não ser utilizável.</p><h2>2.73 CEF</h2><p>Cisco Express Forwarding é uma tecnologia central em muitas plataformas Cisco para encaminhamento eficiente. A FIB e a adjacency table permitem evitar cálculos completos de routing para cada pacote.</p><h4>Comandos</h4><pre class="cli">show ip cef
+show ip cef 10.20.20.25 detail
+show adjacency</pre><figure class="diagram"><figcaption>Figura 2.60 — CEF</figcaption><pre>Routing protocols
+       |
+       v
+      RIB
+       |
+       v
+      FIB --------+
+                  |
+Adjacency --------+--&gt; CEF Forwarding --&gt; Interface
+</pre></figure><h2>2.74 Troubleshooting por fluxo</h2><p>Quando um incidente envolve uma aplicação específica, vale seguir um fluxo real de pacotes em vez de olhar apenas para a configuração.</p><figure class="diagram"><figcaption>Figura 2.61 — Fluxo ponta a ponta</figcaption><pre>SOURCE
+  |
+  v
+Ingress interface
+  |
+  v
+Route lookup
+  |
+  v
+ACL / policy
+  |
+  v
+QoS
+  |
+  v
+Egress interface
+  |
+  v
+NEXT HOP
+  |
+  v
+DESTINATION
+</pre></figure><p>A pergunta fundamental em cada roteador é: o pacote entrou? Qual decisão foi tomada? O que aconteceu com ele na saída?</p><h2>2.75 Captura de pacotes</h2><p>Quando os comandos de estado não são suficientes, uma captura pode mostrar o que realmente atravessa a interface. Em plataformas Cisco, ferramentas como Embedded Packet Capture podem ser usadas conforme suporte do equipamento.</p><h4>Exemplo conceitual de EPC</h4><pre class="cli">monitor capture CAP interface GigabitEthernet0/0 both
+monitor capture CAP match ipv4 host 10.10.10.10 host 10.20.20.20
+monitor capture CAP start
+! reproduzir o problema
+monitor capture CAP stop
+show monitor capture CAP buffer brief</pre><p>A sintaxe varia por plataforma e release. A ideia é observar o pacote na entrada e/ou saída e comparar com o comportamento esperado.</p><h2>2.76 O que uma captura pode provar</h2><ul><li>O pacote chegou ao roteador.</li><li>O pacote saiu do roteador.</li><li>O endereço IP e a porta/protocolo estão corretos.</li><li>Existe retransmissão ou ausência de resposta.</li><li>O encapsulamento esperado está presente.</li><li>O tamanho do pacote pode indicar um problema de MTU.</li></ul><figure class="diagram"><figcaption>Figura 2.62 — Evidência de entrada e saída</figcaption><pre>Interface IN                 ROUTER                 Interface OUT
+    |                            |                         |
+    | packet seen                | forwarding              | packet seen
+    +---------------------------&gt;|------------------------&gt;+
+                                 |
+                          Compare os dois lados
+</pre></figure><h2>2.77 Runbook mental para entrevistas</h2><figure class="diagram"><figcaption>Figura 2.63 — Resposta estruturada</figcaption><pre>1. DEFINE
+   O que exatamente está falhando?
+
+2. SCOPE
+   Um usuário? Um link? Uma região? Todos?
+
+3. VERIFY
+   Interface / IP / route.
+
+4. ISOLATE
+   Qual é o primeiro ponto sem tráfego?
+
+5. TEST
+   Ping / traceroute / protocolo / captura.
+
+6. FIX
+   Corrigir a causa, não apenas o sintoma.
+
+7. VALIDATE
+   Confirmar serviço ponta a ponta.
+
+8. DOCUMENT
+   Registrar causa e evidência.
+</pre></figure><h2>2.78 Perguntas de entrevista</h2><h3>Qual a diferença entre RIB e FIB?</h3><p>RIB contém informação de routing; FIB é a estrutura otimizada usada no encaminhamento.</p><h3>OSPF ou BGP?</h3><p>OSPF é normalmente usado como IGP dentro de um domínio; BGP é um protocolo de política usado entre ASes e também em arquiteturas internas de provedores.</p><h3>Ping funciona, mas aplicação não. O que você faz?</h3><p>Identifico protocolo e portas da aplicação, verifico rota e caminho, ACL/firewall/NAT, MTU, QoS e então faço teste específico do protocolo. ICMP funcionando não encerra o diagnóstico.</p><h3>Como você investigaria BGP down?</h3><p>Começaria por IP reachability, estado TCP/179, endereço e AS remoto, update-source/multihop quando aplicável, autenticação e logs; depois verificaria políticas e capacidade.</p><h3>Como investigaria um problema de GTP-U?</h3><p>Separaria control plane de user plane, confirmaria os IPs de transporte, rota e CEF, verificaria UDP/2152 quando aplicável, ACL, MTU, QoS e capturaria tráfego se necessário.</p><h3>O que é VRF?</h3><p>É uma separação lógica de tabelas de roteamento que permite manter domínios de roteamento independentes no mesmo equipamento.</p><h2>2.79 Resumo operacional</h2><figure class="diagram"><figcaption>Figura 2.64 — O roteador em uma frase</figcaption><pre>RECEBE
+  |
+IDENTIFICA
+  |
+CONSULTA
+  |
+DECIDE
+  |
+APLICA POLÍTICAS
+  |
+ENCAMINHA
+  |
+MONITORA
+</pre></figure><p>O domínio de um engenheiro de redes não termina no comando de configuração. É necessário entender o caminho do pacote, o estado dos protocolos, a arquitetura do equipamento e o serviço que depende daquele tráfego.</p><h2>2.80 Checklist final do capítulo</h2><ul><li>Sei explicar a diferença entre control plane e forwarding plane.</li><li>Sei explicar RIB, FIB e CEF.</li><li>Reconheço ISR, Catalyst, ASR 1000, ASR 9000, NCS e Nexus.</li><li>Sei diferenciar IOS, IOS XE, IOS XR e NX-OS em termos gerais.</li><li>Sei verificar interfaces, ARP, rotas e CEF.</li><li>Sei explicar static route, OSPF, IS-IS e BGP.</li><li>Sei explicar VLAN, subinterface e VRF.</li><li>Sei reconhecer a função de ACL, NAT, QoS e MTU.</li><li>Consigo montar um fluxo de troubleshooting por camadas.</li><li>Consigo separar ICMP de testes específicos de serviço.</li><li>Consigo relacionar roteamento IP com GTP-U e SCTP em redes móveis.</li><li>Consigo estruturar uma resposta de troubleshooting para entrevista.</li></ul><h2>2.81 Encerramento</h2><p>Roteadores são a infraestrutura que transforma uma coleção de redes isoladas em um sistema capaz de transportar serviços de ponta a ponta. Em uma rede pequena, isso pode significar poucas interfaces e uma tabela simples. Em uma operadora, significa milhares de caminhos, múltiplas VRFs, IGP, BGP, MPLS, políticas, QoS e mecanismos de alta disponibilidade.</p><p>Para um engenheiro que trabalha próximo de redes 4G e 5G, compreender o roteador em profundidade é especialmente importante porque o core móvel depende de uma infraestrutura IP previsível. Quando uma sessão móvel falha, o problema pode estar na sinalização, no user plane ou no transporte entre funções. O conhecimento de routing permite separar essas possibilidades e chegar à causa com evidência.</p><p>A competência que diferencia o profissional experiente não é saber um número maior de comandos. É saber qual pergunta precisa ser respondida, qual comando fornece a evidência e como conectar essa evidência ao comportamento real do serviço.</p><h2>Apêndice — Quick Reference Cisco</h2><h4>Interfaces</h4><pre class="cli">show ip interface brief
+show interfaces
+show interfaces description
+show interfaces counters errors
+show interfaces transceiver</pre><h4>Layer 2</h4><pre class="cli">show vlan brief
+show interfaces trunk
+show mac address-table
+show spanning-tree
+show arp</pre><h4>Layer 3</h4><pre class="cli">show ip route
+show ip route &lt;prefix&gt;
+show ip cef &lt;address&gt; detail
+show ip protocols</pre><h4>OSPF</h4><pre class="cli">show ip ospf neighbor
+show ip ospf interface brief
+show ip ospf database
+show ip route ospf</pre><h4>IS-IS</h4><pre class="cli">show isis neighbors
+show isis database
+show isis topology
+show ip route isis</pre><h4>BGP</h4><pre class="cli">show ip bgp summary
+show ip bgp
+show ip bgp &lt;prefix&gt;
+show ip bgp neighbors
+show ip route bgp</pre><h4>Security / NAT</h4><pre class="cli">show access-lists
+show ip interface
+show ip nat translations
+show ip nat statistics</pre><h4>Sistema</h4><pre class="cli">show version
+show inventory
+show logging
+show processes cpu sorted
+show processes memory
+show clock
+show ntp associations</pre>
+</main>
 </body>
 </html>
