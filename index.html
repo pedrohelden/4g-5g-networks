@@ -205,9 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     e.preventDefault();
 
-    const page = link.getAttribute("data-page");
-
-    loadChapter(page);
+    loadChapter(link.getAttribute("data-page"));
   });
 
 });
@@ -219,122 +217,54 @@ async function loadChapter(page) {
 
   try {
 
-    content.innerHTML = `
-      <p style="text-align:center;">
-        Carregando capítulo...
-      </p>
-    `;
-
+    content.innerHTML = "<p>Carregando capítulo...</p>";
 
     /*
-     * Caminho completo do capítulo.
+     * Os capítulos estão na mesma pasta do index:
      *
-     * Exemplo:
-     * /seguranca-redes-moveis-1ed/br/cap01.html
+     * /br/index.html
+     * /br/cap01.html
      */
-    const chapterURL = `${BASE}/${LANG}/${page}`;
-
-    console.log("Carregando capítulo:", chapterURL);
-
-
-    const res = await fetch(chapterURL);
+    const res = await fetch(page);
 
     if (!res.ok) {
       throw new Error("HTTP " + res.status);
     }
 
-
     const html = await res.text();
 
-
     /*
-     * IMPORTANTE:
-     *
-     * Usamos DOMParser porque o arquivo carregado
-     * é um HTML completo contendo <html>, <head>
-     * e <body>.
+     * Lê o HTML completo do capítulo.
      */
     const parser = new DOMParser();
-
     const doc = parser.parseFromString(html, "text/html");
 
-    const body = doc.body;
-
-
-    if (!body) {
-      throw new Error("Não foi possível encontrar o <body> do capítulo.");
-    }
-
+    /*
+     * Pega o conteúdo do body.
+     */
+    content.innerHTML = doc.body.innerHTML;
 
     /*
-     * Corrige os caminhos das imagens.
+     * Corrige as imagens.
      *
-     * No capítulo:
+     * O cap01.html usa:
      *
      * images/cap01/figure-01.jpg
      *
-     * vira:
+     * Como o index também está em /br/,
+     * esse caminho já é exatamente o correto.
      *
-     * /seguranca-redes-moveis-1ed/br/images/cap01/figure-01.jpg
+     * Portanto NÃO precisamos alterar o src.
      */
-    body.querySelectorAll("img").forEach(img => {
-
-      const src = img.getAttribute("src");
-
-      if (!src) return;
-
-
-      /*
-       * Não altera URLs externas ou absolutas.
-       */
-      if (
-        src.startsWith("http://") ||
-        src.startsWith("https://") ||
-        src.startsWith("//") ||
-        src.startsWith("/") ||
-        src.startsWith("data:")
-      ) {
-        return;
-      }
-
-
-      /*
-       * Monta o caminho absoluto.
-       */
-      const absoluteImagePath =
-        `${BASE}/${LANG}/${src.replace(/^\.?\//, "")}`;
-
-
-      img.setAttribute("src", absoluteImagePath);
-
-
-      console.log("Imagem corrigida:", absoluteImagePath);
-
-    });
-
-
-    /*
-     * Insere somente o conteúdo do <body>
-     * dentro da área central do index.
-     */
-    content.innerHTML = body.innerHTML;
-
 
   } catch (err) {
 
-    console.error("Erro ao carregar capítulo:", err);
+    console.error(err);
 
     content.innerHTML = `
       <h2>Erro ao carregar capítulo</h2>
-
-      <p>
-        Não foi possível carregar:
-        <strong>${page}</strong>
-      </p>
-
-      <p>
-        Erro: ${err.message}
-      </p>
+      <p>Não foi possível carregar: <strong>${page}</strong></p>
+      <p>Erro: ${err.message}</p>
     `;
 
   }
