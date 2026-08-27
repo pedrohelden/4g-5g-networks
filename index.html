@@ -225,11 +225,17 @@ async function loadChapter(page) {
       </p>
     `;
 
+
     /*
-     * IMPORTANTE:
-     * Os capítulos estão dentro de /br/
+     * Caminho completo do capítulo.
+     *
+     * Exemplo:
+     * /seguranca-redes-moveis-1ed/br/cap01.html
      */
     const chapterURL = `${BASE}/${LANG}/${page}`;
+
+    console.log("Carregando capítulo:", chapterURL);
+
 
     const res = await fetch(chapterURL);
 
@@ -237,21 +243,33 @@ async function loadChapter(page) {
       throw new Error("HTTP " + res.status);
     }
 
+
     const html = await res.text();
 
-    const temp = document.createElement("div");
-    temp.innerHTML = html;
 
-    const body = temp.querySelector("body");
+    /*
+     * IMPORTANTE:
+     *
+     * Usamos DOMParser porque o arquivo carregado
+     * é um HTML completo contendo <html>, <head>
+     * e <body>.
+     */
+    const parser = new DOMParser();
+
+    const doc = parser.parseFromString(html, "text/html");
+
+    const body = doc.body;
+
 
     if (!body) {
       throw new Error("Não foi possível encontrar o <body> do capítulo.");
     }
 
+
     /*
      * Corrige os caminhos das imagens.
      *
-     * Exemplo:
+     * No capítulo:
      *
      * images/cap01/figure-01.jpg
      *
@@ -259,16 +277,15 @@ async function loadChapter(page) {
      *
      * /seguranca-redes-moveis-1ed/br/images/cap01/figure-01.jpg
      */
-
     body.querySelectorAll("img").forEach(img => {
 
       const src = img.getAttribute("src");
 
       if (!src) return;
 
+
       /*
-       * Não mexer em URLs externas,
-       * data URLs ou caminhos absolutos.
+       * Não altera URLs externas ou absolutas.
        */
       if (
         src.startsWith("http://") ||
@@ -280,32 +297,27 @@ async function loadChapter(page) {
         return;
       }
 
+
       /*
-       * Converte o caminho relativo do capítulo
-       * para um caminho absoluto dentro de /br/
+       * Monta o caminho absoluto.
        */
-      img.setAttribute(
-        "src",
-        `${BASE}/${LANG}/${src}`
-      );
+      const absoluteImagePath =
+        `${BASE}/${LANG}/${src.replace(/^\.?\//, "")}`;
+
+
+      img.setAttribute("src", absoluteImagePath);
+
+
+      console.log("Imagem corrigida:", absoluteImagePath);
 
     });
 
 
     /*
-     * Insere o capítulo na área central.
+     * Insere somente o conteúdo do <body>
+     * dentro da área central do index.
      */
     content.innerHTML = body.innerHTML;
-
-
-    /*
-     * Debug:
-     * mostra no console exatamente quais imagens
-     * o navegador está tentando carregar.
-     */
-    content.querySelectorAll("img").forEach(img => {
-      console.log("Imagem:", img.src);
-    });
 
 
   } catch (err) {
