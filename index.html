@@ -195,121 +195,29 @@
 
 <script>
 
-document.addEventListener("DOMContentLoaded", function () {
+document.querySelectorAll(".sidebar a[data-page]").forEach(function(link) {
 
-    const links = document.querySelectorAll(".sidebar a[data-page]");
+    link.addEventListener("click", function(e) {
 
-    links.forEach(function (link) {
+        e.preventDefault();
 
-        link.addEventListener("click", function (e) {
+        const page = this.getAttribute("data-page");
 
-            e.preventDefault();
-
-            const page = this.getAttribute("data-page");
-
-            loadChapter(page);
-
-        });
+        document.getElementById("content").innerHTML = `
+            <iframe
+                src="${page}"
+                style="
+                    width:100%;
+                    height:calc(100vh - 40px);
+                    border:none;
+                    display:block;
+                ">
+            </iframe>
+        `;
 
     });
 
 });
-
-
-async function loadChapter(page) {
-
-    const content = document.getElementById("content");
-
-    content.innerHTML = "<p>Carregando capítulo...</p>";
-
-    try {
-
-        const response = await fetch(page);
-
-        if (!response.ok) {
-            throw new Error("HTTP " + response.status);
-        }
-
-        const html = await response.text();
-
-        /*
-         * Cria um documento separado para interpretar
-         * corretamente o HTML do capítulo.
-         */
-
-        const parser = new DOMParser();
-
-        const doc = parser.parseFromString(html, "text/html");
-
-        /*
-         * Pega somente o conteúdo do BODY.
-         */
-
-        const chapter = doc.body;
-
-        /*
-         * Corrige SOMENTE as imagens.
-         */
-
-        chapter.querySelectorAll("img").forEach(function (img) {
-
-            let src = img.getAttribute("src");
-
-            if (!src) return;
-
-            /*
-             * Se já for URL completa, deixa como está.
-             */
-
-            if (
-                src.startsWith("http://") ||
-                src.startsWith("https://") ||
-                src.startsWith("data:")
-            ) {
-                return;
-            }
-
-            /*
-             * Converte:
-             *
-             * images/cap01/figure-01.jpg
-             *
-             * para:
-             *
-             * /seguranca-redes-moveis-1ed/br/images/cap01/figure-01.jpg
-             */
-
-            if (src.startsWith("images/")) {
-
-                src = "/seguranca-redes-moveis-1ed/br/" + src;
-
-            }
-
-            img.setAttribute("src", src);
-
-        });
-
-
-        /*
-         * Finalmente coloca o capítulo no índice.
-         */
-
-        content.innerHTML = chapter.innerHTML;
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        content.innerHTML = `
-            <h2>Erro ao carregar capítulo</h2>
-            <p>Não foi possível carregar <strong>${page}</strong></p>
-            <p>${error.message}</p>
-        `;
-
-    }
-
-}
 
 </script>
 
