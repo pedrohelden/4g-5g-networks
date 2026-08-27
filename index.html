@@ -198,11 +198,7 @@ async function loadChapter(page) {
   const content = document.getElementById("content");
 
   try {
-    content.innerHTML = `
-      <p style="text-align:center;">
-        Carregando capítulo...
-      </p>
-    `;
+    content.innerHTML = "<p>Carregando capítulo...</p>";
 
     const res = await fetch(page);
 
@@ -221,17 +217,14 @@ async function loadChapter(page) {
       throw new Error("Body não encontrado.");
     }
 
-    // Coloca o conteúdo do capítulo
-    content.innerHTML = body.innerHTML;
-
-    // Corrige os caminhos das imagens
-    content.querySelectorAll("img").forEach(img => {
+    // Corrige os caminhos das imagens ANTES de inserir o conteúdo
+    body.querySelectorAll("img").forEach(img => {
 
       const src = img.getAttribute("src");
 
       if (!src) return;
 
-      // Se já for URL absoluta, não mexe
+      // Já é URL absoluta? Não altera.
       if (
         src.startsWith("http://") ||
         src.startsWith("https://") ||
@@ -240,14 +233,18 @@ async function loadChapter(page) {
         return;
       }
 
-      // Converte:
       // images/cap01/figure-01.jpg
-      //
-      // para:
+      // ↓
       // /seguranca-redes-moveis-1ed/br/images/cap01/figure-01.jpg
 
-      img.src = "/seguranca-redes-moveis-1ed/br/" + src.replace(/^\/+/, "");
+      img.setAttribute(
+        "src",
+        "/seguranca-redes-moveis-1ed/br/" + src.replace(/^\/+/, "")
+      );
     });
+
+    // Agora insere o capítulo já com os caminhos corrigidos
+    content.innerHTML = body.innerHTML;
 
   } catch (err) {
 
@@ -255,13 +252,8 @@ async function loadChapter(page) {
 
     content.innerHTML = `
       <h2>Erro ao carregar capítulo</h2>
-      <p>
-        Não foi possível carregar:
-        <strong>${page}</strong>
-      </p>
-      <p>
-        Erro: ${err.message}
-      </p>
+      <p>Não foi possível carregar: <strong>${page}</strong></p>
+      <p>Erro: ${err.message}</p>
     `;
   }
 }
