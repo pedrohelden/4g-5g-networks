@@ -12,40 +12,61 @@
 body {
     background-color: #1e2a38;
     color: #cbd5e1;
-    margin: 40px;
+    margin: 0;
+    padding: 40px 20px;
     line-height: 1.7;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-h1, h2, h3, h4 {
+article.chapter {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+h1, h2, h3 {
     color: #60a5fa;
 }
 
+h1 {
+    font-size: 2.2em;
+    margin-bottom: 25px;
+}
+
 h2 {
-    margin-top: 50px;
-    padding-bottom: 8px;
+    font-size: 1.7em;
+    margin-top: 45px;
     border-bottom: 1px solid #3e4f65;
+    padding-bottom: 8px;
 }
 
 h3 {
-    margin-top: 35px;
+    font-size: 1.3em;
+    margin-top: 30px;
 }
 
-h4 {
-    margin-top: 25px;
+p, ul, ol {
+    max-width: 950px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+li {
+    margin-bottom: 7px;
 }
 
 table {
     border-collapse: collapse;
     width: 100%;
-    max-width: 900px;
-    margin: 20px 0;
+    max-width: 1000px;
+    margin: 25px auto;
     background: #293845;
 }
 
 th, td {
     border: 1px solid #3e4f65;
     padding: 10px;
+    text-align: left;
+    vertical-align: top;
 }
 
 th {
@@ -57,24 +78,84 @@ pre {
     background: #2d3b4e;
     padding: 15px;
     overflow-x: auto;
-    max-width: 900px;
-    border-radius: 6px;
+    border-radius: 4px;
+    max-width: 950px;
+    margin: 25px auto;
 }
 
-ul, ol {
-    max-width: 900px;
-}
-
-p {
-    max-width: 900px;
+code {
+    font-family: Consolas, "Courier New", monospace;
 }
 
 blockquote {
-    max-width: 850px;
-    margin: 25px 0;
-    padding: 10px 20px;
     border-left: 4px solid #60a5fa;
+    margin: 25px auto;
+    padding: 10px 20px;
     background: #293845;
+    max-width: 900px;
+}
+
+.technical-figure {
+    margin: 35px auto;
+    max-width: 1000px;
+    text-align: center;
+}
+
+.technical-figure img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.technical-figure figcaption {
+    margin-top: 10px;
+    color: #94a3b8;
+    font-size: 0.95em;
+    font-style: italic;
+}
+
+.note {
+    background: #293845;
+    border-left: 4px solid #60a5fa;
+    padding: 15px 20px;
+    margin: 25px auto;
+    max-width: 900px;
+}
+
+.impact {
+    background: #293845;
+    border-left: 4px solid #f59e0b;
+    padding: 15px 20px;
+    margin: 25px auto;
+    max-width: 900px;
+}
+
+.insight {
+    background: #293845;
+    border-left: 4px solid #22c55e;
+    padding: 15px 20px;
+    margin: 25px auto;
+    max-width: 900px;
+}
+
+.troubleshooting {
+    background: #293845;
+    border-left: 4px solid #ef4444;
+    padding: 15px 20px;
+    margin: 25px auto;
+    max-width: 900px;
+}
+
+.command {
+    background: #293845;
+    border-left: 4px solid #a78bfa;
+    padding: 15px 20px;
+    margin: 25px auto;
+    max-width: 950px;
+}
+
+strong {
+    color: #e2e8f0;
 }
 </style>
 
