@@ -1,345 +1,2251 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+
+<html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Capítulo 12 – Tooling e Engenharia de Ataque em Redes Móveis</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Chapter 12 — Monitoring, Observability and Troubleshooting</title>
+
 <style>
-  body {
+body {
     background-color: #1e2a38;
     color: #cbd5e1;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    line-height: 1.7;
-  }
-  h1, h2, h3 {
-    color: #60a5fa;
-    margin-bottom: 0.7em;
-  }
-  p, li {
-    max-width: 900px;
-  }
-  p {
-    margin-bottom: 1.4em;
-    font-size: 1.1em;
-  }
-  ul {
-    max-width: 900px;
-    padding-left: 25px;
-    margin-bottom: 2em;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 900px;
-    margin: 1.5em 0 3em 0;
-    background: #293845;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #3e4f65;
-  }
-  th {
-    background-color: #3b82f6;
-    color: #fff;
-  }
-  pre {
-    background: #2d3b4e;
-    padding: 12px;
-    border-radius: 6px;
-    color: #a5d6ff;
+    margin: 40px auto;
+    max-width: 1100px;
+    padding: 0 30px;
+    line-height: 1.75;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
+}
+
+h1 {
+    color: #f8fafc;
+    font-size: 42px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+h2 {
+    color: #93c5fd;
+    font-size: 28px;
+    margin-top: 55px;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+h3 {
+    color: #bfdbfe;
+    font-size: 21px;
+    margin-top: 35px;
+}
+
+p {
+    margin: 18px 0;
+}
+
+strong {
+    color: #f8fafc;
+}
+
+em {
+    color: #dbeafe;
+}
+
+blockquote {
+    border-left: 4px solid #60a5fa;
+    margin: 30px 0;
+    padding: 15px 25px;
+    background-color: #253548;
+    color: #e2e8f0;
+    font-size: 20px;
+    font-style: italic;
+}
+
+.note {
+    background-color: #253548;
+    border-left: 4px solid #38bdf8;
+    padding: 18px 24px;
+    margin: 30px 0;
+}
+
+.impact {
+    background-color: #26384a;
+    border-left: 5px solid #f59e0b;
+    padding: 20px 25px;
+    margin: 35px 0;
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.diagram {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
     overflow-x: auto;
-  }
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.5;
+}
+
+.flow {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.65;
+}
+
+ul {
+    margin-top: 10px;
+}
+
+li {
+    margin: 8px 0;
+}
+
+.small {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+code {
+    color: #bfdbfe;
+    background-color: #162231;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
 </style>
+
 </head>
 
 <body>
 
-<h1>Capítulo 12 – Tooling e Engenharia de Ataque</h1>
+<h1>Monitoring, Observability and Troubleshooting</h1>
 
-<p>Depois de entender como ataques funcionam e como burlam defesas, surge a pergunta mais importante:</p>
+<p class="small">
+From operational visibility to evidence-based diagnosis in modern 4G and 5G networks.
+</p>
 
-<p><strong>👉 Como esses ataques são construídos na prática?</strong></p>
+<blockquote>
+A network that cannot be observed cannot be reliably operated. A network that cannot be understood cannot be reliably troubleshot.
+</blockquote>
 
-<p>Este capítulo mostra a visão do atacante — não em nível de código, mas em <strong>arquitetura, processo e mentalidade</strong>.</p>
+<p>
+Modern mobile networks generate an enormous amount of information.
+</p>
 
-<hr>
+<p>
+Every network function produces metrics.
+</p>
 
-<h2>12.1 O mindset do atacante</h2>
+<p>
+Every application generates logs.
+</p>
 
-<p>Um atacante não começa atacando. Ele segue uma lógica:</p>
+<p>
+Every session creates state transitions.
+</p>
 
-<ul>
-<li>Minimizar risco</li>
-<li>Maximizar retorno</li>
-<li>Parecer legítimo</li>
-<li>Evitar detecção</li>
-</ul>
+<p>
+Every packet carries information.
+</p>
 
-<p><strong>👉 Regra principal:</strong></p>
+<p>
+Every failure leaves evidence somewhere.
+</p>
 
-<p><strong>“Se parece tráfego normal, passa.”</strong></p>
+<p>
+The challenge is not obtaining data.
+</p>
 
-<hr>
+<p>
+The challenge is determining <strong>which data matters, how different pieces of evidence are related,
+and what they reveal about the actual root cause.</strong>
+</p>
 
-<h2>12.2 Componentes de uma infraestrutura de ataque</h2>
+<div class="impact">
+Troubleshooting is not the process of finding something wrong. It is the process of proving what is wrong.
+</div>
 
-<p>Um ataque em redes móveis normalmente envolve:</p>
+<h2>Monitoring and Observability Are Not the Same Thing</h2>
 
-<table>
-<tr>
-<th>Componente</th>
-<th>Função</th>
-</tr>
+<p>
+Monitoring and observability are closely related, but they answer different questions.
+</p>
 
-<tr>
-<td>Acesso à rede</td>
-<td>Entrada em SS7 / Diameter / 5G</td>
-</tr>
+<p>
+Monitoring generally focuses on known conditions.
+</p>
 
-<tr>
-<td>Nó de signaling</td>
-<td>Geração de mensagens (MAP / Diameter)</td>
-</tr>
+<p>
+Is CPU utilization too high?
+</p>
 
-<tr>
-<td>Camada de controle</td>
-<td>Orquestração do ataque</td>
-</tr>
+<p>
+Is packet loss increasing?
+</p>
 
-<tr>
-<td>Infraestrutura distribuída</td>
-<td>Rotação e evasão</td>
-</tr>
-</table>
+<p>
+Is a service down?
+</p>
 
-<p>👉 O ataque não é uma ação única — é um sistema.</p>
+<p>
+Is the number of failed sessions above a threshold?
+</p>
 
-<hr>
+<p>
+Observability goes deeper.
+</p>
 
-<h2>12.3 Construção de um ataque (visão macro)</h2>
+<p>
+It asks whether the internal state of the system can be understood from the information the system
+produces.
+</p>
 
-<h3>Exemplo: rastreamento de usuário</h3>
+<div class="diagram">
+Monitoring
 
-<pre>
-1. Identificar MSISDN alvo
-2. Obter IMSI (se necessário)
-3. Enviar requisição de localização
-4. Repetir em intervalos controlados
-</pre>
+"Is something wrong?"
 
-<p><strong>Elementos importantes:</strong></p>
+```
+    |
+    v
+```
 
-<ul>
-<li>Controle de frequência</li>
-<li>Escolha da origem</li>
-<li>Validação de resposta</li>
-</ul>
+Metrics / Thresholds
+|
+v
+Alert
 
-<hr>
+Observability
 
-<h2>12.4 Engenharia de mensagens</h2>
+"Why is it wrong?"
 
-<p>O coração do ataque está nas mensagens de signaling.</p>
+```
+    |
+    +---- Metrics
+    |
+    +---- Logs
+    |
+    +---- Traces
+    |
+    +---- Events
+    |
+    +---- Packet Data
+    |
+    v
+ Explanation
+```
 
-<h3>Características exploradas:</h3>
+</div>
 
-<ul>
-<li>Campos opcionais</li>
-<li>Parâmetros inconsistentes</li>
-<li>Comportamentos não documentados</li>
-</ul>
+<p>
+Monitoring tells you that something deserves attention.
+</p>
 
-<p><strong>Exemplo conceitual:</strong></p>
+<p>
+Observability helps you understand what happened.
+</p>
 
-<pre>
-Mensagem: consulta de localização
-Campos:
-- Identidade do assinante
-- Origem da requisição
-- Tipo de serviço
-</pre>
+<blockquote>
+Monitoring tells you where to look. Observability helps you understand what you are looking at.
+</blockquote>
 
-<p>👉 Pequenas alterações mudam completamente o comportamento da rede.</p>
+<h2>The Three Pillars</h2>
 
-<hr>
-
-<h2>12.5 Automação de ataques</h2>
-
-<p>Ataques modernos são automatizados.</p>
-
-<table>
-<tr>
-<th>Função</th>
-<th>Descrição</th>
-</tr>
-
-<tr>
-<td>Scanner</td>
-<td>Descobre alvos válidos</td>
-</tr>
-
-<tr>
-<td>Executor</td>
-<td>Envia mensagens de ataque</td>
-</tr>
-
-<tr>
-<td>Correlator</td>
-<td>Analisa respostas</td>
-</tr>
-
-<tr>
-<td>Scheduler</td>
-<td>Controla tempo e volume</td>
-</tr>
-</table>
-
-<p>👉 Isso permite ataques em larga escala.</p>
-
-<hr>
-
-<h2>12.6 Ataques em escala</h2>
-
-<p>Um atacante pode operar em diferentes níveis:</p>
+<p>
+Observability is commonly associated with three major sources of telemetry:
+</p>
 
 <ul>
-<li><strong>Individual:</strong> alvo específico</li>
-<li><strong>Batch:</strong> lista de usuários</li>
-<li><strong>Massivo:</strong> milhões de assinantes</li>
+<li>Metrics</li>
+<li>Logs</li>
+<li>Traces</li>
 </ul>
 
-<p><strong>Desafio para defesa:</strong></p>
+<p>
+In telecom environments, packet captures and protocol signaling provide another extremely valuable
+source of evidence.
+</p>
 
-<p>👉 Diferenciar uso legítimo de ataque automatizado.</p>
+<div class="diagram">
+                   Observability
 
-<hr>
+```
+                   |
+    +--------------+--------------+
+    |              |              |
+    v              v              v
+ Metrics          Logs          Traces
+    |              |              |
+    +--------------+--------------+
+                   |
+                   v
+           Correlation Layer
+                   |
+                   +---- Packet Captures
+                   |
+                   +---- Signaling
+                   |
+                   v
+              Root Cause
+```
 
-<h2>12.7 Infraestrutura distribuída</h2>
+</div>
 
-<p>Para evitar bloqueios, ataques usam múltiplas origens:</p>
+<h2>Metrics</h2>
+
+<p>
+Metrics are numerical measurements collected over time.
+</p>
+
+<p>
+They are particularly useful for understanding trends and system health.
+</p>
+
+<p>
+Typical infrastructure metrics include:
+</p>
 
 <ul>
-<li>Diferentes redes</li>
-<li>Diferentes países</li>
-<li>Diferentes identidades</li>
+<li>CPU utilization</li>
+<li>Memory utilization</li>
+<li>Disk usage</li>
+<li>Network throughput</li>
+<li>Packet rate</li>
+<li>Packet drops</li>
+<li>Interface errors</li>
 </ul>
 
-<p><strong>Resultado:</strong></p>
-
-<p>👉 Dificulta correlação e resposta.</p>
-
-<hr>
-
-<h2>12.8 Integração com evasão (Capítulo 11)</h2>
-
-<p>Tooling e evasão trabalham juntos.</p>
-
-<table>
-<tr>
-<th>Ferramenta</th>
-<th>Técnica de evasão</th>
-</tr>
-
-<tr>
-<td>Scheduler</td>
-<td>Low & slow</td>
-</tr>
-
-<tr>
-<td>Rotação de origem</td>
-<td>Bypass de blacklist</td>
-</tr>
-
-<tr>
-<td>Controle de payload</td>
-<td>Mensagens legítimas</td>
-</tr>
-</table>
-
-<p>👉 O ataque é adaptativo.</p>
-
-<hr>
-
-<h2>12.9 Exemplo completo (engenharia de ataque)</h2>
-
-<h3>Cenário: interceptação de OTP</h3>
-
-<pre>
-Fase 1:
-- Coletar MSISDN
-
-Fase 2:
-- Obter IMSI
-
-Fase 3:
-- Executar ataque de roteamento
-
-Fase 4:
-- Interceptar SMS
-
-Fase 5:
-- Manter persistência com baixo volume
-</pre>
-
-<p><strong>Pontos-chave:</strong></p>
+<p>
+Telecom systems add another layer of specialized metrics.
+</p>
 
 <ul>
-<li>Cada fase isolada parece legítima</li>
-<li>Execução distribuída</li>
-<li>Baixa visibilidade operacional</li>
+<li>Attach success rate</li>
+<li>Registration success rate</li>
+<li>PDU session success rate</li>
+<li>Bearer establishment success rate</li>
+<li>Authentication failures</li>
+<li>GTP tunnel failures</li>
+<li>Paging success</li>
+<li>Handover success</li>
 </ul>
 
-<hr>
+<p>
+These metrics allow an engineer to understand the behavior of the network at scale.
+</p>
 
-<h2>12.10 Limitações do atacante</h2>
+<div class="impact">
+A single failed session is an incident. A thousand similar failures are a pattern.
+</div>
 
-<p>Nem tudo é fácil para quem ataca:</p>
+<h2>KPIs and KQIs</h2>
+
+<p>
+Telecom environments traditionally rely heavily on KPIs: Key Performance Indicators.
+</p>
+
+<p>
+KPIs measure specific technical aspects of network performance.
+</p>
+
+<p>
+Examples include:
+</p>
 
 <ul>
-<li>Dependência de acesso à rede</li>
-<li>Risco de detecção</li>
-<li>Complexidade técnica</li>
-<li>Dependência de infraestrutura</li>
+<li>Session establishment success rate</li>
+<li>Drop rate</li>
+<li>Latency</li>
+<li>Packet loss</li>
+<li>Throughput</li>
+<li>Handover success rate</li>
 </ul>
 
-<p>👉 Isso também pode ser explorado na defesa.</p>
+<p>
+KQIs, or Key Quality Indicators, move closer to the actual customer experience.
+</p>
 
-<hr>
+<p>
+The distinction can be illustrated conceptually:
+</p>
 
-<h2>12.11 O que a defesa deve aprender com isso</h2>
+<div class="diagram">
+Technical Layer
 
-<p>Entender o atacante muda tudo:</p>
+CPU
+|
+Packet Loss
+|
+Latency
+|
+Signaling Failures
+|
+Bearer Failures
+|
+Session Failures
+|
+v
+KPI
+|
+v
+KQI
+|
+v
+Customer Experience
+
+</div>
+
+<p>
+A network can have acceptable infrastructure metrics while still delivering poor service quality.
+</p>
+
+<p>
+That is why technical telemetry must eventually be connected to service-level outcomes.
+</p>
+
+<blockquote>
+The network does not exist to produce good KPIs. KPIs exist to tell us whether the network is delivering the service it was built to provide.
+</blockquote>
+
+<h2>Logs</h2>
+
+<p>
+Logs provide detailed event information.
+</p>
+
+<p>
+They often answer questions that metrics cannot.
+</p>
+
+<p>
+A metric may tell you that session failures increased.
+</p>
+
+<p>
+A log may tell you why.
+</p>
+
+<div class="diagram">
+Metric
+
+PDU Session Success Rate
+|
+v
+72%
+|
+v
+Something
+failed
+
+Log
+
+SMF
+|
++-- Session request received
+|
++-- Policy request
+|
++-- UPF selection
+|
++-- PFCP response timeout
+|
++-- Session establishment failed
+
+</div>
+
+<p>
+The log provides a sequence of events.
+</p>
+
+<p>
+That sequence is often the beginning of the investigation.
+</p>
+
+<h2>Good Logs and Bad Logs</h2>
+
+<p>
+Not all logs are equally useful.
+</p>
+
+<p>
+A message such as:
+</p>
+
+<p>
+<code>ERROR: Session failed</code>
+</p>
+
+<p>
+provides little context.
+</p>
+
+<p>
+A useful operational log should ideally provide information such as:
+</p>
 
 <ul>
-<li>Defesa deixa de ser reativa</li>
-<li>Passa a ser estratégica</li>
-<li>Antecipação de comportamento</li>
+<li>Timestamp</li>
+<li>Component</li>
+<li>Event</li>
+<li>Session or transaction identifier</li>
+<li>Peer</li>
+<li>Error code</li>
+<li>Relevant context</li>
 </ul>
 
-<p><strong>👉 Nova mentalidade:</strong></p>
+<p>
+This becomes particularly important in distributed systems.
+</p>
 
-<p><strong>“Se eu fosse atacar, como faria?”</strong></p>
+<div class="impact">
+A log without context may tell you that something failed. A correlated log can tell you why it failed.
+</div>
 
-<hr>
+<h2>Traces</h2>
 
-<h2>12.12 Conclusão</h2>
+<p>
+Distributed tracing becomes increasingly valuable in cloud-native 5G environments.
+</p>
 
-<p>A engenharia de ataque mostra que:</p>
+<p>
+A single subscriber operation may involve multiple network functions.
+</p>
+
+<div class="diagram">
+UE
+ |
+ v
+gNB
+ |
+ v
+AMF
+ |
+ +----> AUSF
+ |
+ +----> UDM
+ |
+ v
+SMF
+ |
+ +----> PCF
+ |
+ v
+UPF
+</div>
+
+<p>
+If every component produces independent logs, following one transaction across the entire system
+can become difficult.
+</p>
+
+<p>
+Distributed tracing attempts to solve this problem by associating related operations with a common
+trace context.
+</p>
+
+<div class="flow">
+Trace ID: ABC123
+
+AMF
+|
++---- Request Authentication
+|
+v
+AUSF
+|
++---- Authentication Processing
+|
+v
+UDM
+|
++---- Subscriber Data
+|
+v
+AMF
+|
++---- Registration Continue
+|
+v
+SMF
+|
++---- PDU Session
+|
+v
+UPF
+
+</div>
+
+<p>
+Instead of examining isolated events, the engineer can reconstruct the journey of the transaction.
+</p>
+
+<h2>Telemetry Correlation</h2>
+
+<p>
+The real power appears when metrics, logs, traces, and packet data are correlated.
+</p>
+
+<div class="diagram">
+                Incident
+
+```
+               |
+               v
+      Session Success ↓
+               |
+    +----------+----------+
+    |          |          |
+    v          v          v
+ Metrics      Logs      Traces
+    |          |          |
+    +----------+----------+
+               |
+               v
+         Packet Capture
+               |
+               v
+         Correlated View
+               |
+               v
+          Root Cause
+```
+
+</div>
+
+<p>
+Consider a PDU session problem.
+</p>
+
+<p>
+The metric reports a sudden decrease in success rate.
+</p>
+
+<p>
+The SMF log reports PFCP timeouts.
+</p>
+
+<p>
+The trace shows that the SMF sent a request to the UPF but did not receive a response.
+</p>
+
+<p>
+The packet capture confirms that the PFCP request leaves the SMF but no response returns.
+</p>
+
+<p>
+The investigation has now moved from:
+</p>
+
+<p>
+<strong>“PDU sessions are failing.”</strong>
+</p>
+
+<p>
+to:
+</p>
+
+<p>
+<strong>“The SMF cannot receive PFCP responses from the UPF.”</strong>
+</p>
+
+<p>
+That is a dramatically better troubleshooting position.
+</p>
+
+<h2>Grafana and Visualization</h2>
+
+<p>
+Visualization is essential when dealing with large amounts of telemetry.
+</p>
+
+<p>
+Grafana is widely used to build dashboards that transform raw metrics into operational views.
+</p>
+
+<div class="diagram">
+                Grafana
+
+```
+    +----------------------+
+    | Network Overview     |
+    +----------------------+
+    | CPU      62%         |
+    | Memory   71%         |
+    | Sessions 98.4%       |
+    | Latency  14 ms       |
+    +----------------------+
+
+    +----------------------+
+    | Session Success      |
+    |                      |
+    |  /\      /\          |
+    | /  \____/  \__       |
+    +----------------------+
+```
+
+</div>
+
+<p>
+A good dashboard should not simply display everything.
+</p>
+
+<p>
+It should help the engineer answer important questions quickly.
+</p>
+
+<p>
+What changed?
+</p>
+
+<p>
+When did it change?
+</p>
+
+<p>
+Which component changed?
+</p>
+
+<p>
+What else changed at the same time?
+</p>
+
+<div class="impact">
+A dashboard is not a wall of graphs. It is a decision-making interface.
+</div>
+
+<h2>Prometheus</h2>
+
+<p>
+Prometheus is widely used for metrics collection and monitoring in cloud-native environments.
+</p>
+
+<p>
+It is particularly useful when combined with Kubernetes and Grafana.
+</p>
+
+<div class="diagram">
+Network Functions
+      |
+      v
+ Metrics Endpoints
+      |
+      v
+  Prometheus
+      |
+      v
+ Time-Series Data
+      |
+      v
+   Grafana
+      |
+      v
+ Engineer
+</div>
+
+<p>
+The important concept is not the tool itself.
+</p>
+
+<p>
+The important concept is that operational data becomes structured, queryable, and correlated over
+time.
+</p>
+
+<h2>ELK and Log-Centric Observability</h2>
+
+<p>
+ELK-based environments are commonly used for centralized log collection and analysis.
+</p>
+
+<div class="diagram">
+Network Functions
+     |
+     +---- Logs
+     |
+     +---- Events
+     |
+     +---- Errors
+     |
+     v
+   Log Collection
+     |
+     v
+ Elasticsearch
+     |
+     v
+   Kibana
+     |
+     v
+ Investigation
+</div>
+
+<p>
+Centralized logging becomes essential when the network contains many distributed components.
+</p>
+
+<p>
+Instead of connecting to individual servers, engineers can search for events across the environment.
+</p>
+
+<h2>Splunk</h2>
+
+<p>
+Splunk provides another approach to centralized operational and security data analysis.
+</p>
+
+<p>
+It can ingest logs, events, and other machine-generated data and make them searchable and
+correlatable.
+</p>
+
+<p>
+In telecom environments, this can be especially useful when combining:
+</p>
 
 <ul>
-<li>Ataques são planejados</li>
-<li>São automatizados</li>
-<li>Evoluem constantemente</li>
+<li>Network events</li>
+<li>Application logs</li>
+<li>Security alerts</li>
+<li>Infrastructure events</li>
+<li>Subscriber-related events</li>
 </ul>
 
-<p><strong>👉 Defender exige o mesmo nível de sofisticação.</strong></p>
+<p>
+The goal remains the same:
+</p>
 
-<p>Quem entende o atacante… protege melhor.</p>
+<p>
+<strong>Turn large volumes of raw data into evidence that supports decisions.</strong>
+</p>
 
-<footer>
-<p>Fim do Capítulo 12 – Tooling e Engenharia de Ataque</p>
-</footer>
+<h2>Alerting</h2>
+
+<p>
+Monitoring becomes operationally useful when it can identify conditions that require attention.
+</p>
+
+<p>
+But alerting introduces its own engineering challenges.
+</p>
+
+<p>
+An alert can be:
+</p>
+
+<ul>
+<li>Useful</li>
+<li>Informational</li>
+<li>Duplicate</li>
+<li>Transient</li>
+<li>False positive</li>
+<li>Critical</li>
+</ul>
+
+<p>
+Poor alerting can overwhelm an operations team.
+</p>
+
+<div class="diagram">
+Healthy System
+      |
+      v
+ Monitoring
+      |
+      v
+ Hundreds of Alerts
+      |
+      v
+ Alert Fatigue
+      |
+      v
+ Critical Alert Ignored
+</div>
+
+<p>
+The goal should therefore not be to generate as many alerts as possible.
+</p>
+
+<p>
+The goal is to generate alerts that lead to meaningful action.
+</p>
+
+<blockquote>
+If everything is an alert, nothing is an alert.
+</blockquote>
+
+<h2>Alert Severity</h2>
+
+<p>
+A mature monitoring strategy should distinguish between different levels of impact.
+</p>
+
+<div class="diagram">
+INFO
+ |
+ | Something changed
+ v
+
+WARNING
+|
+| Risk is increasing
+v
+
+CRITICAL
+|
+| Service is impacted
+v
+
+INCIDENT
+|
+| Immediate action required
+v
+
+RESOLUTION
+
+</div>
+
+<p>
+Severity should reflect operational impact, not simply how frightening the metric looks.
+</p>
+
+<h2>Alert Correlation</h2>
+
+<p>
+A single infrastructure failure can generate dozens or hundreds of alerts.
+</p>
+
+<p>
+Suppose a network interface fails.
+</p>
+
+<div class="diagram">
+Interface Failure
+       |
+       +---- Packet Loss
+       |
+       +---- GTP Errors
+       |
+       +---- Session Failures
+       |
+       +---- Latency Increase
+       |
+       +---- Application Errors
+       |
+       +---- Customer Complaints
+</div>
+
+<p>
+These are not necessarily six independent problems.
+</p>
+
+<p>
+They may be six symptoms of one root cause.
+</p>
+
+<div class="impact">
+The number of alerts does not represent the number of problems.
+</div>
+
+<p>
+Correlation attempts to identify the relationship between events.
+</p>
+
+<h2>Troubleshooting Methodology</h2>
+
+<p>
+Good troubleshooting is not random experimentation.
+</p>
+
+<p>
+It is a structured investigation.
+</p>
+
+<div class="flow">
+Symptom
+  |
+  v
+Scope
+  |
+  v
+Timeline
+  |
+  v
+Evidence
+  |
+  v
+Hypothesis
+  |
+  v
+Validation
+  |
+  v
+Root Cause
+  |
+  v
+Resolution
+  |
+  v
+Verification
+</div>
+
+<p>
+Each step has a purpose.
+</p>
+
+<h2>Start With the Symptom</h2>
+
+<p>
+The first mistake in troubleshooting is often jumping directly to a suspected cause.
+</p>
+
+<p>
+For example:
+</p>
+
+<p>
+“Users cannot access the internet, so the UPF is broken.”
+</p>
+
+<p>
+That is not a diagnosis.
+</p>
+
+<p>
+It is a hypothesis.
+</p>
+
+<p>
+The actual symptom might be:
+</p>
+
+<p>
+“PDU session establishment success dropped from 99.5% to 72% at 14:32.”
+</p>
+
+<p>
+That statement is measurable.
+</p>
+
+<p>
+It gives us a timestamp.
+</p>
+
+<p>
+It gives us an impact level.
+</p>
+
+<p>
+And it gives us a starting point.
+</p>
+
+<div class="impact">
+A precise symptom is the first piece of evidence.
+</div>
+
+<h2>Define the Scope</h2>
+
+<p>
+The next question is:
+</p>
+
+<p>
+<strong>How widespread is the problem?</strong>
+</p>
+
+<p>
+Is it:
+</p>
+
+<ul>
+<li>One subscriber?</li>
+<li>One cell?</li>
+<li>One region?</li>
+<li>One APN/DNN?</li>
+<li>One network function?</li>
+<li>One interface?</li>
+<li>The entire network?</li>
+</ul>
+
+<div class="diagram">
+Single UE
+   |
+   v
+Single Cell
+   |
+   v
+Regional
+   |
+   v
+National
+   |
+   v
+Global
+</div>
+
+<p>
+The scope often eliminates entire categories of possible causes.
+</p>
+
+<p>
+If only one subscriber is affected, a national core outage becomes less likely.
+</p>
+
+<p>
+If every subscriber is affected, an isolated UE problem becomes unlikely.
+</p>
+
+<h2>Build the Timeline</h2>
+
+<p>
+Time is one of the most powerful dimensions in troubleshooting.
+</p>
+
+<p>
+The question is not only:
+</p>
+
+<p>
+“What is broken?”
+</p>
+
+<p>
+It is:
+</p>
+
+<p>
+<strong>“What changed immediately before the problem started?”</strong>
+</p>
+
+<div class="diagram">
+14:20
+ |
+ | Normal
+ |
+14:28
+ |
+ | Software deployment
+ |
+14:31
+ |
+ | Interface errors
+ |
+14:32
+ |
+ | Session success drops
+ |
+14:35
+ |
+ | Customer complaints
+</div>
+
+<p>
+The timeline creates relationships between events.
+</p>
+
+<p>
+A deployment occurring three minutes before the incident deserves investigation.
+</p>
+
+<p>
+It does not automatically prove causality.
+</p>
+
+<p>
+But it is evidence.
+</p>
+
+<h2>From Symptom to Evidence</h2>
+
+<p>
+A disciplined engineer continuously converts assumptions into evidence.
+</p>
+
+<div class="diagram">
+Assumption
+    |
+    v
+"What could cause this?"
+    |
+    v
+Hypothesis
+    |
+    v
+"What evidence would confirm it?"
+    |
+    v
+Measurement
+    |
+    v
+Packet / Log / Metric
+    |
+    v
+Evidence
+</div>
+
+<p>
+This prevents troubleshooting from becoming guesswork.
+</p>
+
+<blockquote>
+A hypothesis is useful only when it can be tested.
+</blockquote>
+
+<h2>Control Plane Versus User Plane</h2>
+
+<p>
+One of the most powerful troubleshooting techniques in mobile networks is separating control-plane
+and user-plane analysis.
+</p>
+
+<div class="diagram">
+                 Service Failure
+                       |
+              +--------+--------+
+              |                 |
+              v                 v
+        Control Plane        User Plane
+              |                 |
+              v                 v
+       Session Exists?     Traffic Flows?
+              |                 |
+              v                 v
+       Signaling OK?       GTP-U OK?
+              |                 |
+              +--------+--------+
+                       |
+                       v
+                  Correlation
+</div>
+
+<p>
+If a PDU session is never established, investigating application traffic may be premature.
+</p>
+
+<p>
+If the PDU session is established but user traffic does not flow, the investigation moves toward
+the user plane.
+</p>
+
+<p>
+This separation dramatically reduces the search space.
+</p>
+
+<h2>Evidence at Multiple Layers</h2>
+
+<p>
+A strong investigation examines several layers rather than trusting a single data source.
+</p>
+
+<div class="diagram">
+Layer 1
+Physical / NIC
+      |
+      v
+Layer 2
+Ethernet
+      |
+      v
+Layer 3
+IP
+      |
+      v
+Layer 4
+UDP / SCTP / TCP
+      |
+      v
+Layer 5+
+GTP / NAS / S1AP / HTTP/2
+      |
+      v
+Application / Service
+</div>
+
+<p>
+A failure at a lower layer can create symptoms at every layer above it.
+</p>
+
+<p>
+This is why starting with the highest-level symptom and immediately blaming the application can
+be misleading.
+</p>
+
+<h2>Packet Capture as Evidence</h2>
+
+<p>
+Packet captures provide direct evidence of what actually crossed the network.
+</p>
+
+<p>
+They can confirm:
+</p>
+
+<ul>
+<li>Whether packets were transmitted</li>
+<li>Whether packets were received</li>
+<li>Which endpoint communicated</li>
+<li>Which protocol was used</li>
+<li>Which message sequence occurred</li>
+<li>Whether retransmissions occurred</li>
+<li>Whether responses were received</li>
+</ul>
+
+<div class="flow">
+Expected
+
+Request
+|
+v
+Network
+|
+v
+Response
+
+Observed
+
+Request
+|
+v
+Network
+|
+X
+No Response
+
+</div>
+
+<p>
+That simple observation can eliminate entire sections of the architecture from the investigation.
+</p>
+
+<div class="impact">
+The packet capture does not care what we expected to happen. It shows what actually happened.
+</div>
+
+<h2>Wireshark and TShark</h2>
+
+<p>
+Wireshark provides deep packet inspection and protocol decoding.
+</p>
+
+<p>
+TShark provides similar analysis capabilities through a command-line interface, which makes it
+particularly useful for automation, remote systems, and large-scale packet processing.
+</p>
+
+<p>
+In telecom troubleshooting, protocol filters can dramatically reduce investigation time.
+</p>
+
+<div class="diagram">
+Large Capture
+     |
+     v
+Protocol Filter
+     |
+     +---- NAS
+     |
+     +---- S1AP
+     |
+     +---- GTP
+     |
+     +---- PFCP
+     |
+     +---- HTTP/2
+     |
+     v
+Relevant Evidence
+</div>
+
+<p>
+The goal is not to inspect every packet.
+</p>
+
+<p>
+The goal is to isolate the packets that can prove or disprove the current hypothesis.
+</p>
+
+<h2>Root Cause Analysis</h2>
+
+<p>
+Finding the first failure is not always the same as finding the root cause.
+</p>
+
+<p>
+Consider:
+</p>
+
+<div class="diagram">
+UPF
+ |
+ | PFCP timeout
+ v
+SMF
+ |
+ | Session establishment fails
+ v
+Subscriber
+ |
+ | Internet unavailable
+ v
+Customer Complaint
+</div>
+
+<p>
+The customer sees an internet outage.
+</p>
+
+<p>
+The SMF sees a session failure.
+</p>
+
+<p>
+The root cause may actually be a network path problem between SMF and UPF.
+</p>
+
+<p>
+Or perhaps the UPF itself is overloaded.
+</p>
+
+<p>
+Or perhaps a firewall policy changed.
+</p>
+
+<p>
+The visible symptom is several layers away from the root cause.
+</p>
+
+<blockquote>
+The first error you see is not necessarily the first error that happened.
+</blockquote>
+
+<h2>Five Whys in Telecom</h2>
+
+<p>
+A simple root-cause technique is repeatedly asking why.
+</p>
+
+<div class="diagram">
+Why did users lose connectivity?
+        |
+        v
+Because PDU sessions failed.
+        |
+        v
+Why did PDU sessions fail?
+        |
+        v
+Because PFCP establishment timed out.
+        |
+        v
+Why did PFCP time out?
+        |
+        v
+Because responses did not reach the SMF.
+        |
+        v
+Why?
+        |
+        v
+Network policy blocked UDP traffic.
+        |
+        v
+Why?
+        |
+        v
+Firewall rule changed during deployment.
+</div>
+
+<p>
+The original symptom was:
+</p>
+
+<p>
+<strong>“Users cannot access the internet.”</strong>
+</p>
+
+<p>
+The root cause was:
+</p>
+
+<p>
+<strong>“A firewall policy change blocked PFCP traffic.”</strong>
+</p>
+
+<p>
+Those are very different statements.
+</p>
+
+<h2>Root Cause Versus Contributing Factors</h2>
+
+<p>
+Complex incidents rarely have only one factor.
+</p>
+
+<p>
+For example:
+</p>
+
+<div class="diagram">
+Primary Cause
+      |
+      v
+Firewall Policy Change
+      |
+      +---- PFCP Blocked
+      |
+      +---- Sessions Fail
+      |
+      +---- Retries Increase
+      |
+      +---- SMF CPU Increases
+      |
+      +---- Alerts Trigger
+</div>
+
+<p>
+The CPU increase is real.
+</p>
+
+<p>
+The session failures are real.
+</p>
+
+<p>
+The alerts are real.
+</p>
+
+<p>
+But they may all be consequences of the original event.
+</p>
+
+<div class="impact">
+Root-cause analysis means separating causes from consequences.
+</div>
+
+<h2>Observability for 5G Core</h2>
+
+<p>
+The cloud-native architecture of the 5G Core makes observability increasingly important.
+</p>
+
+<p>
+Network functions can be distributed across:
+</p>
+
+<ul>
+<li>Virtual machines</li>
+<li>Containers</li>
+<li>Kubernetes clusters</li>
+<li>Multiple nodes</li>
+<li>Multiple availability zones</li>
+<li>Edge locations</li>
+</ul>
+
+<div class="diagram">
+                    5G Core
+
+```
+             Kubernetes
+                 |
+   +-------------+-------------+
+   |             |             |
+   v             v             v
+  AMF           SMF           PCF
+   |             |             |
+   +-------------+-------------+
+                 |
+                UPF
+                 |
+              User Plane
+```
+
+</div>
+
+<p>
+A service failure can therefore involve application behavior, Kubernetes behavior, networking,
+infrastructure, and telecom signaling simultaneously.
+</p>
+
+<p>
+This is why modern telecom troubleshooting increasingly requires both telecom and cloud-native
+observability skills.
+</p>
+
+<h2>Observability Across the Stack</h2>
+
+<div class="diagram">
+Customer Experience
+        |
+        v
+KQI
+        |
+        v
+KPI
+        |
+        v
+Application
+        |
+        v
+Network Function
+        |
+        v
+Container / Pod
+        |
+        v
+Kubernetes
+        |
+        v
+CNI / Network
+        |
+        v
+Node / OS
+        |
+        v
+NIC / Hardware
+</div>
+
+<p>
+A senior engineer must be able to move up and down this stack.
+</p>
+
+<p>
+If the application says the network is unavailable, look downward.
+</p>
+
+<p>
+If the infrastructure is healthy but the service is failing, look upward.
+</p>
+
+<p>
+If everything appears healthy individually but the transaction fails, investigate the interaction
+between components.
+</p>
+
+<blockquote>
+Distributed systems often fail between components rather than inside components.
+</blockquote>
+
+<h2>Correlation IDs and Transaction Context</h2>
+
+<p>
+Correlation becomes particularly powerful when systems share identifiers.
+</p>
+
+<p>
+Examples include:
+</p>
+
+<ul>
+<li>Trace IDs</li>
+<li>Session IDs</li>
+<li>TEIDs</li>
+<li>Transaction identifiers</li>
+<li>Subscriber-related identifiers</li>
+</ul>
+
+<p>
+These identifiers allow engineers to follow an event across different systems.
+</p>
+
+<div class="diagram">
+Subscriber
+   |
+   +---- Session ID
+          |
+          +---- AMF Log
+          |
+          +---- SMF Log
+          |
+          +---- UPF State
+          |
+          +---- GTP Tunnel
+          |
+          +---- Packet Capture
+          |
+          v
+       One Story
+</div>
+
+<p>
+Without correlation, each system tells a different fragment of the story.
+</p>
+
+<p>
+With correlation, those fragments can become one coherent timeline.
+</p>
+
+<div class="impact">
+Observability is the art of turning fragments into a story.
+</div>
+
+<h2>Operational Dashboards</h2>
+
+<p>
+A senior operations dashboard should provide multiple levels of abstraction.
+</p>
+
+<div class="diagram">
+LEVEL 1 — Service
+
+Registration Success
+PDU Session Success
+Internet Availability
+
+LEVEL 2 — Network
+
+AMF
+SMF
+UPF
+GTP
+PFCP
+
+LEVEL 3 — Infrastructure
+
+CPU
+Memory
+NIC
+Disk
+Kubernetes
+
+LEVEL 4 — Evidence
+
+Logs
+Traces
+Packets
+Events
+
+</div>
+
+<p>
+The engineer should be able to move from a high-level symptom toward increasingly detailed
+evidence.
+</p>
+
+<h2>From Symptom to Root Cause</h2>
+
+<p>
+The complete troubleshooting process can now be represented as a chain.
+</p>
+
+<div class="flow">
+SYMPTOM
+
+"Users cannot establish sessions."
+
+```
+    |
+    v
+```
+
+OBSERVATION
+
+Session success rate dropped.
+
+```
+    |
+    v
+```
+
+SCOPE
+
+Multiple regions affected.
+
+```
+    |
+    v
+```
+
+TIMELINE
+
+Failure began at 14:32.
+
+```
+    |
+    v
+```
+
+CORRELATION
+
+PFCP errors increased at 14:31.
+
+```
+    |
+    v
+```
+
+EVIDENCE
+
+SMF sends PFCP requests.
+UPF response is not received.
+
+```
+    |
+    v
+```
+
+PACKET ANALYSIS
+
+Request leaves SMF.
+Response does not return.
+
+```
+    |
+    v
+```
+
+NETWORK ANALYSIS
+
+Firewall drops UDP/8805.
+
+```
+    |
+    v
+```
+
+ROOT CAUSE
+
+Firewall policy change.
+
+```
+    |
+    v
+```
+
+VALIDATION
+
+Policy rollback restores PFCP.
+
+```
+    |
+    v
+```
+
+RESOLUTION
+
+Service returns to normal.
+
+</div>
+
+<p>
+This is the difference between troubleshooting and guessing.
+</p>
+
+<h2>Evidence-Based Troubleshooting</h2>
+
+<p>
+A mature troubleshooting process continuously asks:
+</p>
+
+<p>
+<strong>What do I know?</strong>
+</p>
+
+<p>
+<strong>What do I think?</strong>
+</p>
+
+<p>
+<strong>What evidence separates the two?</strong>
+</p>
+
+<div class="diagram">
+KNOWN
+ |
+ | Facts
+ v
+UNKNOWN
+ |
+ | Hypotheses
+ v
+TEST
+ |
+ | Evidence
+ v
+CONFIRMED
+ |
+ v
+ROOT CAUSE
+</div>
+
+<p>
+This approach prevents engineers from becoming emotionally attached to their first theory.
+</p>
+
+<p>
+The first hypothesis can be wrong.
+</p>
+
+<p>
+That is normal.
+</p>
+
+<p>
+The important thing is to discover that it is wrong quickly.
+</p>
+
+<blockquote>
+The best troubleshooting engineers are not the ones who guess the cause fastest. They are the ones who eliminate wrong causes fastest.
+</blockquote>
+
+<h2>Automation and Observability</h2>
+
+<p>
+Modern networks produce too much information to investigate everything manually.
+</p>
+
+<p>
+Automation can help identify patterns.
+</p>
+
+<p>
+Examples include:
+</p>
+
+<ul>
+<li>Automatic anomaly detection</li>
+<li>Log correlation</li>
+<li>Threshold evaluation</li>
+<li>Packet analysis pipelines</li>
+<li>Automated dashboards</li>
+<li>Incident enrichment</li>
+<li>Alert deduplication</li>
+</ul>
+
+<p>
+A mature operational platform can automatically collect evidence before an engineer even starts
+the investigation.
+</p>
+
+<div class="diagram">
+Incident
+   |
+   v
+Alert
+   |
+   v
+Automatic Enrichment
+   |
+   +---- Metrics
+   +---- Logs
+   +---- Traces
+   +---- Events
+   +---- Packet Data
+   |
+   v
+Investigation Package
+   |
+   v
+Engineer
+</div>
+
+<p>
+This dramatically reduces mean time to investigate.
+</p>
+
+<h2>MTTD and MTTR</h2>
+
+<p>
+Operational teams often measure two important concepts:
+</p>
+
+<p>
+<strong>Mean Time to Detect</strong> and <strong>Mean Time to Recover</strong>.
+</p>
+
+<div class="diagram">
+Failure
+  |
+  |---- MTTD ----|
+  v              v
+Detected       Investigation
+                   |
+                   |---- Diagnosis
+                   |
+                   |---- Fix
+                   |
+                   v
+                Recovery
+</div>
+
+<p>
+Better observability reduces the time between failure and detection.
+</p>
+
+<p>
+Better troubleshooting reduces the time between detection and diagnosis.
+</p>
+
+<p>
+Better automation can reduce both.
+</p>
+
+<div class="impact">
+The value of observability is not measured by how many graphs exist. It is measured by how quickly the team can understand and recover from failure.
+</div>
+
+<h2>Observability and Security</h2>
+
+<p>
+The same telemetry used for troubleshooting can also support security.
+</p>
+
+<p>
+An unusual signaling pattern may be:
+</p>
+
+<ul>
+<li>A network fault</li>
+<li>A configuration error</li>
+<li>A capacity problem</li>
+<li>Or an attack</li>
+</ul>
+
+<p>
+Without observability, these possibilities are difficult to distinguish.
+</p>
+
+<div class="diagram">
+Unexpected Behavior
+        |
+        +----------------+
+        |                |
+        v                v
+Operational Issue    Security Issue
+        |                |
+        +-------+--------+
+                |
+                v
+          Evidence
+                |
+                v
+             Diagnosis
+</div>
+
+<p>
+This creates a direct connection between the previous chapter and the current one.
+</p>
+
+<p>
+Security monitoring depends on observability.
+</p>
+
+<p>
+Troubleshooting depends on observability.
+</p>
+
+<p>
+Capacity planning depends on observability.
+</p>
+
+<p>
+Performance optimization depends on observability.
+</p>
+
+<p>
+Reliability depends on observability.
+</p>
+
+<h2>The Senior Engineer's Perspective</h2>
+
+<p>
+A junior engineer may start with the component they know best.
+</p>
+
+<p>
+A senior engineer starts with the behavior of the system.
+</p>
+
+<p>
+The question is not:
+</p>
+
+<p>
+“Is the UPF healthy?”
+</p>
+
+<p>
+The better question is:
+</p>
+
+<p>
+“Is the service working, and what evidence tells us why or why not?”
+</p>
+
+<p>
+A component can report itself as healthy while the service it participates in is failing.
+</p>
+
+<div class="impact">
+Component health is not the same as service health.
+</div>
+
+<p>
+This distinction becomes critical in distributed telecom architectures.
+</p>
+
+<h2>The Troubleshooting Discipline</h2>
+
+<p>
+A disciplined engineer avoids several common mistakes.
+</p>
+
+<p>
+Do not change multiple things simultaneously.
+</p>
+
+<p>
+Do not assume the first suspected component is responsible.
+</p>
+
+<p>
+Do not ignore timestamps.
+</p>
+
+<p>
+Do not rely on a single monitoring system.
+</p>
+
+<p>
+Do not confuse symptoms with causes.
+</p>
+
+<p>
+Do not close an incident merely because the service recovered.
+</p>
+
+<p>
+And most importantly:
+</p>
+
+<p>
+<strong>Do not stop when you find something unusual. Determine whether it explains the failure.</strong>
+</p>
+
+<blockquote>
+Finding something wrong is easy. Proving that it caused the incident is engineering.
+</blockquote>
+
+<h2>Closing Perspective</h2>
+
+<p>
+Modern telecom networks are too distributed and too complex to operate through intuition alone.
+</p>
+
+<p>
+The engineer needs visibility.
+</p>
+
+<p>
+Metrics show behavior over time.
+</p>
+
+<p>
+Logs reveal events.
+</p>
+
+<p>
+Traces reveal distributed transactions.
+</p>
+
+<p>
+Packet captures reveal what actually crossed the network.
+</p>
+
+<p>
+KPIs measure technical performance.
+</p>
+
+<p>
+KQIs connect that performance to service quality.
+</p>
+
+<p>
+Dashboards make information understandable.
+</p>
+
+<p>
+Alerting brings important changes to the engineer's attention.
+</p>
+
+<p>
+Correlation turns isolated events into a coherent picture.
+</p>
+
+<p>
+And methodology transforms that picture into a diagnosis.
+</p>
+
+<div class="diagram">
+                 SYMPTOM
+                    |
+                    v
+                 SCOPE
+                    |
+                    v
+                TIMELINE
+                    |
+                    v
+                 DATA
+                    |
+          +---------+---------+
+          |         |         |
+          v         v         v
+       Metrics     Logs     Traces
+          |         |         |
+          +---------+---------+
+                    |
+                    v
+              Packet Analysis
+                    |
+                    v
+                Correlation
+                    |
+                    v
+                Hypothesis
+                    |
+                    v
+                Validation
+                    |
+                    v
+               ROOT CAUSE
+                    |
+                    v
+                RESOLUTION
+                    |
+                    v
+               VERIFICATION
+</div>
+
+<p>
+This is the mindset required to operate complex 4G and 5G networks.
+</p>
+
+<blockquote>
+Good engineers fix problems. Great engineers build systems that make problems visible, explainable, and recoverable.
+</blockquote>
+
+<div class="impact">
+From symptom to evidence. From evidence to hypothesis. From hypothesis to proof. From proof to root cause.
+</div>
+
+<p>
+That is the foundation of reliable telecom operations.
+</p>
+
+<p>
+And as mobile networks continue to evolve toward cloud-native, distributed, automated architectures,
+the ability to observe and reason about the entire system becomes just as important as the ability
+to configure it.
+</p>
 
 </body>
 </html>
