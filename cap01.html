@@ -510,6 +510,884 @@ containers, Kubernetes, service discovery, observability, Linux
 networking, and distributed systems.
 </p>
 
+```html
+<section>
+
+<h2>Transport Protocols in 4G and 5G Networks</h2>
+
+<p>
+Understanding IP transport protocols is essential before studying LTE and 5G
+architectures. Mobile networks rely on several transport mechanisms, and each
+one serves a different purpose.
+</p>
+
+<p>
+The three transport protocols that engineers encounter most frequently in
+telecommunication networks are <strong>TCP</strong>, <strong>UDP</strong>,
+and <strong>SCTP</strong>.
+</p>
+
+<p>
+Although all three operate above IP, they provide very different services.
+Choosing the correct transport protocol is especially important in mobile
+networks because signaling, user-plane traffic, management traffic, and
+application traffic have different requirements.
+</p>
+
+
+<h3>TCP — Transmission Control Protocol</h3>
+
+<p>
+TCP is a connection-oriented and reliable transport protocol. It provides an
+ordered byte stream between two endpoints.
+</p>
+
+<p>
+Before data can be exchanged, TCP establishes a connection using the
+three-way handshake:
+</p>
+
+<pre>
+Client                    Server
+  |                         |
+  |-------- SYN ----------->|
+  |<------- SYN/ACK --------|
+  |-------- ACK ----------->|
+  |                         |
+  |====== TCP Session ======|
+</pre>
+
+<p>
+TCP provides several important mechanisms:
+</p>
+
+<ul>
+<li>Connection establishment</li>
+<li>Reliable delivery</li>
+<li>Packet retransmission</li>
+<li>Sequence numbers</li>
+<li>Ordered delivery</li>
+<li>Flow control</li>
+<li>Congestion control</li>
+</ul>
+
+<p>
+TCP presents the application with a continuous and ordered byte stream rather
+than individual messages.
+</p>
+
+<pre>
+Application
+     |
+     v
++------------+
+|    TCP     |
++------------+
+     |
+     v
+     IP
+</pre>
+
+<p>
+This makes TCP suitable for applications where reliable and ordered delivery
+is more important than minimum transport overhead.
+</p>
+
+<p>
+Typical examples include:
+</p>
+
+<ul>
+<li>HTTP/HTTPS</li>
+<li>SSH</li>
+<li>FTP</li>
+<li>Database connections</li>
+<li>Many network management applications</li>
+</ul>
+
+
+<h3>UDP — User Datagram Protocol</h3>
+
+<p>
+UDP is a connectionless transport protocol with very little transport-layer
+overhead.
+</p>
+
+<p>
+Unlike TCP, UDP does not establish a connection before sending data.
+It also does not provide transport-layer retransmission, ordering, or
+congestion control.
+</p>
+
+<pre>
+Application
+     |
+     v
++------------+
+|    UDP     |
++------------+
+     |
+     v
+     IP
+</pre>
+
+<p>
+UDP is therefore useful when applications or higher-layer protocols need
+simple datagram transport with low overhead.
+</p>
+
+<p>
+In mobile networks, UDP is particularly important because several telecom
+protocols use it as their transport layer.
+</p>
+
+<p>
+Examples include:
+</p>
+
+<ul>
+<li>GTP-U</li>
+<li>GTP-C</li>
+<li>PFCP</li>
+<li>DNS</li>
+<li>DHCP and related network services</li>
+</ul>
+
+<p>
+For example, GTP-U is carried over UDP/IP:
+</p>
+
+<pre>
+User Plane
+    |
+    v
++-----------+
+|   GTP-U   |
++-----------+
+    |
+    v
++-----------+
+|    UDP    |
++-----------+
+    |
+    v
++-----------+
+|    IP     |
++-----------+
+</pre>
+
+
+<h3>SCTP — Stream Control Transmission Protocol</h3>
+
+<p>
+SCTP was designed to provide reliable message-oriented transport and includes
+features that are particularly useful for telecommunications signaling.
+</p>
+
+<p>
+SCTP is connection-oriented in the sense that endpoints establish an
+<strong>association</strong>, but its behavior is different from TCP.
+SCTP is message-oriented rather than a continuous byte stream.
+</p>
+
+<p>
+SCTP provides:
+</p>
+
+<ul>
+<li>Reliable message delivery</li>
+<li>Sequenced delivery</li>
+<li>Retransmission</li>
+<li>Flow control</li>
+<li>Congestion control</li>
+<li>Multi-streaming</li>
+<li>Multi-homing</li>
+</ul>
+
+<p>
+SCTP is widely used for telecom signaling.
+</p>
+
+<p>
+Examples in mobile networks include:
+</p>
+
+<ul>
+<li><strong>S1AP over SCTP</strong> in LTE</li>
+<li><strong>X2AP over SCTP</strong> in LTE</li>
+<li><strong>NGAP over SCTP</strong> in 5G</li>
+<li><strong>XnAP over SCTP</strong> in 5G</li>
+</ul>
+
+<pre>
+Telecom Signaling
+       |
+       v
++-------------+
+|    S1AP     |
+|    NGAP     |
+|    X2AP     |
+|    XnAP     |
++-------------+
+       |
+       v
++-------------+
+|    SCTP     |
++-------------+
+       |
+       v
++-------------+
+|     IP      |
++-------------+
+</pre>
+
+<p>
+A useful rule for engineers is:
+</p>
+
+<p>
+<strong>
+SCTP is not simply "TCP for telecom".
+</strong>
+</p>
+
+<p>
+Although both provide reliable transport, SCTP is message-oriented and
+provides multi-streaming and multi-homing, which make it particularly useful
+for signaling applications.
+</p>
+
+
+<h3>TCP vs UDP vs SCTP</h3>
+
+<table>
+<tr>
+<th>Characteristic</th>
+<th>TCP</th>
+<th>UDP</th>
+<th>SCTP</th>
+</tr>
+
+<tr>
+<td>Connection model</td>
+<td>Connection-oriented</td>
+<td>Connectionless</td>
+<td>Association-oriented</td>
+</tr>
+
+<tr>
+<td>Reliable delivery</td>
+<td>Yes</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<td>Ordering</td>
+<td>Yes</td>
+<td>No</td>
+<td>Yes, per stream</td>
+</tr>
+
+<tr>
+<td>Message-oriented</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<td>Retransmission</td>
+<td>Yes</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<td>Multi-streaming</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<td>Multi-homing</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+
+<tr>
+<td>Typical mobile-network use</td>
+<td>Applications and 5G SBA</td>
+<td>GTP, PFCP and network services</td>
+<td>4G/5G signaling</td>
+</tr>
+</table>
+
+
+<h3>Transport Protocol Mapping in 4G and 5G</h3>
+
+<p>
+A network engineer should be able to quickly identify which transport
+protocol is underneath a telecom protocol.
+</p>
+
+<table>
+<tr>
+<th>Protocol</th>
+<th>Transport</th>
+<th>Example</th>
+</tr>
+
+<tr>
+<td>S1AP</td>
+<td>SCTP</td>
+<td>eNodeB ↔ MME</td>
+</tr>
+
+<tr>
+<td>X2AP</td>
+<td>SCTP</td>
+<td>eNodeB ↔ eNodeB</td>
+</tr>
+
+<tr>
+<td>NGAP</td>
+<td>SCTP</td>
+<td>gNB ↔ AMF</td>
+</tr>
+
+<tr>
+<td>XnAP</td>
+<td>SCTP</td>
+<td>gNB ↔ gNB</td>
+</tr>
+
+<tr>
+<td>GTP-U</td>
+<td>UDP</td>
+<td>LTE/5G User Plane</td>
+</tr>
+
+<tr>
+<td>GTP-C</td>
+<td>UDP</td>
+<td>LTE EPC Control Plane</td>
+</tr>
+
+<tr>
+<td>PFCP</td>
+<td>UDP</td>
+<td>SMF ↔ UPF</td>
+</tr>
+
+<tr>
+<td>HTTP/2</td>
+<td>TCP</td>
+<td>5G Service-Based Architecture</td>
+</tr>
+
+<tr>
+<td>DNS</td>
+<td>UDP/TCP</td>
+<td>Network services</td>
+</tr>
+</table>
+
+
+<h3>5-Tuple and IP Flow Identification</h3>
+
+<p>
+One of the most important concepts in IP troubleshooting is the
+<strong>5-tuple</strong>.
+</p>
+
+<p>
+A 5-tuple identifies an IP flow using five values:
+</p>
+
+<pre>
+1. Source IP Address
+2. Destination IP Address
+3. Source Port
+4. Destination Port
+5. Transport Protocol
+</pre>
+
+<p>
+For example:
+</p>
+
+<pre>
+Source IP       : 10.10.10.1
+Destination IP  : 10.20.20.1
+Source Port     : 49152
+Destination Port: 36412
+Protocol        : SCTP
+</pre>
+
+<p>
+The combination of these five values allows engineers and network devices to
+distinguish one IP flow from another.
+</p>
+
+<p>
+For TCP traffic, a typical flow may look like:
+</p>
+
+<pre>
+192.168.1.10:51542
+        |
+        | TCP
+        v
+192.168.1.20:443
+</pre>
+
+<p>
+For GTP-U:
+</p>
+
+<pre>
+10.10.10.1:2152
+        |
+        | UDP
+        v
+10.20.20.1:2152
+</pre>
+
+<p>
+The 5-tuple is commonly used by:
+</p>
+
+<ul>
+<li>Firewalls</li>
+<li>Routers</li>
+<li>Load balancers</li>
+<li>ACLs</li>
+<li>NAT devices</li>
+<li>Flow-monitoring systems</li>
+<li>Wireshark and tshark</li>
+<li>Network troubleshooting tools</li>
+</ul>
+
+<p>
+For an engineer analyzing a packet capture, identifying the 5-tuple is often
+one of the first steps in determining exactly which communication is being
+observed.
+</p>
+
+<div class="note">
+<strong>Important:</strong>
+The 5-tuple identifies an IP flow. It does not necessarily represent the
+complete logical session of a telecom protocol.
+</div>
+
+
+<h3>SCTP Associations</h3>
+
+<p>
+In TCP, engineers normally refer to a <strong>connection</strong>.
+In SCTP, the corresponding concept is called an
+<strong>association</strong>.
+</p>
+
+<p>
+An SCTP association represents a logical communication relationship between
+two SCTP endpoints.
+</p>
+
+<pre>
+Endpoint A
+     |
+     |
+     |      SCTP Association
+     |
+     v
+Endpoint B
+</pre>
+
+<p>
+The association is established using the SCTP four-step handshake:
+</p>
+
+<pre>
+Endpoint A                    Endpoint B
+    |                              |
+    |----------- INIT ------------>|
+    |<-------- INIT ACK ------------|
+    |-------- COOKIE ECHO --------->|
+    |<------- COOKIE ACK -----------|
+    |                              |
+    |===== SCTP Association =======|
+</pre>
+
+<p>
+After the association is established, the endpoints can exchange SCTP
+messages reliably.
+</p>
+
+<p>
+This distinction is important when analyzing telecom signaling. For example,
+an LTE eNodeB and MME establish an SCTP association, and S1AP messages are
+then transported through that association.
+</p>
+
+<pre>
+eNodeB
+   |
+   | S1AP
+   |
+   | SCTP Association
+   |
+   v
+MME
+</pre>
+
+
+<h3>SCTP Multi-homing</h3>
+
+<p>
+<strong>Multi-homing</strong> means that an SCTP endpoint can have multiple
+IP addresses associated with the same SCTP association.
+</p>
+
+<p>
+For example, an eNodeB and an MME may each have two IP addresses:
+</p>
+
+<pre>
+             MME
+       +----------------+
+       | 10.20.20.1     |
+       | 10.20.21.1     |
+       +-------+--------+
+               |
+        SCTP Association
+               |
+       +-------+--------+
+       | 10.10.10.1     |
+       | 10.10.11.1     |
+       +----------------+
+             eNodeB
+</pre>
+
+<p>
+This provides path redundancy.
+</p>
+
+<p>
+One path can be considered the primary path:
+</p>
+
+<pre>
+eNodeB 10.10.10.1
+       |
+       | Primary Path
+       |
+MME 10.20.20.1
+</pre>
+
+<p>
+while another path can be available as an alternate path:
+</p>
+
+<pre>
+eNodeB 10.10.11.1
+       |
+       | Alternate Path
+       |
+MME 10.20.21.1
+</pre>
+
+<p>
+If the primary path fails, SCTP can detect the failure and use an alternate
+path.
+</p>
+
+<p>
+This capability is particularly valuable in telecom networks, where signaling
+availability is critical.
+</p>
+
+<div class="note">
+<strong>Important:</strong>
+Multi-homing does not mean that all paths necessarily carry traffic
+simultaneously. A primary path is normally used while alternate paths provide
+resilience and failover capability.
+</div>
+
+
+<h3>SCTP Multi-streaming</h3>
+
+<p>
+<strong>Multi-streaming</strong> allows a single SCTP association to contain
+multiple independent logical streams.
+</p>
+
+<pre>
+SCTP Association
+       |
+       +---- Stream 0
+       |
+       +---- Stream 1
+       |
+       +---- Stream 2
+       |
+       +---- Stream 3
+</pre>
+
+<p>
+Each stream can carry messages independently.
+</p>
+
+<p>
+This is different from TCP, which exposes a single ordered byte stream to the
+application.
+</p>
+
+<pre>
+TCP
+
+Connection
+     |
+     +---- One ordered byte stream
+</pre>
+
+<p>
+With SCTP:
+</p>
+
+<pre>
+SCTP Association
+     |
+     +---- Stream 0
+     |
+     +---- Stream 1
+     |
+     +---- Stream 2
+     |
+     +---- Stream 3
+</pre>
+
+<p>
+One of the important benefits is reduced exposure to
+<strong>Head-of-Line Blocking</strong>.
+</p>
+
+<p>
+Consider two messages:
+</p>
+
+<pre>
+Stream 0:
+
+MESSAGE A --------X
+                   |
+                   | Lost
+                   v
+
+
+Stream 1:
+
+MESSAGE B --------------------> Received
+</pre>
+
+<p>
+The loss of a message on Stream 0 does not inherently prevent an independent
+message on Stream 1 from being delivered.
+</p>
+
+<p>
+This makes SCTP particularly useful for applications that need multiple
+logical message flows inside the same transport association.
+</p>
+
+
+<h3>Association vs. 5-Tuple</h3>
+
+<p>
+An important troubleshooting distinction is that an SCTP association should
+not be treated as simply equivalent to a single TCP-style 5-tuple.
+</p>
+
+<p>
+A conventional TCP connection can normally be represented by:
+</p>
+
+<pre>
+Source IP
+Source Port
+Destination IP
+Destination Port
+TCP
+</pre>
+
+<p>
+SCTP can involve multiple IP addresses because of multi-homing.
+Therefore, one logical SCTP association can have multiple possible network
+paths.
+</p>
+
+<pre>
+              SCTP Association
+
+Endpoint A                         Endpoint B
++-------------+                   +-------------+
+| 10.10.10.1  |===================| 10.20.20.1  |
+| 10.10.11.1  |===================| 10.20.21.1  |
++-------------+                   +-------------+
+       Multiple IP addresses / paths
+</pre>
+
+<p>
+This distinction becomes especially important when analyzing SCTP signaling
+with Wireshark or tshark. The engineer must understand both the IP-level
+flows and the higher-level SCTP association.
+</p>
+
+
+<h3>Putting Everything Together</h3>
+
+<p>
+The relationship between telecom signaling, transport protocols, and IP can
+be summarized using the following examples.
+</p>
+
+<h4>4G S1-MME Control Plane</h4>
+
+<pre>
++----------------------+
+|        S1AP          |
++----------------------+
+|        SCTP          |
++----------------------+
+|         IP           |
++----------------------+
+|      Ethernet        |
++----------------------+
+
+eNodeB -------------------------- MME
+             SCTP
+</pre>
+
+<h4>4G/5G User Plane</h4>
+
+<pre>
++----------------------+
+|      User Traffic    |
++----------------------+
+|       GTP-U         |
++----------------------+
+|        UDP           |
++----------------------+
+|         IP           |
++----------------------+
+|      Ethernet        |
++----------------------+
+
+eNodeB / gNB -------------------- UPF / SGW
+                GTP-U / UDP
+</pre>
+
+<h4>5G N2 Control Plane</h4>
+
+<pre>
++----------------------+
+|        NGAP          |
++----------------------+
+|        SCTP          |
++----------------------+
+|         IP           |
++----------------------+
+|      Ethernet        |
++----------------------+
+
+gNB ------------------------------ AMF
+             SCTP
+```
+
+<h4>5G N4 Interface</h4>
+
+<pre>
++----------------------+
+|        PFCP          |
++----------------------+
+|        UDP           |
++----------------------+
+|         IP           |
++----------------------+
+|      Ethernet        |
++----------------------+
+
+SMF ------------------------------ UPF
+             PFCP / UDP
+</pre>
+
+<h3>Practical Engineering View</h3>
+
+<p>
+When troubleshooting a mobile network, the transport protocol immediately
+provides useful information about the type of communication being analyzed.
+</p>
+
+<pre>
+SCTP
+ |
+ +-- S1AP  -> LTE Control Plane
+ +-- X2AP  -> LTE eNodeB-to-eNodeB Signaling
+ +-- NGAP  -> 5G Control Plane
+ +-- XnAP  -> 5G gNB-to-gNB Signaling
+
+
+UDP
+ |
+ +-- GTP-U -> User Plane
+ +-- GTP-C -> EPC Control Plane
+ +-- PFCP  -> 5G Session Management
+
+
+TCP
+ |
+ +-- HTTP/2 -> 5G Service-Based Architecture
+ +-- SSH    -> Network Management
+ +-- HTTPS  -> Applications / Management
+</pre>
+
+<p>
+This leads to a useful troubleshooting mindset:
+</p>
+
+<ul>
+<li>
+If the problem involves <strong>S1AP, NGAP, X2AP or XnAP</strong>,
+investigate SCTP connectivity and the SCTP association.
+</li>
+
+<li>
+If the problem involves <strong>GTP-U</strong>, investigate UDP/IP
+connectivity, tunnel endpoints, GTP identifiers and the user-plane path.
+</li>
+
+<li>
+If the problem involves <strong>PFCP</strong>, investigate UDP/IP
+connectivity between the SMF and UPF and verify the PFCP session state.
+</li>
+
+<li>
+If the problem involves <strong>HTTP/2 or management applications</strong>,
+investigate the corresponding TCP connection and application-layer behavior.
+</li>
+</ul>
+
+<p>
+The key principle is simple:
+<strong>identify the application protocol first, then identify the transport
+protocol underneath it, and finally analyze the IP flow carrying it.</strong>
+</p>
+
+</section>
+
 </section>
 
 <!-- ========================================================= -->
