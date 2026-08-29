@@ -1,302 +1,1750 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+
+<html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Capítulo 13 – Impacto no Negócio em Segurança de Redes Móveis</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Chapter 13 — Network Testing, Deployment and Migration</title>
+
 <style>
-  body {
+body {
     background-color: #1e2a38;
     color: #cbd5e1;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    line-height: 1.7;
-  }
-  h1, h2, h3 {
-    color: #60a5fa;
-    margin-bottom: 0.7em;
-  }
-  p, li {
-    max-width: 900px;
-  }
-  p {
-    margin-bottom: 1.4em;
-    font-size: 1.1em;
-  }
-  ul {
-    max-width: 900px;
-    padding-left: 25px;
-    margin-bottom: 2em;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 900px;
-    margin: 1.5em 0 3em 0;
-    background: #293845;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #3e4f65;
-  }
-  th {
-    background-color: #3b82f6;
-    color: #fff;
-  }
-  pre {
-    background: #2d3b4e;
-    padding: 12px;
-    border-radius: 6px;
-    color: #a5d6ff;
+    margin: 40px auto;
+    max-width: 1100px;
+    padding: 0 30px;
+    line-height: 1.75;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
+}
+
+h1 {
+    color: #f8fafc;
+    font-size: 42px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+h2 {
+    color: #93c5fd;
+    font-size: 28px;
+    margin-top: 55px;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+h3 {
+    color: #bfdbfe;
+    font-size: 21px;
+    margin-top: 35px;
+}
+
+p {
+    margin: 18px 0;
+}
+
+strong {
+    color: #f8fafc;
+}
+
+em {
+    color: #dbeafe;
+}
+
+blockquote {
+    border-left: 4px solid #60a5fa;
+    margin: 30px 0;
+    padding: 15px 25px;
+    background-color: #253548;
+    color: #e2e8f0;
+    font-size: 20px;
+    font-style: italic;
+}
+
+.note {
+    background-color: #253548;
+    border-left: 4px solid #38bdf8;
+    padding: 18px 24px;
+    margin: 30px 0;
+}
+
+.impact {
+    background-color: #26384a;
+    border-left: 5px solid #f59e0b;
+    padding: 20px 25px;
+    margin: 35px 0;
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.diagram {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
     overflow-x: auto;
-  }
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.5;
+}
+
+.flow {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.65;
+}
+
+ul {
+    margin-top: 10px;
+}
+
+li {
+    margin: 8px 0;
+}
+
+.small {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+code {
+    color: #bfdbfe;
+    background-color: #162231;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
 </style>
+
 </head>
 
 <body>
 
-<h1>Capítulo 13 – Impacto no Negócio</h1>
+<h1>Network Testing, Deployment and Migration</h1>
 
-<p>Até aqui, vimos como ataques acontecem, como funcionam e como podem ser detectados e mitigados.</p>
+<p class="small">
+From controlled laboratory validation to production rollout and large-scale mobile network migration.
+</p>
 
-<p>Mas existe uma pergunta que todo executivo faz:</p>
+<blockquote>
+A network is not ready for production because it works. It is ready because we have evidence that it will continue to work when reality begins.
+</blockquote>
 
-<p><strong>👉 “Qual é o impacto real disso para o negócio?”</strong></p>
+<p>
+Designing a telecom network is only part of the engineering challenge.
+</p>
 
-<p>Este capítulo conecta segurança técnica com <strong>risco financeiro, regulatório e reputacional</strong>.</p>
+<p>
+Operating it safely is another.
+</p>
 
-<hr>
+<p>
+Between a design document and a production network there is a critical engineering discipline:
+<strong>testing, validation, deployment, and migration.</strong>
+</p>
 
-<h2>13.1 Por que segurança em telecom é crítica</h2>
+<p>
+This discipline becomes particularly important in mobile networks because the infrastructure is
+highly interconnected.
+</p>
 
-<p>Operadoras de telecom não são apenas provedores de conectividade — elas são parte da infraestrutura crítica de um país.</p>
+<p>
+A change to one component can affect signaling, user-plane traffic, routing, subscriber services,
+security, charging, mobility, and ultimately thousands or millions of subscribers.
+</p>
 
-<ul>
-<li>Suportam sistemas bancários (OTP via SMS)</li>
-<li>Permitem autenticação digital</li>
-<li>Transportam dados sensíveis</li>
-</ul>
+<div class="impact">
+In telecom, a change is never isolated just because the configuration is isolated.
+</div>
 
-<p>👉 Um ataque não impacta só a operadora — impacta todo o ecossistema.</p>
+<h2>Lab and Production Are Different Worlds</h2>
 
-<hr>
+<p>
+A laboratory environment exists to provide controlled conditions.
+</p>
 
-<h2>13.2 Impacto financeiro direto</h2>
+<p>
+Production exists to serve real customers.
+</p>
 
-<h3>💸 Fraude de telecom</h3>
+<p>
+The distinction sounds obvious, but it has profound consequences.
+</p>
 
-<table>
-<tr><th>Tipo de fraude</th><th>Impacto</th></tr>
-<tr><td>Fraude de chamadas</td><td>Custos indevidos para operadora</td></tr>
-<tr><td>Abuso de roaming</td><td>Perdas em interconexão</td></tr>
-<tr><td>Manipulação de charging</td><td>Perda de receita</td></tr>
-</table>
+<div class="diagram">
+LAB
 
-<p><strong>Exemplo:</strong></p>
+Controlled
+|
++---- Known traffic
+|
++---- Limited subscribers
+|
++---- Controlled failures
+|
++---- Repeatable tests
+|
+v
+Validation
 
-<p>Um atacante pode gerar milhares de chamadas internacionais usando manipulação de signaling.</p>
+PRODUCTION
 
-<p>👉 Resultado: prejuízo direto e imediato.</p>
+Real users
+|
++---- Unknown traffic patterns
+|
++---- Real dependencies
+|
++---- Operational constraints
+|
++---- Business impact
+|
+v
+Service
 
-<hr>
+</div>
 
-<h3>💰 Interceptação de OTP (impacto indireto)</h3>
+<p>
+A test that succeeds in the laboratory does not automatically guarantee production success.
+</p>
 
-<p>A interceptação de SMS não gera prejuízo direto para a operadora — mas causa algo mais grave:</p>
+<p>
+The lab should reduce uncertainty.
+</p>
 
-<ul>
-<li>Fraude bancária</li>
-<li>Roubo de contas digitais</li>
-<li>Perda de confiança do usuário</li>
-</ul>
+<p>
+It cannot eliminate reality.
+</p>
 
-<p>👉 A operadora vira parte do problema.</p>
+<h2>What a Good Lab Should Prove</h2>
 
-<hr>
-
-<h2>13.3 Impacto reputacional</h2>
-
-<p>Confiança é o ativo mais importante de uma operadora.</p>
-
-<p>Quando falhas de segurança são exploradas:</p>
-
-<ul>
-<li>Clientes perdem confiança</li>
-<li>Marca é associada a insegurança</li>
-<li>Concorrência ganha vantagem</li>
-</ul>
-
-<p><strong>👉 Problema:</strong></p>
-
-<p>Reputação é fácil de perder e difícil de recuperar.</p>
-
-<hr>
-
-<h2>13.4 Impacto regulatório (LGPD e compliance)</h2>
-
-<p>No Brasil, a <strong>LGPD (Lei Geral de Proteção de Dados)</strong> impõe obrigações claras:</p>
-
-<ul>
-<li>Proteção de dados pessoais</li>
-<li>Prevenção de vazamentos</li>
-<li>Resposta a incidentes</li>
-</ul>
-
-<table>
-<tr><th>Risco</th><th>Consequência</th></tr>
-<tr><td>Vazamento de localização</td><td>Violação de privacidade</td></tr>
-<tr><td>Exposição de IMSI</td><td>Dado sensível comprometido</td></tr>
-<tr><td>Falha de segurança</td><td>Multas e sanções</td></tr>
-</table>
-
-<p>👉 Penalidades podem chegar a milhões.</p>
-
-<hr>
-
-<h2>13.5 Impacto operacional</h2>
-
-<p>Ataques também afetam diretamente a operação da rede:</p>
-
-<ul>
-<li>Queda de serviços</li>
-<li>Saturação de elementos (HSS, MME, etc.)</li>
-<li>Degradação de performance</li>
-</ul>
-
-<h3>Exemplo: Diameter Storm</h3>
-
-<pre>
-Falha → retransmissões → sobrecarga → colapso
-</pre>
-
-<p><strong>Resultado:</strong></p>
+<p>
+A telecom laboratory should answer specific engineering questions.
+</p>
 
 <ul>
-<li>Indisponibilidade de rede</li>
-<li>Chamadas falhando</li>
-<li>Internet instável</li>
+<li>Does the component start correctly?</li>
+<li>Can it communicate with its peers?</li>
+<li>Are interfaces configured correctly?</li>
+<li>Are signaling procedures successful?</li>
+<li>Can sessions be established?</li>
+<li>Does user traffic flow correctly?</li>
+<li>Does the system behave correctly under failure?</li>
+<li>Does performance remain acceptable under expected load?</li>
 </ul>
 
-<p>👉 Impacto direto na experiência do cliente.</p>
+<p>
+The laboratory is therefore not simply a place where engineers make configurations.
+</p>
 
-<hr>
+<p>
+It is a place where assumptions are challenged.
+</p>
 
-<h2>13.6 Custo de mitigação vs custo do incidente</h2>
+<blockquote>
+The purpose of a lab is not to prove that the engineer is right. It is to discover where the design is wrong before production does it for us.
+</blockquote>
 
-<table>
-<tr>
-<th>Aspecto</th>
-<th>Prevenção</th>
-<th>Incidente</th>
-</tr>
+<h2>Test Cases and Expected Results</h2>
 
-<tr>
-<td>Custo</td>
-<td>Controlado</td>
-<td>Imprevisível</td>
-</tr>
+<p>
+Testing should be structured around test cases rather than informal experimentation.
+</p>
 
-<tr>
-<td>Impacto</td>
-<td>Limitado</td>
-<td>Alto</td>
-</tr>
+<div class="diagram">
+Test Case
 
-<tr>
-<td>Reputação</td>
-<td>Protegida</td>
-<td>Danificada</td>
-</tr>
-</table>
+Objective
+|
+v
+Preconditions
+|
+v
+Test Procedure
+|
+v
+Expected Result
+|
+v
+Actual Result
+|
+v
+PASS / FAIL
 
-<p><strong>👉 Conclusão:</strong></p>
+</div>
 
-<p><strong>Prevenir é muito mais barato do que remediar.</strong></p>
+<p>
+Consider a basic 5G PDU Session test.
+</p>
 
-<hr>
+<div class="flow">
+Precondition
 
-<h2>13.7 Segurança como vantagem competitiva</h2>
+UE registered
+gNB connected
+AMF available
+SMF available
+UPF available
 
-<p>Operadoras mais maduras usam segurança como diferencial:</p>
+```
+    |
+    v
+```
+
+Request PDU Session
+
+```
+    |
+    v
+```
+
+AMF → SMF
+
+```
+    |
+    v
+```
+
+SMF → UPF
+
+```
+    |
+    v
+```
+
+PFCP establishment
+
+```
+    |
+    v
+```
+
+PDU Session established
+
+```
+    |
+    v
+```
+
+User Plane traffic
+
+```
+    |
+    v
+```
+
+PASS
+
+</div>
+
+<p>
+The important part is that every stage has an expected outcome.
+</p>
+
+<p>
+Without explicit expectations, it becomes difficult to determine where a failure actually occurred.
+</p>
+
+<h2>Validation</h2>
+
+<p>
+Validation asks a fundamental question:
+</p>
+
+<p>
+<strong>Does the implementation satisfy the intended design?</strong>
+</p>
+
+<p>
+Validation can occur at multiple levels.
+</p>
+
+<div class="diagram">
+Design
+  |
+  v
+Configuration
+  |
+  v
+Component
+  |
+  v
+Interface
+  |
+  v
+End-to-End Service
+</div>
+
+<p>
+A component can pass its individual validation while the complete service fails.
+</p>
+
+<p>
+For example, an SMF may be healthy.
+</p>
+
+<p>
+A UPF may be healthy.
+</p>
+
+<p>
+PFCP connectivity may be established.
+</p>
+
+<p>
+And yet the subscriber may still be unable to access the internet because of an IP routing or DNS
+problem.
+</p>
+
+<div class="impact">
+Component validation proves components. End-to-end validation proves the service.
+</div>
+
+<h2>Integration Testing</h2>
+
+<p>
+Telecom systems rarely operate alone.
+</p>
+
+<p>
+Integration testing verifies that independently developed components work together.
+</p>
+
+<div class="diagram">
+        AMF
+         |
+         +------ AUSF
+         |
+         +------ UDM
+         |
+         +------ SMF
+                   |
+                   +------ PCF
+                   |
+                   +------ UPF
+                              |
+                              v
+                           Network
+</div>
+
+<p>
+Every interface introduces another possible failure domain.
+</p>
+
+<p>
+Integration testing therefore needs to verify:
+</p>
 
 <ul>
-<li>Oferecem proteção contra fraude</li>
-<li>Garantem privacidade do usuário</li>
-<li>Atendem requisitos regulatórios</li>
+<li>Connectivity</li>
+<li>Protocol compatibility</li>
+<li>Message sequences</li>
+<li>Timeout behavior</li>
+<li>Error handling</li>
+<li>Configuration consistency</li>
+<li>Security policies</li>
 </ul>
 
-<p>👉 Segurança deixa de ser custo e vira valor.</p>
+<p>
+The objective is not simply to prove that two systems can communicate.
+</p>
 
-<hr>
+<p>
+It is to prove that they communicate correctly under normal and abnormal conditions.
+</p>
 
-<h2>13.8 Métricas que importam para o negócio</h2>
+<h2>Negative Testing</h2>
 
-<table>
-<tr>
-<th>Métrica</th>
-<th>Significado</th>
-</tr>
+<p>
+A mature test strategy does not test only successful scenarios.
+</p>
 
-<tr>
-<td>Perda por fraude</td>
-<td>Impacto financeiro direto</td>
-</tr>
+<p>
+It deliberately creates failures.
+</p>
 
-<tr>
-<td>Tempo de detecção</td>
-<td>Velocidade de resposta</td>
-</tr>
-
-<tr>
-<td>Tempo de mitigação</td>
-<td>Eficiência operacional</td>
-</tr>
-
-<tr>
-<td>Número de incidentes</td>
-<td>Nível de exposição</td>
-</tr>
-</table>
-
-<p>👉 Segurança precisa ser mensurável.</p>
-
-<hr>
-
-<h2>13.9 Tradução para nível executivo</h2>
-
-<p>Para diretoria, tudo se resume a três perguntas:</p>
+<p>
+Examples include:
+</p>
 
 <ul>
-<li>Qual o risco financeiro?</li>
-<li>Qual o impacto na reputação?</li>
-<li>Estamos protegidos?</li>
+<li>Removing an interface</li>
+<li>Blocking a signaling port</li>
+<li>Stopping a network function</li>
+<li>Introducing packet loss</li>
+<li>Introducing latency</li>
+<li>Restarting a container</li>
+<li>Removing a route</li>
+<li>Providing invalid configuration</li>
 </ul>
 
-<p><strong>👉 Papel do time técnico:</strong></p>
+<div class="diagram">
+Normal Operation
+      |
+      v
+Failure Injection
+      |
+      v
+System Reaction
+      |
+      +---- Detection
+      |
+      +---- Recovery
+      |
+      +---- Failover
+      |
+      +---- Alerting
+      |
+      v
+Service Restored
+</div>
 
-<p>Traduzir ameaças técnicas em impacto de negócio.</p>
+<p>
+This is especially important for high-availability systems.
+</p>
 
-<hr>
+<p>
+A redundant architecture is not truly redundant until failover has been tested.
+</p>
 
-<h2>13.10 Conclusão</h2>
+<blockquote>
+Redundancy that has never been tested is an assumption, not a guarantee.
+</blockquote>
 
-<p>Segurança em redes móveis não é apenas um problema técnico.</p>
+<h2>Performance Testing</h2>
+
+<p>
+Functional correctness is only one dimension of validation.
+</p>
+
+<p>
+A system can perform the correct procedure and still fail under realistic traffic.
+</p>
+
+<p>
+Performance testing examines how the network behaves under load.
+</p>
+
+<p>
+Typical dimensions include:
+</p>
 
 <ul>
-<li>É um problema de negócio</li>
-<li>É um problema regulatório</li>
-<li>É um problema de confiança</li>
+<li>Throughput</li>
+<li>Packets per second</li>
+<li>Concurrent sessions</li>
+<li>Transaction rate</li>
+<li>Latency</li>
+<li>CPU utilization</li>
+<li>Memory utilization</li>
+<li>Packet loss</li>
 </ul>
 
-<p><strong>👉 E no fim, tudo converge para uma coisa:</strong></p>
+<div class="diagram">
+                 Load
 
-<p><strong>Dinheiro.</strong></p>
+```
+              |
+              v
 
-<p>Quem investe em segurança protege receita, clientes e futuro.</p>
+    +------------------+
+    | Network Function |
+    +------------------+
+      |      |      |
+      v      v      v
+    CPU    Memory  Traffic
+      |      |      |
+      +------+------+
+             |
+             v
+         Performance
+```
 
-<footer>
-<p>Fim do Capítulo 13 – Impacto no Negócio</p>
-</footer>
+</div>
+
+<p>
+Telecom performance testing must also consider signaling load.
+</p>
+
+<p>
+A system can have enough bandwidth but still be overloaded by control-plane transactions.
+</p>
+
+<p>
+Conversely, it can process signaling correctly while struggling with user-plane throughput.
+</p>
+
+<div class="impact">
+Capacity is not one number. It is the relationship between workload, resources, latency, and service quality.
+</div>
+
+<h2>Baseline Testing</h2>
+
+<p>
+Before making a major change, engineers should understand the current state of the network.
+</p>
+
+<p>
+This is the baseline.
+</p>
+
+<div class="diagram">
+Before Change
+
+KPIs
+KQIs
+CPU
+Memory
+Sessions
+Latency
+Packet Loss
+Errors
+Routes
+Neighbors
+Signaling
+Traffic
+
+```
+    |
+    v
+
+  BASELINE
+```
+
+</div>
+
+<p>
+Without a baseline, post-change validation becomes subjective.
+</p>
+
+<p>
+After the change, the engineer needs something against which to compare the new state.
+</p>
+
+<h2>Pre-Checks</h2>
+
+<p>
+Pre-checks establish whether the environment is safe for the change.
+</p>
+
+<p>
+Typical checks may include:
+</p>
+
+<ul>
+<li>Current alarms</li>
+<li>Interface status</li>
+<li>Routing tables</li>
+<li>CPU and memory utilization</li>
+<li>Active sessions</li>
+<li>Signaling health</li>
+<li>Peer connectivity</li>
+<li>Cluster health</li>
+<li>Backup availability</li>
+<li>Configuration consistency</li>
+</ul>
+
+<div class="flow">
+PRE-CHECK
+
+System Healthy?
+|
++---- NO ----> Stop
+|
++---- YES
+|
+v
+Continue Change
+
+</div>
+
+<p>
+This simple decision is extremely important.
+</p>
+
+<p>
+A change should not be performed on top of an already unstable system unless there is a clear
+incident-management reason to do so.
+</p>
+
+<div class="impact">
+Never use an unstable baseline to validate a change.
+</div>
+
+<h2>Change Management</h2>
+
+<p>
+Production changes require more than technical preparation.
+</p>
+
+<p>
+They require operational control.
+</p>
+
+<p>
+A good change plan defines:
+</p>
+
+<ul>
+<li>Objective</li>
+<li>Scope</li>
+<li>Dependencies</li>
+<li>Implementation steps</li>
+<li>Expected impact</li>
+<li>Validation steps</li>
+<li>Rollback procedure</li>
+<li>Communication plan</li>
+<li>Maintenance window</li>
+</ul>
+
+<div class="diagram">
+CHANGE REQUEST
+      |
+      v
+Technical Review
+      |
+      v
+Risk Assessment
+      |
+      v
+Approval
+      |
+      v
+Implementation
+      |
+      v
+Validation
+      |
+      +---- PASS ----> Close
+      |
+      +---- FAIL ----> Rollback
+</div>
+
+<p>
+The rollback procedure deserves special attention.
+</p>
+
+<p>
+A change without a tested rollback strategy is incomplete.
+</p>
+
+<blockquote>
+The safest deployment is not the one that never fails. It is the one that can fail without becoming an uncontrolled incident.
+</blockquote>
+
+<h2>Rollback Strategy</h2>
+
+<p>
+Rollback should not be an improvised reaction to failure.
+</p>
+
+<p>
+It should be designed before implementation begins.
+</p>
+
+<div class="flow">
+New Configuration
+       |
+       v
+Deployment
+       |
+       v
+Validation
+       |
+   +---+---+
+   |       |
+ PASS     FAIL
+   |       |
+   v       v
+Continue  Rollback
+           |
+           v
+      Restore Baseline
+           |
+           v
+        Validate
+</div>
+
+<p>
+A rollback plan should answer:
+</p>
+
+<ul>
+<li>What exactly will be reverted?</li>
+<li>How long will rollback take?</li>
+<li>What dependencies are affected?</li>
+<li>How will success be verified?</li>
+<li>Who has authority to initiate rollback?</li>
+</ul>
+
+<h2>Deployment Strategy</h2>
+
+<p>
+Large telecom networks should rarely be changed everywhere simultaneously.
+</p>
+
+<p>
+A safer approach is progressive deployment.
+</p>
+
+<div class="diagram">
+Lab
+ |
+ v
+Pilot
+ |
+ v
+Limited Region
+ |
+ v
+Small Production Group
+ |
+ v
+Regional Rollout
+ |
+ v
+National Rollout
+ |
+ v
+Full Deployment
+</div>
+
+<p>
+Each stage provides additional evidence.
+</p>
+
+<p>
+If something fails early, the blast radius remains limited.
+</p>
+
+<div class="impact">
+The safest rollout is the one that discovers failure while the failure is still small.
+</div>
+
+<h2>Pilot Deployment</h2>
+
+<p>
+A pilot introduces the change to a controlled subset of the production environment.
+</p>
+
+<p>
+The pilot should be representative enough to expose real-world behavior.
+</p>
+
+<p>
+It should also be small enough to limit customer impact.
+</p>
+
+<div class="diagram">
+Production Network
+
++----------------------------------+
+|                                  |
+|  Region A    Region B    Region C|
+|                                  |
+|  NORMAL      PILOT       NORMAL  |
+|                |                 |
+|                v                 |
+|             Observe              |
+|                |                 |
+|                v                 |
+|             Validate             |
+|                                  |
++----------------------------------+
+
+</div>
+
+<p>
+Only after the pilot behaves as expected should the rollout expand.
+</p>
+
+<h2>4G to 5G Migration</h2>
+
+<p>
+The transition from 4G to 5G is not simply a radio upgrade.
+</p>
+
+<p>
+It can involve changes across the entire architecture.
+</p>
+
+<div class="diagram">
+4G
+
+UE
+|
+v
+eNodeB
+|
+v
+EPC
+|
++---- MME
++---- SGW
++---- PGW
++---- HSS
++---- PCRF
+
+5G
+
+UE
+|
+v
+gNB
+|
+v
+5G Core
+|
++---- AMF
++---- SMF
++---- UPF
++---- UDM
++---- AUSF
++---- PCF
++---- NRF
++---- NSSF
+
+</div>
+
+<p>
+Migration therefore affects architecture, interfaces, signaling, subscriber data, policy,
+security, operations, monitoring, and troubleshooting.
+</p>
+
+<h2>NSA as a Migration Path</h2>
+
+<p>
+5G Non-Standalone architecture allows operators to introduce 5G radio capabilities while retaining
+the EPC as the core anchor.
+</p>
+
+<div class="diagram">
+             NSA
+
+```
+          UE
+           |
+    +------+------+
+    |             |
+   LTE           NR
+ eNodeB          gNB
+    |             |
+    +------+------+
+           |
+          EPC
+           |
+    MME / SGW / PGW
+```
+
+</div>
+
+<p>
+This architecture can reduce the complexity of the initial 5G rollout because the existing EPC
+remains part of the architecture.
+</p>
+
+<p>
+It also provides an important migration path toward a future standalone architecture.
+</p>
+
+<blockquote>
+NSA allows operators to introduce 5G without requiring the entire network to become 5G on day one.
+</blockquote>
+
+<h2>NSA to SA Migration</h2>
+
+<p>
+Moving from NSA to Standalone introduces a deeper architectural transformation.
+</p>
+
+<div class="diagram">
+NSA
+
+UE
+|
+gNB
+|
+EPC
+|
+MME / SGW / PGW
+
+```
+    |
+    | Migration
+    v
+```
+
+SA
+
+UE
+|
+gNB
+|
+5G Core
+|
++---- AMF
++---- SMF
++---- UPF
++---- UDM
++---- AUSF
++---- PCF
++---- NRF
++---- NSSF
+
+</div>
+
+<p>
+The migration changes the control-plane architecture and introduces the Service-Based Architecture
+of the 5G Core.
+</p>
+
+<p>
+It also introduces new operational requirements.
+</p>
+
+<p>
+The network now depends heavily on cloud-native infrastructure, service discovery, APIs, distributed
+logging, container orchestration, and new observability mechanisms.
+</p>
+
+<div class="impact">
+The migration from NSA to SA is not merely a network-function replacement. It is an operational transformation.
+</div>
+
+<h2>Migration Planning</h2>
+
+<p>
+A migration should be decomposed into manageable phases.
+</p>
+
+<div class="flow">
+Current State
+     |
+     v
+Dependency Mapping
+     |
+     v
+Target Architecture
+     |
+     v
+Compatibility Analysis
+     |
+     v
+Lab Validation
+     |
+     v
+Pilot
+     |
+     v
+Progressive Rollout
+     |
+     v
+Optimization
+     |
+     v
+Target State
+</div>
+
+<p>
+Dependency mapping is especially important.
+</p>
+
+<p>
+Before replacing a component, engineers need to understand what depends on it.
+</p>
+
+<p>
+For example:
+</p>
+
+<ul>
+<li>Signaling peers</li>
+<li>Subscriber databases</li>
+<li>Policy systems</li>
+<li>Charging systems</li>
+<li>DNS</li>
+<li>Routing</li>
+<li>Security controls</li>
+<li>Monitoring platforms</li>
+<li>External service providers</li>
+</ul>
+
+<h2>Pre-Deployment Checklist</h2>
+
+<p>
+Before deployment begins, the engineer should be able to answer:
+</p>
+
+<ul>
+<li>What is changing?</li>
+<li>Why is it changing?</li>
+<li>What systems depend on it?</li>
+<li>What is the expected behavior?</li>
+<li>What is the current baseline?</li>
+<li>How will success be measured?</li>
+<li>What could fail?</li>
+<li>How will failure be detected?</li>
+<li>How will the change be rolled back?</li>
+</ul>
+
+<p>
+If these questions cannot be answered, the deployment is not ready.
+</p>
+
+<h2>Post-Deployment Checks</h2>
+
+<p>
+Post-checks verify that the network returned to a healthy operational state.
+</p>
+
+<div class="diagram">
+POST-CHECK
+
+Interfaces
+|
+v
+Routing
+|
+v
+Signaling
+|
+v
+Sessions
+|
+v
+User Plane
+|
+v
+KPIs
+|
+v
+Alarms
+|
+v
+Customer Experience
+
+</div>
+
+<p>
+The checks should compare against the pre-change baseline.
+</p>
+
+<p>
+For example:
+</p>
+
+<p>
+If session success was 99.7% before deployment and 99.7% afterward, that is evidence of stability.
+</p>
+
+<p>
+If session success dropped to 94%, the deployment requires investigation even if the changed component
+reports itself as healthy.
+</p>
+
+<h2>Deployment Troubleshooting</h2>
+
+<p>
+Troubleshooting during deployment is different from troubleshooting a normal incident.
+</p>
+
+<p>
+There is a known event:
+</p>
+
+<p>
+<strong>A change was introduced at a specific time.</strong>
+</p>
+
+<p>
+That provides a valuable correlation point.
+</p>
+
+<div class="diagram">
+Change Start
+    |
+    v
+Configuration Applied
+    |
+    v
+Behavior Changes
+    |
+    v
+Alarm / KPI Change
+    |
+    v
+Investigation
+</div>
+
+<p>
+The challenge is determining whether the observed problem is actually caused by the deployment.
+</p>
+
+<p>
+Temporal correlation is evidence.
+</p>
+
+<p>
+It is not automatically proof.
+</p>
+
+<blockquote>
+A problem that begins after a change is suspicious. A problem that can be reproduced by the change is evidence.
+</blockquote>
+
+<h2>Deployment Failure Patterns</h2>
+
+<p>
+Several failure patterns appear repeatedly during network deployment.
+</p>
+
+<h3>Configuration mismatch</h3>
+
+<p>
+Two components may be individually correct but configured with incompatible parameters.
+</p>
+
+<div class="diagram">
+AMF
+ |
+ | Expected:
+ | 10.10.10.20
+ |
+ X
+ |
+ | Configured:
+ | 10.10.10.30
+ |
+ v
+SMF
+</div>
+
+<p>
+The result may appear as a generic connectivity failure even though both systems are operational.
+</p>
+
+<h3>Routing problems</h3>
+
+<p>
+A newly deployed function may have correct IP addresses but incorrect routing.
+</p>
+
+<h3>Firewall problems</h3>
+
+<p>
+A signaling port may be blocked even though both endpoints are reachable.
+</p>
+
+<h3>DNS problems</h3>
+
+<p>
+Cloud-native systems frequently depend on service discovery and DNS.
+</p>
+
+<p>
+A DNS failure can therefore appear as an application or network-function failure.
+</p>
+
+<h3>Resource exhaustion</h3>
+
+<p>
+A deployment may succeed but consume more CPU, memory, or network resources than expected.
+</p>
+
+<h3>Unexpected traffic behavior</h3>
+
+<p>
+Real production traffic may behave differently from laboratory traffic.
+</p>
+
+<div class="impact">
+Production is the final test of every assumption made in the lab.
+</div>
+
+<h2>Observability During Deployment</h2>
+
+<p>
+Monitoring should be increased, not reduced, during critical changes.
+</p>
+
+<div class="diagram">
+Before Change
+     |
+     v
+Baseline Monitoring
+     |
+     v
+Deployment
+     |
+     v
+Enhanced Monitoring
+     |
+     +---- Metrics
+     +---- Logs
+     +---- Traces
+     +---- Signaling
+     +---- Packet Capture
+     |
+     v
+Validation
+</div>
+
+<p>
+The deployment window should be treated as a period of heightened observability.
+</p>
+
+<p>
+This is especially important when introducing new cloud-native network functions.
+</p>
+
+<h2>Canary Deployments</h2>
+
+<p>
+Canary deployment extends the pilot concept.
+</p>
+
+<p>
+A small percentage of traffic is exposed to the new version while the remainder continues to use
+the stable version.
+</p>
+
+<div class="diagram">
+                 Traffic
+                   |
+             +-----+-----+
+             |           |
+             v           v
+        Stable Path   New Path
+             |           |
+          95%          5%
+             |           |
+             +-----+-----+
+                   |
+                   v
+              Monitoring
+                   |
+             +-----+-----+
+             |           |
+           Healthy     Failure
+             |           |
+             v           v
+         Increase     Rollback
+         Exposure
+</div>
+
+<p>
+This provides a controlled way to discover problems before full deployment.
+</p>
+
+<h2>Migration Is a Process, Not an Event</h2>
+
+<p>
+A common mistake is to treat migration as a single maintenance window.
+</p>
+
+<p>
+In reality, migration is a lifecycle.
+</p>
+
+<div class="diagram">
+PLAN
+ |
+ v
+TEST
+ |
+ v
+VALIDATE
+ |
+ v
+PILOT
+ |
+ v
+DEPLOY
+ |
+ v
+MONITOR
+ |
+ v
+OPTIMIZE
+ |
+ v
+STANDARDIZE
+</div>
+
+<p>
+Each stage reduces uncertainty.
+</p>
+
+<p>
+Each stage creates evidence.
+</p>
+
+<p>
+Each stage should improve the confidence of the next stage.
+</p>
+
+<blockquote>
+A successful migration is not the absence of incidents. It is controlled progress toward a known target state.
+</blockquote>
+
+<h2>Operational Readiness</h2>
+
+<p>
+A system should not be considered ready simply because the software installation succeeded.
+</p>
+
+<p>
+Operational readiness includes:
+</p>
+
+<ul>
+<li>Monitoring</li>
+<li>Alerting</li>
+<li>Documentation</li>
+<li>Backup</li>
+<li>Rollback</li>
+<li>Capacity planning</li>
+<li>Security controls</li>
+<li>Troubleshooting procedures</li>
+<li>Support team readiness</li>
+</ul>
+
+<div class="diagram">
+Technical Readiness
+       +
+Operational Readiness
+       +
+Support Readiness
+       +
+Security Readiness
+       |
+       v
+Production Readiness
+</div>
+
+<p>
+This distinction becomes increasingly important as telecom networks become more software-driven.
+</p>
+
+<h2>Deployment as an Engineering Experiment</h2>
+
+<p>
+Every controlled deployment can be viewed as an experiment.
+</p>
+
+<p>
+There is:
+</p>
+
+<ul>
+<li>A known starting state</li>
+<li>A controlled change</li>
+<li>An expected outcome</li>
+<li>Observable measurements</li>
+<li>A decision based on evidence</li>
+</ul>
+
+<div class="flow">
+BASELINE
+   |
+   v
+HYPOTHESIS
+   |
+   v
+CHANGE
+   |
+   v
+MEASURE
+   |
+   v
+COMPARE
+   |
+   +---- Expected ----> Continue
+   |
+   +---- Unexpected ---> Investigate
+</div>
+
+<p>
+This mindset is powerful because it prevents deployment from becoming a sequence of blind
+configuration changes.
+</p>
+
+<div class="impact">
+Every production change should answer three questions: What do we expect? How will we know? What will we do if we are wrong?
+</div>
+
+<h2>When Things Go Wrong</h2>
+
+<p>
+Even well-planned deployments can fail.
+</p>
+
+<p>
+The response should remain structured.
+</p>
+
+<div class="flow">
+Failure Detected
+      |
+      v
+Stop Further Changes
+      |
+      v
+Assess Impact
+      |
+      v
+Protect Service
+      |
+      v
+Collect Evidence
+      |
+      v
+Determine Cause
+      |
+      +---- Known / Safe ---> Fix
+      |
+      +---- Unknown -------> Rollback
+      |
+      v
+Validate Recovery
+      |
+      v
+Document Findings
+</div>
+
+<p>
+The worst response to a deployment problem is uncontrolled experimentation.
+</p>
+
+<p>
+Changing several parameters simultaneously destroys the evidence needed to understand the failure.
+</p>
+
+<blockquote>
+When production is failing, the first objective is not to change something. The first objective is to regain control.
+</blockquote>
+
+<h2>Post-Incident Learning</h2>
+
+<p>
+A deployment failure should generate more than a fix.
+</p>
+
+<p>
+It should generate knowledge.
+</p>
+
+<p>
+After recovery, engineers should ask:
+</p>
+
+<ul>
+<li>What happened?</li>
+<li>Why was it not detected earlier?</li>
+<li>Which assumption was incorrect?</li>
+<li>Which test should have caught it?</li>
+<li>Was the rollback sufficient?</li>
+<li>Did monitoring provide enough evidence?</li>
+<li>Should the deployment procedure change?</li>
+</ul>
+
+<p>
+This creates a feedback loop.
+</p>
+
+<div class="diagram">
+Production Incident
+       |
+       v
+Root Cause
+       |
+       v
+Lesson Learned
+       |
+       v
+Test Case Updated
+       |
+       v
+Deployment Procedure Improved
+       |
+       v
+Future Deployment
+       |
+       v
+Lower Risk
+</div>
+
+<h2>The Senior Engineer's Perspective</h2>
+
+<p>
+Senior network engineering is not only about knowing protocols.
+</p>
+
+<p>
+It is about understanding risk.
+</p>
+
+<p>
+A technically correct change can still be operationally wrong if it is introduced without sufficient
+validation, monitoring, rollback, or communication.
+</p>
+
+<p>
+The senior engineer therefore thinks beyond the configuration itself.
+</p>
+
+<p>
+They ask:
+</p>
+
+<p>
+What happens to the rest of the network?
+</p>
+
+<p>
+What happens to existing sessions?
+</p>
+
+<p>
+What happens during failure?
+</p>
+
+<p>
+What happens if the deployment stops halfway?
+</p>
+
+<p>
+What happens if the new component is healthy but the integration is not?
+</p>
+
+<p>
+What happens at scale?
+</p>
+
+<p>
+And most importantly:
+</p>
+
+<p>
+<strong>How do we know?</strong>
+</p>
+
+<div class="impact">
+Engineering confidence should come from evidence, not optimism.
+</div>
+
+<h2>Closing Perspective</h2>
+
+<p>
+Testing, deployment, and migration are where architecture becomes reality.
+</p>
+
+<p>
+A design document describes what the network should be.
+</p>
+
+<p>
+A laboratory demonstrates what it can do.
+</p>
+
+<p>
+Integration testing demonstrates that components can work together.
+</p>
+
+<p>
+Performance testing demonstrates that the system can handle realistic workloads.
+</p>
+
+<p>
+A pilot demonstrates that the design survives real production conditions.
+</p>
+
+<p>
+Progressive rollout controls the blast radius.
+</p>
+
+<p>
+Monitoring provides evidence.
+</p>
+
+<p>
+Rollback provides safety.
+</p>
+
+<p>
+And post-deployment validation proves whether the network actually reached the intended state.
+</p>
+
+<div class="diagram">
+                    DESIGN
+                       |
+                       v
+                      LAB
+                       |
+                       v
+                  VALIDATION
+                       |
+                       v
+                  INTEGRATION
+                       |
+                       v
+                  PERFORMANCE
+                       |
+                       v
+                     PILOT
+                       |
+                       v
+                  DEPLOYMENT
+                       |
+                       v
+                  MONITORING
+                       |
+                       v
+                  VALIDATION
+                       |
+             +---------+---------+
+             |                   |
+           SUCCESS              FAILURE
+             |                   |
+             v                   v
+          EXPAND               ROLLBACK
+             |                   |
+             v                   v
+       FULL ROLLOUT          INVESTIGATE
+             |                   |
+             +---------+---------+
+                       |
+                       v
+                  LESSONS LEARNED
+                       |
+                       v
+                 BETTER NEXT CHANGE
+</div>
+
+<blockquote>
+The objective of deployment is not to make a change. The objective is to reach a new operational state with confidence.
+</blockquote>
+
+<p>
+This is the discipline that allows large telecom networks to evolve without turning every
+transformation into an operational risk.
+</p>
+
+<div class="impact">
+Test before you trust. Validate before you scale. Monitor while you change. Roll back when the evidence says you should.
+</div>
+
+<p>
+That is how networks evolve safely.
+</p>
 
 </body>
 </html>
