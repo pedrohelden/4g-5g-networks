@@ -1,306 +1,1776 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+
+<html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Capítulo 11 – Evasão de Segurança em Redes Móveis</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Chapter 11 — Mobile Network Security</title>
+
 <style>
-  body {
+body {
     background-color: #1e2a38;
     color: #cbd5e1;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    line-height: 1.7;
-  }
-  h1, h2, h3 {
-    color: #60a5fa;
-    margin-bottom: 0.7em;
-  }
-  p, li {
-    max-width: 900px;
-  }
-  p {
-    margin-bottom: 1.4em;
-    font-size: 1.1em;
-  }
-  ul {
-    max-width: 900px;
-    padding-left: 25px;
-    margin-bottom: 2em;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 900px;
-    margin: 1.5em 0 3em 0;
-    background: #293845;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #3e4f65;
-  }
-  th {
-    background-color: #3b82f6;
-    color: #fff;
-  }
-  pre {
-    background: #2d3b4e;
-    padding: 12px;
-    border-radius: 6px;
-    color: #a5d6ff;
+    margin: 40px auto;
+    max-width: 1100px;
+    padding: 0 30px;
+    line-height: 1.75;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
+}
+
+h1 {
+    color: #f8fafc;
+    font-size: 42px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+h2 {
+    color: #93c5fd;
+    font-size: 28px;
+    margin-top: 55px;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+h3 {
+    color: #bfdbfe;
+    font-size: 21px;
+    margin-top: 35px;
+}
+
+p {
+    margin: 18px 0;
+}
+
+strong {
+    color: #f8fafc;
+}
+
+em {
+    color: #dbeafe;
+}
+
+blockquote {
+    border-left: 4px solid #60a5fa;
+    margin: 30px 0;
+    padding: 15px 25px;
+    background-color: #253548;
+    color: #e2e8f0;
+    font-size: 20px;
+    font-style: italic;
+}
+
+.note {
+    background-color: #253548;
+    border-left: 4px solid #38bdf8;
+    padding: 18px 24px;
+    margin: 30px 0;
+}
+
+.impact {
+    background-color: #26384a;
+    border-left: 5px solid #f59e0b;
+    padding: 20px 25px;
+    margin: 35px 0;
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.diagram {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
     overflow-x: auto;
-  }
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.5;
+}
+
+.flow {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.65;
+}
+
+ul {
+    margin-top: 10px;
+}
+
+li {
+    margin: 8px 0;
+}
+
+.small {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+code {
+    color: #bfdbfe;
+    background-color: #162231;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
 </style>
+
 </head>
 
 <body>
 
-<h1>Capítulo 11 – Evasão de Segurança (Bypass de Firewalls)</h1>
+<h1>Mobile Network Security</h1>
 
-<p>Até agora, você viu como redes são protegidas. Mas existe uma realidade importante:</p>
+<p class="small">
+Protecting the signaling, control, user plane, infrastructure, and trust relationships that make a mobile network operate.
+</p>
 
-<p><strong>👉 Firewalls não são perfeitos.</strong></p>
+<blockquote>
+A mobile network is not secure because it has a firewall. It is secure when every trust relationship has been understood, controlled, monitored, and continuously challenged.
+</blockquote>
 
-<p>Atacantes experientes não tentam quebrar a rede diretamente — eles <strong>contornam as proteções</strong>.</p>
+<p>
+Mobile networks are among the most complex communication systems ever deployed at scale.
+</p>
 
-<p>Este capítulo mostra exatamente como isso acontece.</p>
+<p>
+They connect millions of subscribers.
+</p>
 
-<hr>
+<p>
+They exchange signaling with other operators.
+</p>
 
-<h2>11.1 O problema fundamental</h2>
+<p>
+They interact with roaming partners.
+</p>
 
-<p>Firewalls em telecom (SS7, Diameter, 5G) funcionam baseados em:</p>
+<p>
+They connect radio networks to packet cores.
+</p>
+
+<p>
+They transport voice, messaging, internet traffic, enterprise services, IoT traffic, and increasingly
+cloud-native applications.
+</p>
+
+<p>
+Every one of those capabilities introduces trust relationships.
+</p>
+
+<p>
+And every trust relationship creates a security boundary.
+</p>
+
+<div class="impact">
+The attack surface of a mobile network is not a single interface. It is the entire ecosystem of interfaces, protocols, identities, applications, and infrastructure that the network trusts.
+</div>
+
+<h2>Security Begins With Architecture</h2>
+
+<p>
+Security should not be added after the network has been deployed.
+</p>
+
+<p>
+It must be considered when the architecture is designed.
+</p>
+
+<div class="diagram">
+                         INTERNET
+                            |
+                            v
+                     +-------------+
+                     | Security    |
+                     | Boundary    |
+                     +------+------+
+                            |
+                            v
+                      Mobile Core
+                            |
+          +-----------------+-----------------+
+          |                 |                 |
+          v                 v                 v
+       Control           User Plane       Management
+        Plane                |                Plane
+          |                  |                 |
+          +------------------+-----------------+
+                            |
+                            v
+                         RAN / UE
+</div>
+
+<p>
+Each of these planes has different requirements.
+</p>
+
+<p>
+The management plane must be protected against unauthorized administrative access.
+</p>
+
+<p>
+The control plane must protect signaling and session management.
+</p>
+
+<p>
+The user plane must prevent unauthorized traffic, manipulation, and abuse.
+</p>
+
+<p>
+The infrastructure itself must also be protected.
+</p>
+
+<div class="diagram">
+Security Domains
+
++--------------------------------------+
+| Management Plane                     |
+|                                      |
+| SSH / APIs / Monitoring / Automation  |
++--------------------------------------+
+
++--------------------------------------+
+| Control Plane                        |
+|                                      |
+| NAS / S1AP / Diameter / SBA          |
++--------------------------------------+
+
++--------------------------------------+
+| User Plane                           |
+|                                      |
+| GTP-U / IP Traffic                   |
++--------------------------------------+
+
++--------------------------------------+
+| Infrastructure                       |
+|                                      |
+| OS / Hypervisor / Kubernetes / NICs  |
++--------------------------------------+
+
+</div>
+
+<h2>Trust Is the Real Security Boundary</h2>
+
+<p>
+One of the most dangerous assumptions in telecom security is:
+</p>
+
+<p>
+<strong>“This is internal traffic, therefore it is trusted.”</strong>
+</p>
+
+<p>
+Mobile networks contain many internal interfaces.
+</p>
+
+<p>
+But internal does not automatically mean trustworthy.
+</p>
+
+<p>
+A compromised network element can generate traffic that looks completely legitimate.
+</p>
+
+<p>
+A compromised partner connection can introduce malicious signaling.
+</p>
+
+<p>
+A vulnerable management interface can become an entry point into the core.
+</p>
+
+<blockquote>
+An IP address tells you where traffic came from. It does not tell you whether the traffic should be trusted.
+</blockquote>
+
+<h2>The Legacy Signaling Environment</h2>
+
+<p>
+Mobile networks evolved over decades.
+</p>
+
+<p>
+Older signaling technologies remain relevant because modern networks still interact with legacy
+systems.
+</p>
+
+<p>
+Three protocols are particularly important when discussing telecom security:
+</p>
 
 <ul>
-<li>Regras (permitir / bloquear)</li>
-<li>Listas de confiança</li>
-<li>Validação de mensagens</li>
+<li>SS7</li>
+<li>Diameter</li>
+<li>GTP</li>
 </ul>
 
-<p>👉 O problema:</p>
+<p>
+Each protocol operates in a different part of the mobile architecture.
+</p>
 
-<p><strong>Se algo parece legítimo, geralmente é permitido.</strong></p>
+<div class="diagram">
+Legacy / 2G / 3G
+        |
+       SS7
+        |
+        v
+    Signaling
 
-<p>E é exatamente isso que o atacante explora.</p>
+4G EPC
+|
+Diameter
+|
+v
+Policy / Subscriber
+Functions
 
-<hr>
+4G / 5G User Plane
+|
+GTP
+|
+v
+Packet Transport
 
-<h2>11.2 Principais técnicas de evasão</h2>
+</div>
 
-<h3>1. Uso de redes confiáveis (Trust Abuse)</h3>
+<p>
+Understanding the protocol is not enough.
+</p>
 
-<p>O atacante envia tráfego através de uma operadora considerada confiável.</p>
+<p>
+The engineer must understand the trust model around the protocol.
+</p>
 
-<p>Fluxo:</p>
+<h2>SS7 Security</h2>
 
-<pre>
-Atacante → Operadora intermediária confiável → Rede alvo
-</pre>
+<p>
+SS7 was designed in an environment where signaling networks were highly controlled.
+</p>
 
-<p>👉 O firewall aceita porque confia na origem.</p>
+<p>
+The architecture assumed trusted participants.
+</p>
 
-<p><strong>Impacto:</strong></p>
+<p>
+The modern internet does not operate under those assumptions.
+</p>
+
+<p>
+As telecom networks became increasingly interconnected, SS7 signaling became an attractive target.
+</p>
+
+<p>
+Potential abuse can involve:
+</p>
 
 <ul>
-<li>Bypass de filtering por origem</li>
-<li>Ataques parecem legítimos</li>
+<li>Location-related information exposure</li>
+<li>Subscriber information queries</li>
+<li>Fraud</li>
+<li>Message manipulation</li>
+<li>Unauthorized signaling procedures</li>
 </ul>
 
-<hr>
+<p>
+The important lesson is not that SS7 is “old.”
+</p>
 
-<h3>2. Manipulação de identidade (Spoofing)</h3>
+<p>
+The deeper lesson is that <strong>protocol trust assumptions can become security vulnerabilities
+when the environment changes.</strong>
+</p>
 
-<p>Alteração de parâmetros como:</p>
+<div class="impact">
+A protocol can be technically correct and still be insecure when the assumptions surrounding its trust model are no longer valid.
+</div>
+
+<h2>Diameter Security</h2>
+
+<p>
+Diameter became a major signaling protocol in 4G networks.
+</p>
+
+<p>
+It is heavily involved in subscriber authentication, policy, charging, and mobility-related
+functions.
+</p>
+
+<div class="diagram">
+                    EPC
+
+```
+          +-------------+
+          |     HSS     |
+          +------+------+
+                 |
+              Diameter
+                 |
+          +------+------+
+          |     MME     |
+          +-------------+
+
+          +-------------+
+          |    PCRF     |
+          +------+------+
+                 |
+              Diameter
+                 |
+          +------+------+
+          |   PCEF      |
+          +-------------+
+```
+
+</div>
+
+<p>
+Diameter introduces powerful capabilities.
+</p>
+
+<p>
+It also creates important signaling dependencies.
+</p>
+
+<p>
+A compromised or poorly protected Diameter peer can potentially generate malformed, unauthorized,
+or abusive signaling.
+</p>
+
+<p>
+Therefore, security controls should consider:
+</p>
 
 <ul>
-<li>MSISDN</li>
-<li>IMSI</li>
-<li>Global Title</li>
+<li>Peer authentication</li>
+<li>Network-level access control</li>
+<li>Message validation</li>
+<li>Topology awareness</li>
+<li>Rate limiting</li>
+<li>Monitoring</li>
+<li>Anomaly detection</li>
 </ul>
 
-<p>👉 Objetivo: parecer um elemento legítimo da rede.</p>
+<h2>GTP Security</h2>
 
-<p><strong>Exemplo:</strong></p>
+<p>
+GTP is fundamental to packet mobility networks.
+</p>
 
-<pre>
-Origem real: rede externa
-Identidade apresentada: rede interna
-</pre>
+<p>
+GTP-C controls sessions.
+</p>
 
-<hr>
+<p>
+GTP-U transports user traffic.
+</p>
 
-<h3>3. Abuso de mensagens legítimas</h3>
+<div class="diagram">
+             Control Plane
 
-<p>Em vez de usar mensagens “maliciosas”, o atacante usa mensagens válidas de forma indevida.</p>
+```
+    GTP-C
+      |
+      v
+```
 
-<table>
-<tr><th>Mensagem</th><th>Uso legítimo</th><th>Uso malicioso</th></tr>
-<tr><td>ATI</td><td>Localização</td><td>Tracking</td></tr>
-<tr><td>SRI</td><td>Roteamento</td><td>Interceptação</td></tr>
-<tr><td>ULR</td><td>Registro</td><td>Flood / DoS</td></tr>
-</table>
+Session Management
 
-<p>👉 Isso dificulta muito a detecção.</p>
+```
+         User Plane
 
-<hr>
+    GTP-U
+      |
+      v
+  User Traffic
+```
 
-<h3>4. Ataques “Low & Slow”</h3>
+</div>
 
-<p>Ao invés de alto volume, o atacante usa baixa frequência:</p>
+<p>
+The distinction is critical from a security perspective.
+</p>
+
+<p>
+An attacker targeting GTP-C may attempt to manipulate session establishment or modification.
+</p>
+
+<p>
+An attacker targeting GTP-U may attempt to inject, redirect, or otherwise abuse user-plane traffic.
+</p>
+
+<div class="impact">
+Control-plane attacks manipulate the network's decisions. User-plane attacks manipulate what the network carries.
+</div>
+
+<h2>Signaling Attacks</h2>
+
+<p>
+Signaling is the nervous system of a mobile network.
+</p>
+
+<p>
+It tells network elements:
+</p>
 
 <ul>
-<li>Uma requisição por minuto</li>
-<li>Diferentes alvos</li>
-<li>Padrão distribuído</li>
+<li>Who the subscriber is</li>
+<li>Where the subscriber is</li>
+<li>Which session should exist</li>
+<li>Which resources should be allocated</li>
+<li>Which policies should apply</li>
+<li>Where traffic should be forwarded</li>
 </ul>
 
-<p>👉 Resultado:</p>
+<p>
+If signaling is abused, the attacker may not need to compromise the user-plane infrastructure.
+</p>
 
-<p><strong>Passa despercebido por sistemas baseados em volume.</strong></p>
+<p>
+Manipulating the decisions that control the network can be enough.
+</p>
 
-<hr>
+<div class="diagram">
+                     Attack
 
-<h3>5. Fragmentação de ataque</h3>
+```
+                   |
+                   v
+             Signaling Layer
+                   |
+         +---------+---------+
+         |         |         |
+         v         v         v
+      Identity   Session   Policy
+      Context    State     Rules
+         |         |         |
+         +---------+---------+
+                   |
+                   v
+             Service Impact
+```
 
-<p>O ataque é dividido em múltiplas partes:</p>
+</div>
 
-<pre>
-Passo 1: obter IMSI
-Passo 2: obter localização
-Passo 3: interceptar comunicação
-</pre>
+<h2>Signaling Floods</h2>
 
-<p>Cada etapa isolada parece inofensiva.</p>
+<p>
+One class of attack involves overwhelming signaling functions with excessive requests.
+</p>
 
-<p>👉 Juntas, formam um ataque completo.</p>
+<p>
+A network element may have plenty of CPU capacity for normal traffic.
+</p>
 
-<hr>
+<p>
+But signaling traffic can trigger expensive operations.
+</p>
 
-<h3>6. Rotação de origem</h3>
+<p>
+Authentication.
+</p>
 
-<p>O atacante muda constantemente:</p>
+<p>
+Database lookups.
+</p>
+
+<p>
+Session creation.
+</p>
+
+<p>
+Policy evaluation.
+</p>
+
+<p>
+State allocation.
+</p>
+
+<p>
+Logging.
+</p>
+
+<p>
+A relatively small amount of malicious traffic can therefore create disproportionate load.
+</p>
+
+<blockquote>
+The most dangerous packet is not always the packet that consumes the most bandwidth. Sometimes it is the packet that makes the network do the most work.
+</blockquote>
+
+<h2>GTP Attacks</h2>
+
+<p>
+GTP deserves particular attention because it carries mobility-related control information and
+user-plane traffic.
+</p>
+
+<p>
+Potential attack categories include:
+</p>
 
 <ul>
-<li>IP</li>
-<li>Operadora de origem</li>
-<li>Identidade de rede</li>
+<li>Unauthorized GTP peers</li>
+<li>Malformed signaling</li>
+<li>Session manipulation</li>
+<li>Tunnel abuse</li>
+<li>Traffic injection</li>
+<li>Source validation failures</li>
+<li>Unexpected TEID behavior</li>
 </ul>
 
-<p>👉 Isso quebra mecanismos de blacklist.</p>
+<p>
+Security controls should therefore understand the expected topology.
+</p>
 
-<hr>
+<div class="diagram">
+Expected
 
-<h2>11.3 Evasão em SS7</h2>
+gNB / eNodeB
+|
+v
+UPF / SGW
+|
+v
+Core
 
-<table>
-<tr><th>Técnica</th><th>Descrição</th></tr>
-<tr><td>GT Spoofing</td><td>Falsificação de endereço de signaling</td></tr>
-<tr><td>Routing indireto</td><td>Uso de STPs intermediários</td></tr>
-<tr><td>ATI disfarçado</td><td>Parecer consulta legítima</td></tr>
-</table>
+Unexpected
 
-<p>👉 Mesmo com firewall, ataques podem passar.</p>
+Unknown Source
+|
+v
+GTP
+|
+X
+BLOCK / ALERT
 
-<hr>
+</div>
 
-<h2>11.4 Evasão em Diameter (4G)</h2>
+<p>
+The important point is that GTP traffic should not be treated as trustworthy simply because it
+uses UDP and comes from an apparently internal network.
+</p>
 
-<table>
-<tr><th>Técnica</th><th>Descrição</th></tr>
-<tr><td>Session reuse</td><td>Uso de sessões válidas</td></tr>
-<tr><td>CCR manipulation</td><td>Alteração de charging</td></tr>
-<tr><td>Flood control bypass</td><td>Distribuição de carga</td></tr>
-</table>
+<h2>TEIDs and Security</h2>
 
-<p>👉 Ataques se misturam com tráfego legítimo.</p>
+<p>
+TEIDs identify GTP tunnels.
+</p>
 
-<hr>
+<p>
+From the troubleshooting perspective, they are essential for following a session.
+</p>
 
-<h2>11.5 Evasão em 5G (SBA)</h2>
+<p>
+From a security perspective, they are also valuable signals.
+</p>
 
-<p>No 5G, o foco é APIs.</p>
+<p>
+A security monitoring system can establish relationships between:
+</p>
 
-<table>
-<tr><th>Técnica</th><th>Descrição</th></tr>
-<tr><td>Token abuse</td><td>Uso indevido de tokens válidos</td></tr>
-<tr><td>API chaining</td><td>Combinação de múltiplas APIs</td></tr>
-<tr><td>Rate-limit bypass</td><td>Distribuição de requisições</td></tr>
-</table>
+<div class="diagram">
+Subscriber
+    |
+    +---- Session
+            |
+            +---- GTP Tunnel
+                    |
+                    +---- TEID
+                    |
+                    +---- Source
+                    |
+                    +---- Destination
+</div>
 
-<p>👉 O ataque se parece com uso normal do sistema.</p>
+<p>
+Unexpected combinations can become indicators of suspicious behavior.
+</p>
 
-<hr>
+<p>
+The security engineer should therefore understand the same identifiers used by the network
+engineer during troubleshooting.
+</p>
 
-<h2>11.6 Exemplo completo de bypass</h2>
+<div class="impact">
+The identifiers that help you troubleshoot a network can also help you detect an attack.
+</div>
 
-<h3>Cenário: interceptação de SMS</h3>
+<h2>4G Security Architecture</h2>
 
-<pre>
-1. Obter IMSI (SendIMSI)
-2. Enviar SRI via rede confiável
-3. Redirecionar SMS
-4. Manter baixa frequência
-</pre>
+<p>
+The 4G EPC introduced a more structured security architecture than previous generations.
+</p>
 
-<p><strong>Por que funciona?</strong></p>
+<div class="diagram">
+                  4G EPC
+
+```
+    +-----------------------+
+    |         HSS           |
+    +-----------+-----------+
+                |
+                |
+    +-----------v-----------+
+    |         MME           |
+    +-----------+-----------+
+                |
+          Control Plane
+                |
+    +-----------v-----------+
+    |     SGW / PGW         |
+    +-----------+-----------+
+                |
+          User Plane
+                |
+              UE
+```
+
+</div>
+
+<p>
+Authentication, subscriber identity management, bearer establishment, and policy control are
+distributed across multiple functions.
+</p>
+
+<p>
+This improves separation of responsibilities.
+</p>
+
+<p>
+But it also increases the number of interfaces that must be secured and monitored.
+</p>
+
+<h2>5G Security Architecture</h2>
+
+<p>
+5G introduces another significant architectural change.
+</p>
+
+<p>
+The core becomes increasingly cloud-native and service-oriented.
+</p>
+
+<div class="diagram">
+                     5G Core
+
+```
+   +------+  +------+  +------+
+   | AMF  |  | SMF  |  | PCF  |
+   +--+---+  +--+---+  +--+---+
+      |         |         |
+      +---------+---------+
+                |
+          Service-Based
+             Interfaces
+                |
+   +------------+------------+
+   |                         |
+  UDM                       AUSF
+   |                         |
+   +------------+------------+
+                |
+               NRF
+                |
+                v
+              UPF
+```
+
+</div>
+
+<p>
+This creates new security considerations.
+</p>
+
+<p>
+Instead of securing only traditional telecom signaling protocols, engineers must also protect:
+</p>
 
 <ul>
-<li>Origem confiável</li>
-<li>Mensagens legítimas</li>
-<li>Sem volume suspeito</li>
+<li>HTTP/2 communication</li>
+<li>REST-style APIs</li>
+<li>Service discovery</li>
+<li>Network Function identities</li>
+<li>Cloud infrastructure</li>
+<li>Container environments</li>
+<li>Orchestration platforms</li>
 </ul>
 
-<p><strong>Resultado:</strong></p>
+<div class="impact">
+5G did not remove the telecom attack surface. It expanded it into the cloud-native and API world.
+</div>
 
-<p>👉 Interceptação sem detecção imediata</p>
+<h2>4G and 5G Security Differences</h2>
 
-<hr>
+<p>
+The transition from EPC to 5GC changes more than network function names.
+</p>
 
-<h2>11.7 Por que firewalls falham?</h2>
+<div class="diagram">
+4G EPC
+
+Network Functions
+|
+Traditional Interfaces
+|
+Diameter / GTP / SCTP
+|
+Virtualized Infrastructure
+
+5G Core
+
+Network Functions
+|
+Service-Based Architecture
+|
+HTTP/2 / APIs
+|
+Cloud-Native Infrastructure
+|
+Containers / Kubernetes
+|
+Virtualized / Bare Metal
+
+</div>
+
+<p>
+This creates a broader security domain.
+</p>
+
+<p>
+A 5G security architecture must consider telecom protocols and cloud security simultaneously.
+</p>
+
+<p>
+The security engineer increasingly needs knowledge of:
+</p>
 
 <ul>
-<li>Confiança excessiva em parceiros</li>
-<li>Foco em regras estáticas</li>
-<li>Falta de correlação entre eventos</li>
-<li>Visão limitada (apenas uma camada)</li>
+<li>IP networking</li>
+<li>Telecom signaling</li>
+<li>HTTP/2</li>
+<li>APIs</li>
+<li>TLS</li>
+<li>Containers</li>
+<li>Kubernetes</li>
+<li>Linux</li>
+<li>Cloud infrastructure</li>
 </ul>
 
-<p>👉 Segurança baseada só em bloqueio não é suficiente.</p>
+<h2>Service-Based Interfaces</h2>
 
-<hr>
+<p>
+In 5G, network functions communicate through service-based interfaces.
+</p>
 
-<h2>11.8 Como se defender de evasão</h2>
+<p>
+This creates a model that looks familiar to cloud engineers.
+</p>
 
-<p>Defesa contra evasão exige maturidade maior:</p>
+<div class="diagram">
+AMF
+ |
+ | HTTP/2
+ v
+SMF
+ |
+ | HTTP/2
+ v
+UDM / PCF / NRF
+</div>
+
+<p>
+The security implications are significant.
+</p>
+
+<p>
+The API becomes part of the telecom attack surface.
+</p>
+
+<p>
+An attacker may attempt to exploit:
+</p>
 
 <ul>
-<li>Correlação de eventos (multi-step attacks)</li>
-<li>Análise comportamental</li>
-<li>Validação forte de origem</li>
-<li>Zero Trust (não confiar em ninguém)</li>
-<li>Monitoramento contínuo</li>
+<li>Authentication weaknesses</li>
+<li>Authorization weaknesses</li>
+<li>Improper input validation</li>
+<li>API abuse</li>
+<li>Service discovery manipulation</li>
+<li>Denial of service</li>
 </ul>
 
-<p><strong>👉 A regra muda:</strong></p>
+<p>
+This is where telecom security and application security increasingly converge.
+</p>
 
-<p><strong>“Não basta bloquear o ataque — é preciso entender o comportamento.”</strong></p>
+<h2>Network Function Identity</h2>
 
-<hr>
+<p>
+In a service-based architecture, knowing which network function is communicating is fundamental.
+</p>
 
-<h2>11.9 Conclusão</h2>
+<p>
+The system must be able to distinguish legitimate network functions from unauthorized clients.
+</p>
 
-<p>Atacantes evoluem constantemente. Evasão é prova disso.</p>
+<div class="diagram">
+                NRF
+
+```
+             |
+    Network Function
+        Registration
+             |
+   +---------+---------+
+   |         |         |
+   v         v         v
+  AMF       SMF       PCF
+   |         |         |
+   +---------+---------+
+             |
+       Service Access
+```
+
+</div>
+
+<p>
+Identity therefore becomes a security control.
+</p>
+
+<p>
+Discovery must be controlled.
+</p>
+
+<p>
+Communication must be authenticated.
+</p>
+
+<p>
+Authorization must determine which services a function is allowed to access.
+</p>
+
+<blockquote>
+In a cloud-native network, identity replaces physical location as one of the most important foundations of trust.
+</blockquote>
+
+<h2>IDS and IPS</h2>
+
+<p>
+An Intrusion Detection System identifies suspicious activity.
+</p>
+
+<p>
+An Intrusion Prevention System can additionally take action to block or disrupt malicious
+traffic.
+</p>
+
+<div class="diagram">
+                Network Traffic
+                       |
+                       v
+                  Inspection
+                       |
+              +--------+--------+
+              |                 |
+              v                 v
+          Legitimate        Suspicious
+              |                 |
+              v                 v
+            Allow             Alert
+                                |
+                                v
+                           IPS Action
+</div>
+
+<p>
+In telecom, IDS/IPS must understand more than generic IP traffic.
+</p>
+
+<p>
+They need to understand the protocols and relationships that define mobile networks.
+</p>
+
+<p>
+A system that knows only IP addresses and ports may miss important attacks hidden inside
+legitimate-looking signaling.
+</p>
+
+<div class="impact">
+Telecom security requires protocol awareness. The packet payload often tells you more than the IP header.
+</div>
+
+<h2>Telecom Threat Detection</h2>
+
+<p>
+Effective threat detection begins with understanding what normal behavior looks like.
+</p>
+
+<p>
+For example, a network may know:
+</p>
 
 <ul>
-<li>Firewalls são necessários</li>
-<li>Mas não são suficientes</li>
+<li>Which signaling peers normally communicate</li>
+<li>Which GTP endpoints are expected</li>
+<li>Which network functions exist</li>
+<li>Which ports and protocols they use</li>
+<li>Which subscribers generate normal traffic patterns</li>
+<li>Which signaling rates are expected</li>
 </ul>
 
-<p><strong>👉 A verdadeira defesa está em visibilidade, inteligência e correlação.</strong></p>
+<p>
+An anomaly can then be detected as a deviation from that model.
+</p>
 
-<footer>
-<p>Fim do Capítulo 11 – Evasão de Segurança</p>
-</footer>
+<div class="diagram">
+Normal
+
+Peer A
+|
++---- Expected Signaling
+|
++---- Expected Rate
+|
++---- Expected Messages
+
+Anomaly
+
+Unknown Peer
+|
++---- Unexpected Message
+|
++---- High Rate
+|
++---- Unexpected Destination
+|
+v
+ALERT
+
+</div>
+
+<p>
+This is why telecom security monitoring is not simply traditional SOC monitoring with different
+IP addresses.
+</p>
+
+<h2>Security Monitoring</h2>
+
+<p>
+A mature telecom security architecture correlates information from multiple layers.
+</p>
+
+<div class="diagram">
+                Security Monitoring
+
+```
+                   |
+   +---------------+---------------+
+   |               |               |
+   v               v               v
+```
+
+Signaling        Network        Infrastructure
+|               |               |
+v               v               v
+SS7/GTP          IP/NIC       OS/Kubernetes
+|               |               |
++---------------+---------------+
+|
+v
+Correlation
+|
+v
+Detection
+
+</div>
+
+<p>
+For example, a security platform may detect:
+</p>
+
+<p>
+A sudden increase in GTP traffic from an unexpected source.
+</p>
+
+<p>
+At the same time, a network function may report an abnormal session rate.
+</p>
+
+<p>
+The infrastructure may show increased CPU utilization.
+</p>
+
+<p>
+Together, these events are far more meaningful than any individual alert.
+</p>
+
+<div class="impact">
+One alert can be noise. Correlated behavior can become evidence.
+</div>
+
+<h2>Segmentation</h2>
+
+<p>
+Segmentation is one of the most important defensive controls in telecom.
+</p>
+
+<p>
+The goal is simple:
+</p>
+
+<p>
+<strong>Do not allow every component to communicate with every other component.</strong>
+</p>
+
+<div class="diagram">
+                    CORE
+
+```
+   +---------------------------+
+   |                           |
+   | Control Plane             |
+   |                           |
+   +-------------+-------------+
+                 |
+          Controlled Path
+                 |
+   +-------------v-------------+
+   |                           |
+   | User Plane                |
+   |                           |
+   +---------------------------+
+
+   Management Plane
+          |
+          X
+   Restricted Access
+```
+
+</div>
+
+<p>
+Management traffic should not be freely accessible from subscriber networks.
+</p>
+
+<p>
+User-plane traffic should not automatically have access to management systems.
+</p>
+
+<p>
+External signaling peers should be restricted to the interfaces they actually require.
+</p>
+
+<p>
+In Kubernetes environments, segmentation can also involve namespaces, network policies, dedicated
+interfaces, and infrastructure-level controls.
+</p>
+
+<h2>Zero Trust Principles in Telecom</h2>
+
+<p>
+The idea of zero trust becomes increasingly relevant to cloud-native telecom.
+</p>
+
+<p>
+The basic principle is:
+</p>
+
+<blockquote>
+Never assume trust simply because the traffic is inside the network.
+</blockquote>
+
+<p>
+Every connection should be evaluated according to:
+</p>
+
+<ul>
+<li>Identity</li>
+<li>Source</li>
+<li>Destination</li>
+<li>Protocol</li>
+<li>Context</li>
+<li>Authorization</li>
+<li>Expected behavior</li>
+</ul>
+
+<p>
+This does not mean every packet must be individually authenticated in every telecom environment.
+</p>
+
+<p>
+It means trust must be explicitly designed rather than assumed.
+</p>
+
+<h2>Hardening the Network</h2>
+
+<p>
+Hardening is the process of reducing unnecessary exposure and attack opportunities.
+</p>
+
+<p>
+At the operating system level, this may include:
+</p>
+
+<ul>
+<li>Removing unnecessary services</li>
+<li>Applying security updates</li>
+<li>Restricting administrative access</li>
+<li>Using strong authentication</li>
+<li>Protecting credentials</li>
+<li>Configuring host firewalls</li>
+<li>Monitoring privileged actions</li>
+</ul>
+
+<p>
+At the network level:
+</p>
+
+<ul>
+<li>Restrict management access</li>
+<li>Filter signaling peers</li>
+<li>Limit exposed ports</li>
+<li>Apply ACLs</li>
+<li>Segment networks</li>
+<li>Monitor unexpected traffic</li>
+</ul>
+
+<p>
+At the Kubernetes level:
+</p>
+
+<ul>
+<li>Restrict API access</li>
+<li>Use RBAC</li>
+<li>Apply network policies</li>
+<li>Secure container images</li>
+<li>Minimize container privileges</li>
+<li>Protect secrets</li>
+<li>Monitor workloads</li>
+</ul>
+
+<div class="impact">
+Every unnecessary service is another door. Every unnecessary privilege is another key.
+</div>
+
+<h2>Security in the User Plane</h2>
+
+<p>
+The user plane is different from the control plane.
+</p>
+
+<p>
+Its primary job is to move traffic.
+</p>
+
+<p>
+That makes visibility challenging.
+</p>
+
+<div class="diagram">
+Subscriber Traffic
+       |
+       v
+     gNB
+       |
+       v
+     GTP-U
+       |
+       v
+      UPF
+       |
+       v
+    Internet
+</div>
+
+<p>
+Security systems must be able to determine whether traffic is legitimate without unnecessarily
+disrupting subscriber traffic.
+</p>
+
+<p>
+This requires a balance between:
+</p>
+
+<ul>
+<li>Visibility</li>
+<li>Performance</li>
+<li>Latency</li>
+<li>Privacy</li>
+<li>Detection quality</li>
+</ul>
+
+<p>
+High-performance user-plane inspection can become a significant engineering challenge.
+</p>
+
+<h2>Security Versus Performance</h2>
+
+<p>
+This is particularly important in telecom.
+</p>
+
+<p>
+A security function inserted into a high-speed data path can introduce:
+</p>
+
+<ul>
+<li>Latency</li>
+<li>CPU consumption</li>
+<li>Packet drops</li>
+<li>Throughput limitations</li>
+<li>Additional failure points</li>
+</ul>
+
+<div class="diagram">
+Without Inspection
+
+Traffic
+|
+v
+UPF
+|
+v
+Network
+
+With Inspection
+
+Traffic
+|
+v
+UPF
+|
+v
+Security Function
+|
+v
+Network
+
+</div>
+
+<p>
+The security architecture must therefore consider performance from the beginning.
+</p>
+
+<blockquote>
+A security control that takes the network down is not a successful security control.
+</blockquote>
+
+<h2>Security and Cloud-Native Telecom</h2>
+
+<p>
+The move toward Kubernetes and cloud-native network functions introduces another security layer.
+</p>
+
+<div class="diagram">
+Application
+     |
+Container
+     |
+Pod
+     |
+Kubernetes
+     |
+CNI
+     |
+Node
+     |
+Operating System
+     |
+Virtualization
+     |
+Hardware
+</div>
+
+<p>
+Every layer introduces potential vulnerabilities.
+</p>
+
+<p>
+A secure application running inside an insecure container image is still exposed.
+</p>
+
+<p>
+A secure container running on a compromised node is still exposed.
+</p>
+
+<p>
+A secure node connected to an unrestricted network is still exposed.
+</p>
+
+<div class="impact">
+Security is only as strong as the weakest trust boundary in the path.
+</div>
+
+<h2>Security Monitoring and Packet Analysis</h2>
+
+<p>
+Packet captures remain one of the most powerful tools available to a telecom security engineer.
+</p>
+
+<p>
+The same tools used for troubleshooting can support security investigations.
+</p>
+
+<p>
+Wireshark and TShark can reveal:
+</p>
+
+<ul>
+<li>Unexpected signaling</li>
+<li>Protocol violations</li>
+<li>Unknown peers</li>
+<li>Abnormal message sequences</li>
+<li>Unexpected GTP traffic</li>
+<li>Suspicious session behavior</li>
+</ul>
+
+<div class="diagram">
+Packet Capture
+
+```
+    |
+    v
+```
+
+Protocol Decode
+|
+v
+Message Sequence
+|
+v
+Expected Behavior?
+/ 
+YES   NO
+|     |
+v     v
+Normal  Investigate
+
+</div>
+
+<p>
+The key is not merely seeing a packet.
+</p>
+
+<p>
+The engineer must understand whether the packet makes sense in the context of the network.
+</p>
+
+<h2>Security Through Call Flows</h2>
+
+<p>
+Call-flow knowledge becomes extremely valuable during security investigations.
+</p>
+
+<p>
+Suppose a normal session establishment follows a known sequence.
+</p>
+
+<div class="flow">
+UE
+ |
+ | Registration / Attach
+ v
+RAN
+ |
+ | Signaling
+ v
+Core
+ |
+ | Authentication
+ v
+Subscriber Database
+ |
+ | Session Establishment
+ v
+SMF / MME
+ |
+ | Tunnel Creation
+ v
+UPF / SGW
+ |
+ v
+User Traffic
+</div>
+
+<p>
+An attack may appear as a deviation from this sequence.
+</p>
+
+<p>
+For example:
+</p>
+
+<ul>
+<li>A message appears before the expected authentication stage.</li>
+<li>A signaling peer sends a message it should never originate.</li>
+<li>A session is modified without the expected context.</li>
+<li>A GTP tunnel appears without a legitimate control-plane relationship.</li>
+</ul>
+
+<div class="impact">
+The strongest security analysts do not only ask whether a packet is valid. They ask whether the packet belongs in the story of the session.
+</div>
+
+<h2>Building a Telecom Security Mindset</h2>
+
+<p>
+A traditional network engineer may ask:
+</p>
+
+<p>
+“Is the interface up?”
+</p>
+
+<p>
+A security engineer asks:
+</p>
+
+<p>
+“Should this interface be communicating with that endpoint at all?”
+</p>
+
+<p>
+A troubleshooting engineer may ask:
+</p>
+
+<p>
+“Why did this session fail?”
+</p>
+
+<p>
+A security engineer may also ask:
+</p>
+
+<p>
+“Who generated these requests, and why?”
+</p>
+
+<p>
+Both perspectives are necessary.
+</p>
+
+<div class="diagram">
+Network Engineering
+        |
+        +---- Availability
+        +---- Performance
+        +---- Connectivity
+        +---- Protocol correctness
+
+Security Engineering
+|
++---- Trust
++---- Identity
++---- Authorization
++---- Anomalies
++---- Threats
+
+```
+            |
+            v
+
+    Secure Telecom Network
+```
+
+</div>
+
+<h2>The Convergence of Telecom and Cybersecurity</h2>
+
+<p>
+The modern telecom engineer increasingly operates at the intersection of several disciplines.
+</p>
+
+<div class="diagram">
+             Telecom
+                |
+      +---------+---------+
+      |                   |
+      v                   v
+ Networking           Security
+      |                   |
+      +---------+---------+
+                |
+                v
+          Cloud / DevOps
+                |
+                v
+        Cloud-Native Telco
+</div>
+
+<p>
+Understanding only one of these domains is no longer enough for complex 4G and 5G environments.
+</p>
+
+<p>
+The engineer must understand the protocols.
+</p>
+
+<p>
+The infrastructure.
+</p>
+
+<p>
+The applications.
+</p>
+
+<p>
+The trust relationships.
+</p>
+
+<p>
+And the ways in which attackers can abuse all of them.
+</p>
+
+<blockquote>
+The modern telecom security engineer is not simply protecting servers. They are protecting the logic that allows the network to make decisions.
+</blockquote>
+
+<h2>Security as a Continuous Process</h2>
+
+<p>
+Security is not a configuration that is completed once.
+</p>
+
+<p>
+Networks evolve.
+</p>
+
+<p>
+New interfaces are introduced.
+</p>
+
+<p>
+New roaming relationships are created.
+</p>
+
+<p>
+New software versions are deployed.
+</p>
+
+<p>
+New cloud infrastructure is added.
+</p>
+
+<p>
+New vulnerabilities are discovered.
+</p>
+
+<p>
+Therefore, security must continuously evolve.
+</p>
+
+<div class="flow">
+Design
+  |
+  v
+Deploy
+  |
+  v
+Monitor
+  |
+  v
+Detect
+  |
+  v
+Investigate
+  |
+  v
+Respond
+  |
+  v
+Harden
+  |
+  +-------> Back to Monitor
+</div>
+
+<div class="impact">
+Security is not a wall around the network. It is a continuous feedback loop between architecture, visibility, detection, and response.
+</div>
+
+<h2>Chapter Takeaways</h2>
+
+<p>
+Mobile network security begins with architecture.
+</p>
+
+<p>
+The control plane, user plane, management plane, and infrastructure all require different
+security considerations.
+</p>
+
+<p>
+SS7, Diameter, and GTP have different roles and different attack surfaces.
+</p>
+
+<p>
+GTP-C and GTP-U must be considered separately because they control and transport different aspects
+of the mobile service.
+</p>
+
+<p>
+Signaling attacks can be particularly dangerous because a relatively small amount of traffic can
+trigger expensive processing.
+</p>
+
+<p>
+4G introduced a more structured packet-core security architecture, while 5G expands the security
+surface into service-based interfaces, APIs, cloud-native infrastructure, and Kubernetes.
+</p>
+
+<p>
+Network Function identity becomes increasingly important in 5G.
+</p>
+
+<p>
+Segmentation reduces the blast radius of a compromise.
+</p>
+
+<p>
+Hardening removes unnecessary exposure.
+</p>
+
+<p>
+IDS and IPS provide visibility and response, but telecom security requires protocol awareness.
+</p>
+
+<p>
+Packet analysis remains a fundamental capability for both troubleshooting and threat detection.
+</p>
+
+<p>
+Most importantly, security analysis must understand context.
+</p>
+
+<blockquote>
+A packet is not suspicious because it is unusual. It is suspicious when it is unusual for where it came from, what it is doing, and when it is doing it.
+</blockquote>
+
+<p>
+The mobile network is a distributed system of trust.
+</p>
+
+<p>
+Protecting it means understanding those relationships at protocol level, network level,
+application level, and infrastructure level.
+</p>
+
+<div class="impact">
+When you understand how the network is supposed to behave, abnormal behavior becomes visible. When you understand why the network behaves that way, you can begin to understand how it can be attacked.
+</div>
+
+<p>
+This foundation prepares us for the next stage of the architecture: connecting telecom security
+with cloud-native operations, observability, automation, and the operational systems required to
+protect a modern 4G/5G network at scale.
+</p>
 
 </body>
 </html>
