@@ -19,6 +19,8 @@ const urlsToCache = [
   "cap12.html",
   "cap13.html",
   "cap14.html",
+  "cap15.html",
+  "cap16.html",
 
   "capa.jpg",
   "manifest.json",
