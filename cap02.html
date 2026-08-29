@@ -202,7 +202,7 @@ By the end of this chapter, the reader should be able to understand Cisco router
 </header>
 
 
-<h2>2.1 The Router Inside the Network</h2>
+<h2>The Router Inside the Network</h2>
 
 <p>
 A router forwards packets between different IP networks. At the most basic level, the process is straightforward: a packet arrives on an interface, the router determines where the destination prefix should be reached, and the packet is transmitted through the appropriate outgoing interface toward the next hop.
@@ -270,7 +270,7 @@ A routing failure in a small office may affect a few users. The same logical fai
 </div>
 
 
-<h2>2.2 Control Plane and Forwarding Plane</h2>
+<h2>Control Plane and Forwarding Plane</h2>
 
 <p>
 One of the most important concepts in modern routers is the separation between the <strong>control plane</strong> and the <strong>forwarding plane</strong>.
@@ -312,7 +312,7 @@ The forwarding plane takes the resulting information and applies it to packets. 
                  ASIC / NPU / CPU
 </pre>
 
-<figcaption>Figure 2.2 — Control plane and forwarding plane</figcaption>
+<figcaption>Figure 2.2 Control plane and forwarding plane</figcaption>
 
 </div>
 
@@ -331,7 +331,7 @@ When troubleshooting, always ask: <em>"Is the router unable to calculate the pat
 </div>
 
 
-<h2>2.3 RIB, FIB, and the Forwarding Decision</h2>
+<h2>RIB, FIB, and the Forwarding Decision</h2>
 
 <p>
 The <strong>Routing Information Base (RIB)</strong> contains routing information learned from different sources, such as connected networks, static routes, OSPF, IS-IS, and BGP.
@@ -376,7 +376,7 @@ Static / OSPF / IS-IS / BGP
        next hop
 </pre>
 
-<figcaption>Figure 2.3 — From routing information to packet forwarding</figcaption>
+<figcaption>Figure 2.3 From routing information to packet forwarding</figcaption>
 
 </div>
 
@@ -412,7 +412,7 @@ If a user reports that a destination is unreachable, do not immediately inspect 
 </div>
 
 
-<h2>2.4 Cisco Platform Families</h2>
+<h2>Cisco Platform Families</h2>
 
 <p>
 Cisco has developed multiple router and switching families for different network environments. Memorizing every model number is less valuable than understanding the role of each platform.
@@ -433,7 +433,7 @@ Cisco has developed multiple router and switching families for different network
       Branch          Core / Edge        Switching
 </pre>
 
-<figcaption>Figure 2.4 — Simplified Cisco platform landscape</figcaption>
+<figcaption>Figure 2.4 Simplified Cisco platform landscape</figcaption>
 
 </div>
 
@@ -481,7 +481,7 @@ When asked about Cisco platforms, avoid answering only with model numbers. Expla
 </div>
 
 
-<h2>2.5 Cisco ISR — Integrated Services Routers</h2>
+<h2>Cisco ISR: Integrated Services Routers</h2>
 
 <p>
 Cisco ISR platforms have historically been associated with enterprise branches, WAN connectivity, and integrated network services. Depending on the generation, examples include ISR G2 and ISR 4000 Series platforms.
@@ -505,7 +505,7 @@ Cisco ISR platforms have historically been associated with enterprise branches, 
                                   Sites
 </pre>
 
-<figcaption>Figure 2.5 — Typical ISR position in an enterprise network</figcaption>
+<figcaption>Figure 2.5 Typical ISR position in an enterprise network</figcaption>
 
 </div>
 
@@ -543,7 +543,7 @@ A useful first question in an incident is not "Which command should I run?" but 
 </div>
 
 
-<h2>2.6 Cisco Catalyst and Layer 3 Routing</h2>
+<h2>Cisco Catalyst and Layer 3 Routing</h2>
 
 <p>
 Catalyst platforms are strongly associated with enterprise switching and campus networks, but many models also provide substantial Layer 3 routing capabilities.
@@ -570,7 +570,7 @@ A Catalyst switch can act as the default gateway for VLANs through Switched Virt
                      Upstream Router
 </pre>
 
-<figcaption>Figure 2.6 — Catalyst acting as a Layer 3 gateway</figcaption>
+<figcaption>Figure 2.6 Catalyst acting as a Layer 3 gateway</figcaption>
 
 </div>
 
@@ -600,10 +600,10 @@ If the SVI is operational but the VLAN is not correctly carried at Layer 2, host
 </div>
 
 
-<h2>2.7 ASR 1000 — Edge, WAN, and Services</h2>
+<h2>ASR 1000 Edge, WAN, and Services</h2>
 
 <p>
-The ASR 1000 family is designed for routing at the edge and for network services. Typical deployments can include enterprise WAN connectivity, VPN, NAT, QoS, and integration with provider or cloud environments.
+ASR stands for Aggregation Services Router. The ASR 1000 family is designed for routing at the edge and for network services. Typical deployments can include enterprise WAN connectivity, VPN, NAT, QoS, and integration with provider or cloud environments.
 </p>
 
 <div class="technical-figure">
@@ -622,7 +622,7 @@ The ASR 1000 family is designed for routing at the edge and for network services
         Branch / Cloud          Users / Apps
 </pre>
 
-<figcaption>Figure 2.7 — ASR 1000 in a WAN edge architecture</figcaption>
+<figcaption>Figure 2.7 ASR 1000 in a WAN edge architecture</figcaption>
 
 </div>
 
@@ -631,10 +631,10 @@ The difference between an ASR 1000 and an ASR 9000 should not be reduced to thro
 </p>
 
 
-<h2>2.8 ASR 9000 — Service Provider Routing</h2>
+<h2>ASR 9000 — Service Provider Routing</h2>
 
 <p>
-The ASR 9000 family is highly relevant to carrier environments. It is designed for large-scale aggregation, provider edge, and core IP/MPLS applications with strong requirements for capacity and availability.
+ASR stands for Aggregation Services Router. The ASR 9000 family is highly relevant to carrier environments. It is designed for large-scale aggregation, provider edge, and core IP/MPLS applications with strong requirements for capacity and availability.
 </p>
 
 <div class="technical-figure">
@@ -673,7 +673,7 @@ In a carrier network, a routing change on a PE or core device can affect multipl
 </div>
 
 
-<h2>2.9 NCS — Network Convergence System</h2>
+<h2>NCS — Network Convergence System</h2>
 
 <p>
 Cisco NCS platforms are designed for carrier-scale infrastructure, including routing, aggregation, transport, backbone, and converged network architectures. The exact role depends heavily on the specific NCS subfamily and deployment architecture.
@@ -693,7 +693,7 @@ Cisco NCS platforms are designed for carrier-scale infrastructure, including rou
          Core Node            Core Node
 </pre>
 
-<figcaption>Figure 2.9 — NCS in a backbone architecture</figcaption>
+<figcaption>Figure 2.9 NCS in a backbone architecture</figcaption>
 
 </div>
 
@@ -703,7 +703,7 @@ The safest way to discuss NCS is to describe it as a broad family rather than as
 </div>
 
 
-<h2>2.10 Nexus — Data Center Infrastructure</h2>
+<h2>Nexus — Data Center Infrastructure</h2>
 
 <p>
 Cisco Nexus platforms are primarily associated with data center environments. Depending on the platform and design, they can provide Layer 2 switching, Layer 3 routing, VXLAN/EVPN, and fabric-based architectures.
@@ -743,7 +743,7 @@ Although engineers familiar with IOS will recognize many commands, NX-OS is a di
 </p>
 
 
-<h2>2.11 IOS, IOS XE, IOS XR, and NX-OS</h2>
+<h2>IOS, IOS XE, IOS XR, and NX-OS</h2>
 
 <p>
 One of the most common mistakes in Cisco troubleshooting is assuming that all Cisco platforms behave identically because they share similar CLI syntax.
@@ -766,7 +766,7 @@ One of the most common mistakes in Cisco troubleshooting is assuming that all Ci
                                            Nexus
 </pre>
 
-<figcaption>Figure 2.11 — Cisco operating system families</figcaption>
+<figcaption>Figure 2.11 Cisco operating system families</figcaption>
 
 </div>
 
@@ -804,7 +804,7 @@ Never assume that a command or feature exists simply because it exists on anothe
 </div>
 
 
-<h2>2.12 The Cisco CLI</h2>
+<h2>The Cisco CLI</h2>
 
 <p>
 Traditional Cisco CLI operation is organized into several configuration modes. The current mode determines which commands are available and what type of object the engineer is modifying.
@@ -866,7 +866,7 @@ A senior engineer does not need to memorize every command. What matters is knowi
 </div>
 
 
-<h2>2.13 Hostname and Basic Device Configuration</h2>
+<h2>Hostname and Basic Device Configuration</h2>
 
 <h3>Example</h3>
 
@@ -939,7 +939,7 @@ An interface should be evaluated at multiple levels. At minimum, distinguish bet
           shutdown / no shut       up / down
 </pre>
 
-<figcaption>Figure 2.13 — Administrative and operational interface state</figcaption>
+<figcaption>Figure 2.13 Administrative and operational interface state</figcaption>
 
 </div>
 
@@ -978,7 +978,7 @@ A single physical-layer fault can appear to higher layers as routing instability
 </div>
 
 
-<h2>2.15 Configuring IPv4</h2>
+<h2>Configuring IPv4</h2>
 
 <h3>IPv4 Interface Configuration</h3>
 
@@ -1008,7 +1008,7 @@ The <code>no shutdown</code> command administratively enables the interface. It 
  LAN A                                         LAN B
 </pre>
 
-<figcaption>Figure 2.14 — IPv4 point-to-point link</figcaption>
+<figcaption>Figure 2.14 IPv4 point-to-point link</figcaption>
 
 </div>
 
@@ -1017,7 +1017,7 @@ Historically, /30 networks were widely used for point-to-point IPv4 links. /31 a
 </p>
 
 
-<h2>2.16 IPv6</h2>
+<h2>IPv6</h2>
 
 <p>
 IPv6 extends the same fundamental routing concepts while providing a significantly larger address space and several architectural differences.
@@ -1048,7 +1048,7 @@ IPv6 troubleshooting should still follow the same fundamental logic: verify loca
 </div>
 
 
-<h2>2.17 ARP and Local Neighbor Resolution</h2>
+<h2>ARP and Local Neighbor Resolution</h2>
 
 <p>
 For IPv4 Ethernet networks, ARP maps an IPv4 address to a Layer 2 MAC address. This becomes especially important when the destination or next hop is directly connected.
@@ -1075,7 +1075,7 @@ R1                         Switch                    R2
      10.0.12.2 -> R2 MAC address
 </pre>
 
-<figcaption>Figure 2.15 — IPv4 neighbor resolution using ARP</figcaption>
+<figcaption>Figure 2.15 IPv4 neighbor resolution using ARP</figcaption>
 
 </div>
 
@@ -1089,7 +1089,7 @@ Before blaming the routing protocol, confirm that the router can resolve the nex
 </div>
 
 
-<h2>2.18 Directly Connected Routes</h2>
+<h2>Directly Connected Routes</h2>
 
 <p>
 When an interface is correctly configured and operational, the router normally installs a connected route for the subnet and a local route representing the interface's own address.
@@ -1106,7 +1106,7 @@ Interface Gi0/0
        +---- L 10.10.10.1/32
 </pre>
 
-<figcaption>Figure 2.16 — Connected and local routes</figcaption>
+<figcaption>Figure 2.16 Connected and local routes</figcaption>
 
 </div>
 
@@ -1123,7 +1123,7 @@ If an expected connected route is missing, investigating BGP or OSPF is prematur
 </div>
 
 
-<h2>2.19 Static Routes</h2>
+<h2>Static Routes</h2>
 
 <p>
 Static routes provide explicit forwarding instructions. They are useful for simple networks, default paths, controlled routing decisions, backup paths, and specific reachability requirements.
@@ -1174,7 +1174,7 @@ A static route is not automatically "simple" just because its configuration is o
 </div>
 
 
-<h2>2.20 Administrative Distance</h2>
+<h2>Administrative Distance</h2>
 
 <p>
 When multiple routing sources provide information for the same destination, Cisco uses Administrative Distance (AD) to determine which source is preferred, subject to platform-specific behavior and configuration.
@@ -1213,7 +1213,7 @@ When explaining route selection, separate the process into two questions: <stron
 </div>
 
 
-<h2>2.21 OSPF</h2>
+<h2>OSPF</h2>
 
 <p>
 OSPF is a link-state Interior Gateway Protocol. Routers form adjacencies, exchange link-state information, construct a topology database, and use the Shortest Path First algorithm to calculate paths.
@@ -1236,7 +1236,7 @@ Each router builds a topology view.
 SPF calculates preferred paths.
 </pre>
 
-<figcaption>Figure 2.19 — OSPF topology and SPF calculation</figcaption>
+<figcaption>Figure 2.19 OSPF topology and SPF calculation</figcaption>
 
 </div>
 
@@ -1274,7 +1274,7 @@ An OSPF adjacency failure may not immediately look like a routing outage. Existi
 </div>
 
 
-<h2>2.22 IS-IS</h2>
+<h2>IS-IS</h2>
 
 <p>
 IS-IS is another link-state IGP widely used in service provider networks. It provides scalable topology and reachability information and is commonly used as the underlying IGP of large IP/MPLS backbones.
@@ -1298,7 +1298,7 @@ MPLS:
     to establish label-switched forwarding.
 </pre>
 
-<figcaption>Figure 2.20 — IS-IS in a service provider backbone</figcaption>
+<figcaption>Figure 2.20 IS-IS in a service provider backbone</figcaption>
 
 </div>
 
@@ -1316,7 +1316,7 @@ The exact syntax depends on the operating system and release. IOS XR uses its ow
 </p>
 
 
-<h2>2.23 BGP</h2>
+<h2>BGP</h2>
 
 <p>
 Border Gateway Protocol is the dominant inter-domain routing protocol and is also extensively used inside large service provider networks as BGP.
@@ -1337,7 +1337,7 @@ Unlike a simple shortest-path IGP, BGP is fundamentally policy-driven. Attribute
               LAN A                        LAN B
 </pre>
 
-<figcaption>Figure 2.21 — eBGP between Autonomous Systems</figcaption>
+<figcaption>Figure 2.21 eBGP between Autonomous Systems</figcaption>
 
 </div>
 
@@ -1368,7 +1368,7 @@ These are separate questions and should be investigated separately.
 </p>
 
 
-<h2>2.24 BGP Attributes and Policy</h2>
+<h2>BGP Attributes and Policy</h2>
 
 <p>
 Common BGP attributes include Local Preference, AS Path, MED, Origin, Next Hop, and communities. Route selection depends on the implementation, configuration, and address family, but the fundamental idea remains the same: <strong>BGP chooses paths according to attributes and policy rather than simply choosing the physically shortest path.</strong>
@@ -1392,7 +1392,7 @@ Common BGP attributes include Local Preference, AS Path, MED, Origin, Next Hop, 
                       FIB
 </pre>
 
-<figcaption>Figure 2.22 — BGP as a policy-driven routing system</figcaption>
+<figcaption>Figure 2.22 BGP as a policy-driven routing system</figcaption>
 
 </div>
 
@@ -1429,7 +1429,7 @@ Actual forwarding
 </div>
 
 
-<h2>2.25 Route Filtering</h2>
+<h2>Route Filtering</h2>
 
 <p>
 In production networks, establishing routing adjacencies is only part of the problem. Engineers must also control which prefixes are accepted and advertised.
@@ -1463,7 +1463,7 @@ When a BGP prefix appears to be "missing," inspect both directions of policy: <s
 </div>
 
 
-<h2>2.26 VLANs and Subinterfaces</h2>
+<h2>VLANs and Subinterfaces</h2>
 
 <p>
 A router can perform inter-VLAN routing using separate physical interfaces or by using a single physical interface divided into 802.1Q subinterfaces.
@@ -1484,7 +1484,7 @@ Gi0/0.20 -> VLAN 20
 Gi0/0.30 -> VLAN 30
 </pre>
 
-<figcaption>Figure 2.23 — Router-on-a-stick architecture</figcaption>
+<figcaption>Figure 2.23 Router-on-a-stick architecture</figcaption>
 
 </div>
 
@@ -1509,7 +1509,7 @@ When router-on-a-stick connectivity fails, inspect both sides. The router may be
 </div>
 
 
-<h2>2.27 VRF — Virtual Routing and Forwarding</h2>
+<h2>VRF: Virtual Routing and Forwarding</h2>
 
 <p>
 VRF allows multiple independent routing tables to coexist on the same device. This is fundamental to service provider networks because different customers can use overlapping address spaces without their routes interfering with one another.
@@ -1532,7 +1532,7 @@ Different routing tables.
 No routing conflict.
 </pre>
 
-<figcaption>Figure 2.24 — Independent VRF routing tables</figcaption>
+<figcaption>Figure 2.24 Independent VRF routing tables</figcaption>
 
 </div>
 
@@ -1565,7 +1565,7 @@ VRF troubleshooting requires identifying <strong>which routing table the traffic
 </div>
 
 
-<h2>2.28 MPLS</h2>
+<h2>MPLS</h2>
 
 <p>
 Multiprotocol Label Switching introduces labels into the forwarding process. MPLS is widely used in service provider networks to build scalable transport and service architectures.
@@ -1584,7 +1584,7 @@ PE = Provider Edge
 P  = Provider / Core Router
 </pre>
 
-<figcaption>Figure 2.25 — Simplified MPLS provider architecture</figcaption>
+<figcaption>Figure 2.25 Simplified MPLS provider architecture</figcaption>
 
 </div>
 
@@ -1608,7 +1608,7 @@ When troubleshooting MPLS, do not look only at labels. Validate the entire chain
 </div>
 
 
-<h2>2.29 MPLS L3VPN and VRF</h2>
+<h2>MPLS L3VPN and VRF</h2>
 
 <p>
 MPLS Layer 3 VPNs use VRFs on provider edge routers to keep customer routing domains separate while allowing traffic to traverse a shared provider backbone.
@@ -1631,7 +1631,7 @@ Customer A and Customer B may use the same
 private IPv4 prefixes without mixing routes.
 </pre>
 
-<figcaption>Figure 2.26 — Simplified MPLS L3VPN architecture</figcaption>
+<figcaption>Figure 2.26 Simplified MPLS L3VPN architecture</figcaption>
 
 </div>
 
@@ -1640,7 +1640,7 @@ This architecture is one of the most important examples of how routing, forwardi
 </p>
 
 
-<h2>2.30 ACL — Traffic Filtering</h2>
+<h2> ACL for Traffic Filtering</h2>
 
 <p>
 Access Control Lists filter traffic according to characteristics such as source address, destination address, protocol, and port.
@@ -1674,7 +1674,7 @@ Always reason about <strong>direction</strong>. An inbound ACL on an interface e
 </div>
 
 
-<h2>2.31 NAT</h2>
+<h2>NAT</h2>
 
 <p>
 Network Address Translation changes IP addressing between network domains. It is common in enterprise edge networks, Internet connectivity, and specific service architectures.
@@ -1693,7 +1693,7 @@ After translation:
 Source = 200.1.1.10
 </pre>
 
-<figcaption>Figure 2.27 — Basic NAT concept</figcaption>
+<figcaption>Figure 2.27 Basic NAT concept</figcaption>
 
 </div>
 
@@ -1724,7 +1724,7 @@ When NAT fails, verify the inside/outside classification, matching ACL, translat
 </div>
 
 
-<h2>2.32 Quality of Service</h2>
+<h2>QoS: Quality of Service</h2>
 
 <p>
 Bandwidth alone does not guarantee that all traffic will receive acceptable service. QoS mechanisms classify traffic, mark packets, place them into queues, schedule transmission, and may shape or police traffic.
@@ -1751,7 +1751,7 @@ Shaping / Policing
 Transmission
 </pre>
 
-<figcaption>Figure 2.28 — Simplified QoS processing pipeline</figcaption>
+<figcaption>Figure 2.28 Simplified QoS processing pipeline</figcaption>
 
 </div>
 
@@ -1765,7 +1765,7 @@ A link can be technically "up" and still be responsible for service degradation 
 </div>
 
 
-<h2>2.33 MTU and Fragmentation</h2>
+<h2>MTU and Fragmentation</h2>
 
 <p>
 Maximum Transmission Unit is one of the most common sources of difficult-to-diagnose connectivity problems.
@@ -1793,7 +1793,7 @@ A path may successfully transport small packets while larger packets fail. This 
 Additional encapsulation consumes bytes.
 </pre>
 
-<figcaption>Figure 2.29 — Encapsulation and MTU considerations</figcaption>
+<figcaption>Figure 2.29 Encapsulation and MTU considerations</figcaption>
 
 </div>
 
@@ -1818,7 +1818,7 @@ This should immediately make the engineer consider MTU, fragmentation, PMTUD, AC
 </div>
 
 
-<h2>2.34 ECMP</h2>
+<h2>ECMP</h2>
 
 <p>
 Equal-Cost Multi-Path allows multiple paths with equivalent routing cost to be used simultaneously. It is common in carrier backbones and data center fabrics.
@@ -1842,7 +1842,7 @@ R1 has multiple equal-cost paths
 toward R4.
 </pre>
 
-<figcaption>Figure 2.30 — Equal-Cost Multi-Path</figcaption>
+<figcaption>Figure 2.30 Equal-Cost Multi-Path</figcaption>
 
 </div>
 
@@ -1856,7 +1856,7 @@ A single flow can remain pinned to one ECMP path. This explains why one applicat
 </div>
 
 
-<h2>2.35 High Availability</h2>
+<h2>High Availability</h2>
 
 <p>
 Production networks require redundancy at multiple levels: links, interfaces, routing protocols, power supplies, supervisors, chassis, and complete network devices.
@@ -1880,7 +1880,7 @@ First-hop redundancy protocols such as HSRP and VRRP can provide a virtual defau
             Active                Standby
 </pre>
 
-<figcaption>Figure 2.31 — Redundant default gateway</figcaption>
+<figcaption>Figure 2.31 Redundant default gateway</figcaption>
 
 </div>
 
@@ -1903,7 +1903,7 @@ Availability is an architectural property, not a single protocol. A network is o
 </div>
 
 
-<h2>2.36 Logging and NTP</h2>
+<h2>Logging and NTP</h2>
 
 <p>
 Logging and time synchronization are essential for effective troubleshooting. A network engineer often needs to correlate events occurring on multiple routers, switches, firewalls, servers, and mobile-network elements.
@@ -1935,7 +1935,7 @@ Reliable timestamps allow events
 to be correlated across systems.
 </pre>
 
-<figcaption>Figure 2.32 — Centralized logging and event correlation</figcaption>
+<figcaption>Figure 2.32 Centralized logging and event correlation</figcaption>
 
 </div>
 
@@ -1945,7 +1945,7 @@ Without reliable time synchronization, engineers may see the same incident as ap
 </div>
 
 
-<h2>2.37 SNMP and Modern Telemetry</h2>
+<h2>SNMP and Modern Telemetry</h2>
 
 <p>
 SNMP has traditionally been used for monitoring counters, status information, and operational metrics. Modern network architectures increasingly complement or replace polling with streaming telemetry, APIs, and event-driven observability.
@@ -1965,7 +1965,7 @@ The objective of observability is not simply to ask whether a device is currentl
 </p>
 
 
-<h2>2.38 A Structured Troubleshooting Methodology</h2>
+<h2>A Structured Troubleshooting Methodology</h2>
 
 <p>
 One of the most common troubleshooting mistakes is beginning with the most sophisticated protocol in the architecture.
@@ -2017,7 +2017,7 @@ For example, if a mobile service is experiencing packet loss, an engineer might 
    DNS / HTTP / SIP / APIs
 </pre>
 
-<figcaption>Figure 2.33 — Layered troubleshooting methodology</figcaption>
+<figcaption>Figure 2.33 Layered troubleshooting methodology</figcaption>
 
 </div>
 
@@ -2032,7 +2032,7 @@ Do not abandon lower-layer evidence simply because the problem appears to involv
 </div>
 
 
-<h2>2.39 The First Diagnostic Command: show ip interface brief</h2>
+<h2>The First Diagnostic Command: show ip interface brief</h2>
 
 <p>
 When a device suddenly loses connectivity, <code>show ip interface brief</code> is often one of the most useful first commands.
@@ -2061,7 +2061,7 @@ Gi0/1 -> operational
 Gi0/2 -> administratively disabled
 </pre>
 
-<figcaption>Figure 2.34 — Interpreting show ip interface brief</figcaption>
+<figcaption>Figure 2.34 Interpreting show ip interface brief</figcaption>
 
 </div>
 
@@ -2071,7 +2071,7 @@ A single command can immediately eliminate entire categories of possible failure
 </div>
 
 
-<h2>2.40 show interfaces</h2>
+<h2>show interfaces</h2>
 
 <p>
 Once an interface has been identified as relevant, <code>show interfaces</code> provides much deeper operational information.
@@ -2120,8 +2120,147 @@ This is very different from a counter that continuously increases during the inc
 Good troubleshooting is not only about reading values. It is about reading <strong>changes over time</strong>. A static counter tells you history; a changing counter gives you evidence about the current failure.
 </div>
 
+   <h2>2.40 show interfaces</h2>
+ 
+   <h4>Command</h4>
+ 
+   <pre><code>show interfaces GigabitEthernet0/0</code></pre>
+ 
+   <ul>
+     <li>Line protocol.</li>
+     <li>MTU.</li>
+     <li>Input/output rate.</li>
+     <li>Errors.</li>
+     <li>CRC.</li>
+     <li>Drops.</li>
+     <li>Duplex and speed.</li>
+     <li>Encapsulation.</li>
+     <li>Last input/output.</li>
+     <li>Counters.</li>
+   </ul>
+ 
+   <p>
+     Interface counters are cumulative and can hide the difference between a
+     historical problem and a current problem. Whenever possible, observe how
+     counters change over time.
+   </p>
+ 
+   <div class="note">
+     <strong>Counter Analysis:</strong>
+     A high error counter does not automatically prove that the current
+     incident is caused by that error. Compare counters over time whenever
+     possible.
+   </div>
+ 
+   <pre><code>Initial CRC errors:  120
+ After 5 minutes:     120
+ After 30 minutes:     120
+ 
+ No new CRC errors are occurring.</code></pre>
+ 
+   <p>
+     This is very different from a counter that continuously increases during
+     the incident.
+   </p>
+ 
+   <div class="insight">
+     <strong>Senior Engineer Insight:</strong>
+     Good troubleshooting is not only about reading values. It is about reading
+     <strong>changes over time</strong>. A static counter tells you history;
+     a changing counter gives you evidence about the current failure.
+   </div>
+ 
+ 
+   <h4>Commands</h4>
+ 
+   <pre><code>show ip route
+ show ip route 10.20.20.0
+ show ip route 0.0.0.0
+ show ip route vrf CUSTOMER_A 10.20.20.0</code></pre>
+ 
+   <h3>Figure 2.35 — How to Read a Route</h3>
+ 
+   <pre><code>O 10.20.20.0/24 [110/20] via 10.0.12.2, 00:10:15, Gi0/0
+ 
+ O          = OSPF
+ 10.20.20.0/24 = prefix
+ 110        = Administrative Distance
+ 20         = metric
+ 10.0.12.2  = next-hop
+ Gi0/0      = outgoing interface</code></pre>
+ 
+ 
+   <h2>Ping Does Not Prove That the Service Works</h2>
+ 
+   <p>
+     Ping tests ICMP. It is excellent for validating part of a network path,
+     but it does not prove that an application, TCP session, UDP service, or
+     signaling protocol is working.
+   </p>
+ 
+   <h3>Figure 2.36 ICMP Works, Application Fails</h3>
+ 
+   <pre><code>                 R1                  Firewall                 R2
+                   |                     |                    |
+ ping ICMP --------+--------------------&gt;+-------------------&gt;+  OK
+                   |                     |                    |
+ UDP/Service ------+--------------------&gt;X                    |  BLOCKED
+ 
+ Conclusion:
+ ICMP OK != service OK</code></pre>
+ 
+   <p>
+     This principle is particularly important in mobile networks. An ICMP test
+     between two addresses does not prove that GTP-U, GTP-C, SCTP, or a user
+     session is working.
+   </p>
+ 
 
-<h2>2.41 From Cisco Troubleshooting to Mobile Network Troubleshooting</h2>
+   <h2>Traceroute</h2>
+ 
+   <h4>Commands</h4>
+ 
+   <pre><code>traceroute 10.20.20.25
+ traceroute vrf CUSTOMER_A 10.20.20.25</code></pre>
+ 
+   <p>
+     Traceroute helps identify how far traffic progresses along a path.
+     However, firewalls, MPLS behavior, ICMP filtering, and security policies
+     may make the response incomplete.
+   </p>
+ 
+ 
+   <h2>OSPF Troubleshooting</h2>
+ 
+   <h3>Figure 2.37 OSPF Checklist</h3>
+ 
+   <pre><code>OSPF neighbor down?
+       |
+       +-- Interface up/up?
+       |
+       +-- IP/mask correct?
+       |
+       +-- Correct area?
+       |
+       +-- Hello/Dead timers identical?
+       |
+       +-- Authentication?
+       |
+       +-- MTU?
+       |
+       +-- Network type?
+       |
+       +-- ACL blocking OSPF protocol?</code></pre>
+ 
+   <h4>Commands</h4>
+ 
+<pre><code>
+ show ip ospf neighbor
+ show ip ospf interface
+ show ip ospf interface brief
+ show ip route ospf</code></pre>
+
+<h2>From Cisco Troubleshooting to Mobile Network Troubleshooting</h2>
 
 <p>
 The concepts presented in this chapter become particularly important when routers are part of a mobile network transport architecture.
@@ -2161,7 +2300,7 @@ Mobile Core
  +---- User Plane
 </pre>
 
-<figcaption>Figure 2.35 — Simplified router involvement in a mobile network</figcaption>
+<figcaption>Figure 2.35 Simplified router involvement in a mobile network</figcaption>
 
 </div>
 
@@ -2190,7 +2329,7 @@ A GTP session cannot work reliably if the underlying IP/MPLS transport cannot re
 </div>
 
 
-<h2>2.42 The Engineer's Mental Model</h2>
+<h2>The Engineer's Mental Model</h2>
 
 <p>
 The commands in this chapter are valuable because each one answers a specific engineering question.
@@ -2260,153 +2399,12 @@ The value of a Cisco command is not the command itself. Its value comes from the
 A senior network engineer does not troubleshoot commands. The engineer troubleshoots systems, using commands as instruments for collecting evidence.
 </blockquote>
 
-<section class="chapter-section">
 
-   <h2>2.40 show interfaces</h2>
- 
-   <h4>Command</h4>
- 
-   <pre><code>show interfaces GigabitEthernet0/0</code></pre>
- 
-   <ul>
-     <li>Line protocol.</li>
-     <li>MTU.</li>
-     <li>Input/output rate.</li>
-     <li>Errors.</li>
-     <li>CRC.</li>
-     <li>Drops.</li>
-     <li>Duplex and speed.</li>
-     <li>Encapsulation.</li>
-     <li>Last input/output.</li>
-     <li>Counters.</li>
-   </ul>
- 
-   <p>
-     Interface counters are cumulative and can hide the difference between a
-     historical problem and a current problem. Whenever possible, observe how
-     counters change over time.
-   </p>
- 
-   <div class="note">
-     <strong>Counter Analysis:</strong>
-     A high error counter does not automatically prove that the current
-     incident is caused by that error. Compare counters over time whenever
-     possible.
-   </div>
- 
-   <pre><code>Initial CRC errors:  120
- After 5 minutes:     120
- After 30 minutes:     120
- 
- No new CRC errors are occurring.</code></pre>
- 
-   <p>
-     This is very different from a counter that continuously increases during
-     the incident.
-   </p>
- 
-   <div class="insight">
-     <strong>Senior Engineer Insight:</strong>
-     Good troubleshooting is not only about reading values. It is about reading
-     <strong>changes over time</strong>. A static counter tells you history;
-     a changing counter gives you evidence about the current failure.
-   </div>
  
  
-   <h2>2.41 show ip route</h2>
+   <h2>BGP Troubleshooting</h2>
  
-   <h4>Commands</h4>
- 
-   <pre><code>show ip route
- show ip route 10.20.20.0
- show ip route 0.0.0.0
- show ip route vrf CUSTOMER_A 10.20.20.0</code></pre>
- 
-   <h3>Figure 2.35 — How to Read a Route</h3>
- 
-   <pre><code>O 10.20.20.0/24 [110/20] via 10.0.12.2, 00:10:15, Gi0/0
- 
- O          = OSPF
- 10.20.20.0/24 = prefix
- 110        = Administrative Distance
- 20         = metric
- 10.0.12.2  = next-hop
- Gi0/0      = outgoing interface</code></pre>
- 
- 
-   <h2>2.42 Ping Does Not Prove That the Service Works</h2>
- 
-   <p>
-     Ping tests ICMP. It is excellent for validating part of a network path,
-     but it does not prove that an application, TCP session, UDP service, or
-     signaling protocol is working.
-   </p>
- 
-   <h3>Figure 2.36 — ICMP Works, Application Fails</h3>
- 
-   <pre><code>                 R1                  Firewall                 R2
-                   |                     |                    |
- ping ICMP --------+--------------------&gt;+-------------------&gt;+  OK
-                   |                     |                    |
- UDP/Service ------+--------------------&gt;X                    |  BLOCKED
- 
- Conclusion:
- ICMP OK != service OK</code></pre>
- 
-   <p>
-     This principle is particularly important in mobile networks. An ICMP test
-     between two addresses does not prove that GTP-U, GTP-C, SCTP, or a user
-     session is working.
-   </p>
- 
- 
-   <h2>2.43 Traceroute</h2>
- 
-   <h4>Commands</h4>
- 
-   <pre><code>traceroute 10.20.20.25
- traceroute vrf CUSTOMER_A 10.20.20.25</code></pre>
- 
-   <p>
-     Traceroute helps identify how far traffic progresses along a path.
-     However, firewalls, MPLS behavior, ICMP filtering, and security policies
-     may make the response incomplete.
-   </p>
- 
- 
-   <h2>2.44 OSPF Troubleshooting</h2>
- 
-   <h3>Figure 2.37 — OSPF Checklist</h3>
- 
-   <pre><code>OSPF neighbor down?
-       |
-       +-- Interface up/up?
-       |
-       +-- IP/mask correct?
-       |
-       +-- Correct area?
-       |
-       +-- Hello/Dead timers identical?
-       |
-       +-- Authentication?
-       |
-       +-- MTU?
-       |
-       +-- Network type?
-       |
-       +-- ACL blocking OSPF protocol?</code></pre>
- 
-   <h4>Commands</h4>
- 
-   <pre><code>show ip ospf neighbor
- show ip ospf interface
- show ip ospf interface brief
- show ip route ospf</code></pre>
- 
- 
-   <h2>2.45 BGP Troubleshooting</h2>
- 
-   <h3>Figure 2.38 — BGP Checklist</h3>
+   <h3>Figure 2.38 BGP Checklist</h3>
  
    <pre><code>BGP Established?
        |
@@ -2437,7 +2435,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
  show ip route 10.20.20.0</code></pre>
  
  
-   <h2>2.46 IS-IS Troubleshooting</h2>
+   <h2>IS-IS Troubleshooting</h2>
  
    <h4>Commands</h4>
  
@@ -2453,9 +2451,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.47 ACL Troubleshooting</h2>
+   <h2>ACL Troubleshooting</h2>
  
-   <h3>Figure 2.39 — ACL as a Blocking Point</h3>
+   <h3>Figure 2.39 ACL as a Blocking Point</h3>
  
    <pre><code>Client
    |
@@ -2478,7 +2476,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.48 Troubleshooting in 4G</h2>
+   <h2>Troubleshooting in 4G</h2>
  
    <p>
      In 4G networks, IP routers may participate in transport between the
@@ -2486,7 +2484,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
      and protocols such as S1AP over SCTP, GTP-C, and GTP-U may be involved.
    </p>
  
-   <h3>Figure 2.40 — Simplified 4G Path</h3>
+   <h3>Figure 2.40 Simplified 4G Path</h3>
  
    <pre><code>UE
   |
@@ -2515,9 +2513,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.49 GTP-U and Routers</h2>
+   <h2>GTP-U and Routers</h2>
  
-   <h3>Figure 2.41 — GTP-U Encapsulation</h3>
+   <h3>Figure 2.41 GTP-U Encapsulation</h3>
  
    <pre><code>+--------------------------------------------------+
  | Outer IP header                                  |
@@ -2549,14 +2547,14 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
  ping &lt;transport-ip&gt;</code></pre>
  
  
-   <h2>2.50 SCTP and S1AP</h2>
+   <h2>SCTP and S1AP</h2>
  
    <p>
      The LTE control plane uses SCTP on several interfaces, including S1-MME/S1-C.
      This creates an important difference from an ICMP test.
    </p>
  
-   <h3>Figure 2.42 — LTE Control Plane</h3>
+   <h3>Figure 2.42 LTE Control Plane</h3>
  
    <pre><code>eNodeB                         MME
    |                             |
@@ -2584,7 +2582,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
      5G user experience.
    </p>
  
-   <h3>Figure 2.43 — Simplified NSA Architecture</h3>
+   <h3>Figure 2.43 Simplified NSA Architecture</h3>
  
    <pre><code>             4G EPC
            +----------+
@@ -2613,7 +2611,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.52 5G SA — Architectural Change</h2>
+   <h2>5G SA Architectural Change</h2>
  
    <p>
      In 5G SA, the 5G Core introduces functions such as AMF, SMF, and UPF.
@@ -2621,7 +2619,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
      radio access network.
    </p>
  
-   <h3>Figure 2.44 — Simplified 5G SA</h3>
+   <h3>Figure 2.44 Simplified 5G SA</h3>
  
    <pre><code>                 5G Core
          +-----------------------+
@@ -2647,9 +2645,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.53 A Troubleshooting Methodology for Interviews</h2>
+   <h2>A Troubleshooting Methodology for Interviews</h2>
  
-   <h3>Figure 2.45 — Diagnostic Flow</h3>
+   <h3>Figure 2.45 Diagnostic Flow</h3>
  
    <pre><code>INCIDENT
     |
@@ -2687,7 +2685,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.54 Practical Case — Route Disappeared</h2>
+   <h2>Practical Case — Route Disappeared</h2>
  
    <p>
      Imagine that the network <code>10.20.20.0/24</code> was reachable and
@@ -2721,9 +2719,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
  show ip cef 10.20.20.0 detail</code></pre>
  
  
-   <h2>2.55 Practical Case — BGP Established, but Prefix Missing</h2>
+   <h2>Practical Case — BGP Established, but Prefix Missing</h2>
  
-   <h3>Figure 2.46 — BGP Established Does Not Mean Usable Route</h3>
+   <h3>Figure 2.46 BGP Established Does Not Mean Usable Route</h3>
  
    <pre><code>BGP TCP session
         |
@@ -2744,9 +2742,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.56 Practical Case — Ping Works, GTP-U Fails</h2>
+   <h2>Practical Case — Ping Works, GTP-U Fails</h2>
  
-   <h3>Figure 2.47 — User Plane Diagnosis</h3>
+   <h3>Figure 2.47 User Plane Diagnosis</h3>
  
    <pre><code>Ping ICMP
    |
@@ -2772,11 +2770,12 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.57 Cisco Commands Worth Mastering</h2>
+   <h2>Cisco Commands Worth Mastering</h2>
  
    <h4>Essential Toolkit</h4>
  
-   <pre><code>show version
+   <pre><code>
+ show version
  show inventory
  show ip interface brief
  show interfaces
@@ -2805,9 +2804,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.58 Question → Command</h2>
+   <h2>Question → Command</h2>
  
-   <h3>Figure 2.48 — Command Mental Map</h3>
+   <h3>Figure 2.48 Command Mental Map</h3>
  
    <pre><code>Question                              Command
  
@@ -2826,7 +2825,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
  Is memory high?                       show processes memory</code></pre>
  
  
-   <h2>2.59 Configuration Versus Operation</h2>
+   <h2>Configuration Versus Operation</h2>
  
    <p>
      A correct configuration in the running configuration does not prove that
@@ -2834,7 +2833,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
      that the complete path is working.
    </p>
  
-   <h3>Figure 2.49 — Configuration Versus Real State</h3>
+   <h3>Figure 2.49 Configuration Versus Real State</h3>
  
    <pre><code>RUNNING-CONFIG
        |
@@ -2862,7 +2861,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.60 Configuration Best Practices</h2>
+   <h2>Configuration Best Practices</h2>
  
    <ul>
      <li>Use descriptions on interfaces.</li>
@@ -2881,7 +2880,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
   description TO_PE1_CORE_PRIMARY</code></pre>
  
  
-   <h2>2.61 Loopback Interfaces</h2>
+   <h2>Loopback Interfaces</h2>
  
    <p>
      Loopbacks provide stable addresses and are commonly used as router IDs,
@@ -2914,7 +2913,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.62 BGP and Loopbacks</h2>
+   <h2>BGP and Loopbacks</h2>
  
    <p>
      In provider networks, BGP sessions can be established using loopbacks and
@@ -2935,9 +2934,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.63 Path Redundancy</h2>
+   <h2>Path Redundancy</h2>
  
-   <h3>Figure 2.51 — Resilient Backbone</h3>
+   <h3>Figure 2.51 Resilient Backbone</h3>
  
    <pre><code>             +------ R2 ------+
               |                |
@@ -2960,7 +2959,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.64 What Changes in High-Scale Equipment</h2>
+   <h2>What Changes in High-Scale Equipment</h2>
  
    <p>
      In a small router, a routing table containing a few hundred or thousand
@@ -2969,7 +2968,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
      and much higher availability requirements.
    </p>
  
-   <h3>Figure 2.52 — Scale</h3>
+   <h3>Figure 2.52 Scale</h3>
  
    <pre><code>Branch Router
     |
@@ -2988,7 +2987,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
     +-- enormous traffic volume</code></pre>
  
  
-   <h2>2.65 Router Versus Switch</h2>
+   <h2>Router Versus Switch</h2>
  
    <p>
      The classical distinction is that Ethernet switches primarily forward
@@ -2997,7 +2996,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
      roles.
    </p>
  
-   <h3>Figure 2.53 — Layer 2 and Layer 3</h3>
+   <h3>Figure 2.53 Layer 2 and Layer 3</h3>
  
    <pre><code>HOST A
    |
@@ -3019,9 +3018,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.66 Equipment in a Mobile Network</h2>
+   <h2>Equipment in a Mobile Network</h2>
  
-   <h3>Figure 2.54 — Mobile Transport View</h3>
+   <h3>Figure 2.54 Mobile Transport View</h3>
  
    <pre><code>      RAN                    Transport                 Core
  +-------------+        +----------------+        +-------------+
@@ -3038,9 +3037,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.67 Separating Control Plane and User Plane in Mobile Troubleshooting</h2>
+   <h2>Separating Control Plane and User Plane in Mobile Troubleshooting</h2>
  
-   <h3>Figure 2.55 — Two Different Problems</h3>
+   <h3>Figure 2.55 Two Different Problems</h3>
  
    <pre><code>CONTROL PLANE
  eNodeB/gNB ---- SCTP ---- MME/AMF
@@ -3064,7 +3063,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.68 Physical Interface: Optics and Errors</h2>
+   <h2>Physical Interface: Optics and Errors</h2>
  
    <p>
      In high-speed environments, physical problems may appear as intermittent
@@ -3086,9 +3085,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.69 Interface Flapping</h2>
+   <h2>Interface Flapping</h2>
  
-   <h3>Figure 2.56 — Interface Flapping</h3>
+   <h3>Figure 2.56 Interface Flapping</h3>
  
    <pre><code>UP ---- UP ---- DOWN ---- UP ---- DOWN
            |                 |
@@ -3109,7 +3108,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.70 CPU and Memory</h2>
+   <h2>CPU and Memory</h2>
  
    <p>
      High CPU can cause control-plane symptoms, but it does not automatically
@@ -3123,7 +3122,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
  show processes memory
  show platform resources</code></pre>
  
-   <h3>Figure 2.57 — Resource Separation</h3>
+   <h3>Figure 2.57 Resource Separation</h3>
  
    <pre><code>CONTROL PLANE
  CPU / processes
@@ -3140,7 +3139,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
         +---- forwarding</code></pre>
  
  
-   <h2>2.71 The Next-Hop Concept</h2>
+   <h2>The Next-Hop Concept</h2>
  
    <p>
      A route identifies a destination and a next hop. The router must resolve
@@ -3148,7 +3147,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
      situations where an outgoing interface is sufficient.
    </p>
  
-   <h3>Figure 2.58 — Next-Hop</h3>
+   <h3>Figure 2.58 Next-Hop</h3>
  
    <pre><code>Destination: 10.20.20.0/24
          |
@@ -3165,14 +3164,14 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
  Ethernet frame</code></pre>
  
  
-   <h2>2.72 Recursive Lookup</h2>
+   <h2>Recursive Lookup</h2>
  
    <p>
      A route can point to a next hop that itself must be resolved through
      another route. This is known as recursive resolution.
    </p>
  
-   <h3>Figure 2.59 — Recursive Lookup</h3>
+   <h3>Figure 2.59 Recursive Lookup</h3>
  
    <pre><code>10.20.20.0/24
        |
@@ -3190,7 +3189,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.73 CEF</h2>
+   <h2>CEF: Cisco Express Forwarding</h2>
  
    <p>
      Cisco Express Forwarding is a central forwarding technology on many Cisco
@@ -3204,7 +3203,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
  show ip cef 10.20.20.25 detail
  show adjacency</code></pre>
  
-   <h3>Figure 2.60 — CEF</h3>
+   <h3>Figure 2.60 CEF</h3>
  
    <pre><code>Routing protocols
         |
@@ -3217,14 +3216,14 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
  Adjacency --------+--> CEF Forwarding --> Interface</code></pre>
  
  
-   <h2>2.74 Flow-Based Troubleshooting</h2>
+   <h2>Flow-Based Troubleshooting</h2>
  
    <p>
      When an incident involves a specific application, it is useful to follow
      an actual packet flow rather than looking only at configuration.
    </p>
  
-   <h3>Figure 2.61 — End-to-End Flow</h3>
+   <h3>Figure 2.61 End-to-End Flow</h3>
  
    <pre><code>SOURCE
    |
@@ -3256,7 +3255,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.75 Packet Capture</h2>
+   <h2>Packet Capture</h2>
  
    <p>
      When state and configuration commands are not sufficient, a packet capture
@@ -3279,7 +3278,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.76 What a Capture Can Prove</h2>
+   <h2>What a Capture Can Prove</h2>
  
    <ul>
      <li>The packet reached the router.</li>
@@ -3290,7 +3289,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
      <li>The packet size may indicate an MTU problem.</li>
    </ul>
  
-   <h3>Figure 2.62 — Ingress and Egress Evidence</h3>
+   <h3>Figure 2.62 Ingress and Egress Evidence</h3>
  
    <pre><code>Interface IN                 ROUTER                 Interface OUT
      |                            |                         |
@@ -3300,9 +3299,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
                            Compare both sides</code></pre>
  
  
-   <h2>2.77 Mental Runbook for Interviews</h2>
+   <h2>Mental Runbook for Troubleshooting</h2>
  
-   <h3>Figure 2.63 — Structured Answer</h3>
+   <h3>Figure 2.63 Structured Answer</h3>
  
    <pre><code>1. DEFINE
     What exactly is failing?
@@ -3329,7 +3328,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
     Record the cause and evidence.</code></pre>
  
  
-   <h2>2.78 Interview Questions</h2>
+   <h2>Interview Questions</h2>
  
    <h3>What is the difference between RIB and FIB?</h3>
  
@@ -3378,9 +3377,9 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.79 Operational Summary</h2>
+   <h2>Operational Summary</h2>
  
-   <h3>Figure 2.64 — The Router in One Sentence</h3>
+   <h3>Figure 2.64 The Router in One Sentence</h3>
  
    <pre><code>RECEIVES
    |
@@ -3403,7 +3402,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </p>
  
  
-   <h2>2.80 Final Chapter Checklist</h2>
+   <h2>Final Chapter Checklist</h2>
  
    <ul class="checklist">
      <li>I can explain the difference between the control plane and forwarding plane.</li>
@@ -3421,7 +3420,7 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
    </ul>
  
  
-   <h2>2.81 Closing</h2>
+   <h2>Closing</h2>
  
    <p>
      Routers are the infrastructure that transforms a collection of isolated
@@ -3513,8 +3512,6 @@ A senior network engineer does not troubleshoot commands. The engineer troublesh
  show clock
  show ntp associations</code></pre>
  
- </section>
-
 </article>
 
 </body>
