@@ -197,39 +197,6 @@ The important change for telecom was not simply the ability to start containers.
 <p style="text-align:center; color:#94a3b8; font-size:15px; margin-top:5px;">
     Figure 10.1 Traditional infrastructure compared with a cloud-native infrastructure stack
 </p>
-    
-<div class="diagram">
-Traditional Infrastructure
-
-Application
-|
-Virtual Machine
-|
-Hypervisor
-|
-Server
-|
-Network
-
-Cloud-Native Infrastructure
-
-Application
-|
-Container
-|
-Pod
-|
-Kubernetes
-|
-Container Runtime
-|
-Linux / Network
-|
-Server
-|
-Physical Network
-
-</div>
 
 <p>
 This evolution created an important possibility for telecom vendors: network functions could increasingly be developed as software components while Kubernetes provided a common orchestration layer underneath them.
@@ -254,36 +221,6 @@ The adoption of Kubernetes in telecom was gradual. It did not begin with operato
 <p style="text-align:center; color:#94a3b8; font-size:15px; margin-top:5px;">
     Figure 10.2 The adoption of Kubernetes in telecom was gradual
 </p>
-
-<div class="flow">
-2014–2016
-Container orchestration emerges
-        |
-        v
-2017
-Early telecom experimentation
-        |
-        v
-2018
-First significant production telecom workloads
-        |
-        v
-2019
-CNF experimentation and telecom testbeds
-        |
-        v
-2020
-CNF standards, conformance and industry coordination
-        |
-        v
-2021–2022
-Large-scale CNF migration programs
-        |
-        v
-2023+
-Cloud-native 4G/5G platforms become part of
-mainstream telecom architecture
-</div>
 
 <p>
 A concrete example is Nokia, which reported its first Kubernetes-based product going live in early 2018.
@@ -328,20 +265,6 @@ Instead of manually placing every application on every server, an engineer descr
 <p style="text-align:center; color:#94a3b8; font-size:15px; margin-top:5px;">
     Figure 10.3 Instances of application in Kubernetes
 </p>
-<div class="flow">
-Desired State
-
-"Run three instances of this application."
-|
-v
-Kubernetes
-|
-+------+------+
-|      |      |
-v      v      v
-Pod    Pod    Pod
-
-</div>
 
 <p>
 The platform then attempts to maintain that state.
@@ -369,6 +292,14 @@ The engineer describes what the system should look like. Kubernetes continuously
 A Kubernetes cluster is more than a collection of worker nodes. It is a distributed control system.
 </p>
 
+<img
+    src="imgs/c10/c10img04.jpg"
+    alt="Kubernetes Cluster"
+    style="display:block; width:100%; max-width:1000px; height:auto; margin:35px auto 10px auto; border:1px solid #334155;"
+>
+<p style="text-align:center; color:#94a3b8; font-size:15px; margin-top:5px;">
+    Figure 10.4 a Kubernetes Cluster is a distributed control system
+</p>
 <div class="diagram">
                      Kubernetes Cluster
 
