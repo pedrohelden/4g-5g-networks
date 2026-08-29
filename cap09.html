@@ -1,347 +1,2033 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+
+<html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Capítulo 9 – Arquitetura de Defesa em Redes Móveis</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Chapter 9 — NFVI, Virtualization and Cloud-Native Networking</title>
+
 <style>
-  body {
+body {
     background-color: #1e2a38;
     color: #cbd5e1;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    line-height: 1.7;
-  }
-  h1, h2, h3 {
-    color: #60a5fa;
-    margin-bottom: 0.7em;
-  }
-  p, li {
-    max-width: 900px;
-  }
-  p {
-    margin-bottom: 1.4em;
-    font-size: 1.1em;
-  }
-  ul, ol {
-    max-width: 900px;
-    padding-left: 25px;
-    margin-bottom: 2em;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 900px;
-    margin: 1.5em 0 3em 0;
-    background: #293845;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #3e4f65;
-  }
-  th {
-    background-color: #3b82f6;
-    color: #fff;
-  }
+    margin: 40px auto;
+    max-width: 1100px;
+    padding: 0 30px;
+    line-height: 1.75;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
+}
+
+h1 {
+    color: #f8fafc;
+    font-size: 42px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+h2 {
+    color: #93c5fd;
+    font-size: 28px;
+    margin-top: 55px;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+h3 {
+    color: #bfdbfe;
+    font-size: 21px;
+    margin-top: 35px;
+}
+
+p {
+    margin: 18px 0;
+}
+
+strong {
+    color: #f8fafc;
+}
+
+em {
+    color: #dbeafe;
+}
+
+blockquote {
+    border-left: 4px solid #60a5fa;
+    margin: 30px 0;
+    padding: 15px 25px;
+    background-color: #253548;
+    color: #e2e8f0;
+    font-size: 20px;
+    font-style: italic;
+}
+
+.note {
+    background-color: #253548;
+    border-left: 4px solid #38bdf8;
+    padding: 18px 24px;
+    margin: 30px 0;
+}
+
+.impact {
+    background-color: #26384a;
+    border-left: 5px solid #f59e0b;
+    padding: 20px 25px;
+    margin: 35px 0;
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.diagram {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    overflow-x: auto;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.5;
+}
+
+.flow {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.65;
+}
+
+ul {
+    margin-top: 10px;
+}
+
+li {
+    margin: 8px 0;
+}
+
+.small {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+code {
+    color: #bfdbfe;
+    background-color: #162231;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
 </style>
+
 </head>
 
 <body>
 
-<h1>Capítulo 9 – Arquitetura de Defesa em Redes Móveis</h1>
+<h1>NFVI, Virtualization and Cloud-Native Networking</h1>
 
-<p>Depois de entender como os ataques funcionam e como os protocolos operam, chegamos ao ponto mais crítico para qualquer operadora:</p>
+<p class="small">
+The infrastructure beneath the mobile core.
+</p>
 
-<p><strong>Como projetar uma arquitetura que realmente resista a ataques?</strong></p>
+<blockquote>
+A telecom network may look like software from the outside. Underneath that software, packets still have to move through real CPUs, memory, buses, interfaces, and clocks.
+</blockquote>
 
-<p>Este capítulo mostra como a defesa é construída na prática — não como teoria, mas como arquitetura real de rede.</p>
+<p>
+The previous chapters focused on the behavior of the mobile core.
+</p>
 
----
+<p>
+We followed signaling through the EPC.
+We followed registration and PDU Session Establishment through the 5G Core.
+We analyzed PFCP, GTP-U, QoS, and call flows.
+</p>
 
-<h2>9.1 O problema da confiança</h2>
+<p>
+But there is another layer beneath all of this.
+</p>
 
-<p>Historicamente, redes móveis foram construídas com base em confiança:</p>
+<p>
+The AMF needs CPU.
+The SMF needs memory.
+The UPF needs extremely fast packet processing.
+The databases need storage and network connectivity.
+The signaling interfaces need predictable latency.
+</p>
 
-<ul>
-<li>SS7 confia em qualquer rede conectada</li>
-<li>4G confia em parceiros de roaming</li>
-<li>5G confia em autenticação entre serviços</li>
-</ul>
+<p>
+The network functions may be implemented as software, but software still requires infrastructure.
+</p>
 
-<p>👉 Esse modelo falhou.</p>
+<div class="impact">
+When a telecom network becomes software, the infrastructure becomes part of the network.
+</div>
 
-<p><strong>A arquitetura moderna precisa assumir que qualquer origem pode ser maliciosa.</strong></p>
+<h2>From Hardware Appliances to Software</h2>
 
----
+<p>
+Traditional telecom networks were heavily dependent on dedicated hardware appliances.
+</p>
 
-<h2>9.2 Princípio central: Zero Trust em Telecom</h2>
-
-<p>Zero Trust significa:</p>
-
-<ul>
-<li>Validar toda mensagem</li>
-<li>Verificar identidade e contexto</li>
-<li>Aplicar políticas explícitas</li>
-</ul>
-
-<p>Na prática:</p>
-
-<ul>
-<li>Não confiar em GT (SS7) automaticamente</li>
-<li>Não confiar em peer Diameter</li>
-<li>Não confiar em API interna no 5G</li>
-</ul>
-
----
-
-<h2>9.3 Arquitetura de defesa em camadas</h2>
-
-<p>A segurança eficiente não depende de um único elemento — ela é distribuída.</p>
-
-<table>
-<tr>
-<th>Camada</th>
-<th>Função</th>
-<th>Exemplo de controle</th>
-</tr>
-<tr>
-<td>Interconnect</td>
-<td>Controle de entrada</td>
-<td>SS7/Diameter Firewall</td>
-</tr>
-<tr>
-<td>Core</td>
-<td>Validação lógica</td>
-<td>HLR/HSS/UDM checks</td>
-</tr>
-<tr>
-<td>Aplicação</td>
-<td>Controle de acesso</td>
-<td>OAuth / API Gateway</td>
-</tr>
-<tr>
-<td>Monitoramento</td>
-<td>Detecção</td>
-<td>SOC / Analytics</td>
-</tr>
-</table>
-
-<p>👉 Defesa real = múltiplas camadas funcionando juntas.</p>
-
----
-
-<h2>9.4 SS7 Firewall (2G/3G)</h2>
-
-<p>O SS7 Firewall é a primeira linha de defesa contra ataques clássicos.</p>
-
-<h3>Funções principais:</h3>
+<p>
+A network element could arrive as a physical system containing:
+</p>
 
 <ul>
-<li>Filtragem por tipo de mensagem (MAP/CAP)</li>
-<li>Validação de Global Title (GT)</li>
-<li>Controle por país ou operadora</li>
-<li>Inspeção de parâmetros (IMSI, MSISDN)</li>
+<li>CPU resources</li>
+<li>Memory</li>
+<li>Network interfaces</li>
+<li>Specialized packet-processing hardware</li>
+<li>Operating software</li>
 </ul>
 
-<h3>Exemplos de bloqueio:</h3>
+<p>
+The hardware and software were frequently designed as one product.
+</p>
 
-<table>
-<tr>
-<th>Ataque</th>
-<th>Ação do firewall</th>
-</tr>
-<tr>
-<td>AnyTimeInterrogation</td>
-<td>Bloquear origem externa</td>
-</tr>
-<tr>
-<td>SendIMSI</td>
-<td>Negar resposta</td>
-</tr>
-<tr>
-<td>SendRoutingInfo</td>
-<td>Permitir apenas parceiros autorizados</td>
-</tr>
-</table>
+<p>
+Network Function Virtualization changed that model.
+</p>
 
-<p><strong>Limitação importante:</strong></p>
+<div class="diagram">
+Traditional Model
 
-<p>O SS7 Firewall depende de regras — e regras podem ser burladas.</p>
++-----------------------------+
+| Dedicated Telecom Appliance |
+|                             |
+| CPU                         |
+| Memory                      |
+| NIC                         |
+| Network Function            |
++-----------------------------+
 
----
+Virtualized Model
 
-<h2>9.5 Diameter Firewall (4G)</h2>
++-----------------------------+
+| Commodity Server             |
+|                             |
+| Hypervisor                  |
+|       |                     |
+|       +---- VM              |
+|             |               |
+|             Network Function|
++-----------------------------+
 
-<p>No 4G, o controle ocorre sobre o protocolo Diameter.</p>
+</div>
 
-<h3>Funções:</h3>
+<p>
+The objective was to decouple the network function from the physical appliance.
+</p>
+
+<p>
+That introduced flexibility.
+</p>
+
+<p>
+But it also introduced new engineering problems.
+</p>
+
+<blockquote>
+Virtualization removes hardware dependency. It does not remove hardware behavior.
+</blockquote>
+
+<h2>NFV</h2>
+
+<p>
+<strong>Network Function Virtualization</strong>, or NFV, is the approach of implementing network
+functions as software workloads running on virtualized infrastructure.
+</p>
+
+<p>
+Instead of requiring a dedicated physical appliance for every function, a telecom operator can
+deploy software on standardized compute infrastructure.
+</p>
+
+<div class="diagram">
+Physical Infrastructure
+          |
+          v
+Virtualization Layer
+          |
+          v
+Virtual Machines
+          |
+          v
+Virtual Network Functions
+          |
+          v
+Telecom Services
+</div>
+
+<p>
+A virtual EPC, for example, can be distributed across multiple virtual machines.
+</p>
+
+<div class="diagram">
+                 NFVI
+
+```
+    +---------------------+
+    | Compute             |
+    | Storage             |
+    | Networking          |
+    +----------+----------+
+               |
+          Hypervisor
+               |
+   +-----------+-----------+
+   |           |           |
+  VM          VM          VM
+   |           |           |
+  MME         SGW         PGW
+```
+
+</div>
+
+<p>
+This architecture provides significant operational flexibility.
+</p>
+
+<p>
+Resources can be allocated dynamically.
+Virtual machines can be instantiated from templates.
+Capacity can be increased without deploying an entirely new appliance.
+</p>
+
+<p>
+But telecom workloads have requirements that ordinary enterprise applications often do not.
+</p>
+
+<div class="impact">
+A web server can tolerate occasional latency spikes. A packet-processing workload may not have the same luxury.
+</div>
+
+<h2>NFVI</h2>
+
+<p>
+The infrastructure supporting these virtualized network functions is commonly referred to as
+<strong>NFVI — Network Functions Virtualization Infrastructure</strong>.
+</p>
+
+<p>
+A simplified view is:
+</p>
+
+<div class="diagram">
+                 NFVI
+
++---------------------------------------+
+| Physical Infrastructure               |
+|                                       |
+|  Compute    Memory    NICs    Storage |
++---------------------------------------+
+|
++---------------------------------------+
+| Virtualization / Infrastructure Layer |
++---------------------------------------+
+|
++---------------------------------------+
+| Virtual Machines / Containers         |
++---------------------------------------+
+|
++---------------------------------------+
+| Network Functions                     |
++---------------------------------------+
+
+</div>
+
+<p>
+NFVI therefore includes much more than servers.
+</p>
+
+<p>
+It includes:
+</p>
 
 <ul>
-<li>Validação de peers (realm, host)</li>
-<li>Controle de sessão</li>
-<li>Rate limiting</li>
-<li>Detecção de storm</li>
+<li>Compute resources</li>
+<li>Memory</li>
+<li>Network interfaces</li>
+<li>Virtual switches</li>
+<li>Storage</li>
+<li>Hypervisors</li>
+<li>Accelerators</li>
+<li>High-speed networking</li>
+<li>Time synchronization infrastructure</li>
 </ul>
 
-<h3>Exemplos:</h3>
+<p>
+A performance problem at any of these layers can become a telecom problem.
+</p>
+
+<h2>Virtual Machines</h2>
+
+<p>
+A virtual machine provides an isolated operating-system environment running on a hypervisor.
+</p>
+
+<div class="diagram">
+Physical Server
+       |
+       v
+   Hypervisor
+       |
+ +-----+-----+-----+
+ |     |     |     |
+ VM1   VM2   VM3   VM4
+ |     |     |     |
+ OS    OS    OS    OS
+ |     |     |     |
+ NF    NF    NF    NF
+</div>
+
+<p>
+Each VM has virtual CPU, memory, storage, and network interfaces.
+</p>
+
+<p>
+The hypervisor maps those virtual resources to physical resources.
+</p>
+
+<p>
+This abstraction is powerful.
+</p>
+
+<p>
+It is also where overhead can appear.
+</p>
+
+<p>
+A packet entering a VM does not necessarily travel directly from the physical NIC to the
+application.
+</p>
+
+<div class="diagram">
+Physical NIC
+     |
+     v
+Host
+     |
+     v
+Virtual Switch
+     |
+     v
+Virtual NIC
+     |
+     v
+Guest OS
+     |
+     v
+Application
+</div>
+
+<p>
+Every additional processing layer can introduce CPU consumption and latency.
+</p>
+
+<h2>Containers</h2>
+
+<p>
+Containers use a different model.
+</p>
+
+<p>
+Instead of virtualizing a complete operating system for every workload, containers share the host
+kernel while isolating application processes.
+</p>
+
+<div class="diagram">
+Physical Server
+       |
+       v
+Host Linux Kernel
+       |
+ +-----+-----+-----+
+ |     |     |     |
+ C1    C2    C3    C4
+ |     |     |     |
+ NF    NF    NF    NF
+</div>
+
+<p>
+This makes containers lightweight compared with traditional virtual machines.
+</p>
+
+<p>
+They can start quickly and consume fewer resources for the virtualization boundary itself.
+</p>
+
+<p>
+This model became particularly important with cloud-native telecom architectures.
+</p>
+
+<blockquote>
+Virtual machines changed where network functions could run. Containers changed how quickly and how dynamically they could be deployed.
+</blockquote>
+
+<h2>VMs Versus Containers</h2>
+
+<div class="diagram">
+                 VM                     Container
+
+Isolation        Strong                 Process-level
+Kernel           Separate               Shared
+Startup          Usually slower         Usually faster
+Footprint        Larger                 Smaller
+Density          Lower                  Higher
+Lifecycle        VM-oriented             Application-oriented
+Cloud-native     Possible                Native model
+
+</div>
+
+<p>
+This does not mean containers are automatically faster.
+</p>
+
+<p>
+A container can still consume enormous CPU resources.
+</p>
+
+<p>
+A poorly designed containerized UPF can still experience packet loss.
+</p>
+
+<p>
+The abstraction layer changes, but physics remains.
+</p>
+
+<div class="impact">
+Containers remove some virtualization overhead. They do not eliminate CPU contention, memory latency, packet processing cost, or network bottlenecks.
+</div>
+
+<h2>Virtual Networking</h2>
+
+<p>
+Networking becomes considerably more interesting once the network function is no longer directly
+attached to a physical interface.
+</p>
+
+<div class="diagram">
+Physical NIC
+     |
+     v
+Host Kernel
+     |
+     v
+Virtual Switch
+     |
+     +--------+
+     |        |
+     v        v
+   VM1      VM2
+    |        |
+   vNIC     vNIC
+    |        |
+   NF       NF
+</div>
+
+<p>
+The virtual switch becomes part of the packet path.
+</p>
+
+<p>
+Depending on the platform, packets may traverse kernel networking, virtual switching,
+bridging, overlays, security processing, and other components.
+</p>
+
+<p>
+For ordinary enterprise workloads this may be acceptable.
+</p>
+
+<p>
+For a high-throughput UPF handling massive packet rates, it can become a serious engineering
+consideration.
+</p>
+
+<h2>The Packet Path Matters</h2>
+
+<p>
+Consider two possible paths.
+</p>
+
+<div class="diagram">
+PATH A — Conventional
+
+NIC
+|
+v
+Kernel
+|
+v
+Virtual Switch
+|
+v
+vNIC
+|
+v
+Application
+
+</div>
+
+<div class="diagram">
+PATH B — Accelerated
+
+NIC
+|
+v
+Direct / Accelerated Path
+|
+v
+Application
+
+</div>
+
+<p>
+The second path can reduce the amount of software processing required per packet.
+</p>
+
+<p>
+That can be extremely valuable in telecom workloads.
+</p>
+
+<div class="impact">
+At high packet rates, saving a small amount of CPU work per packet can become a massive system-level gain.
+</div>
+
+<h2>SR-IOV</h2>
+
+<p>
+<strong>Single Root I/O Virtualization</strong>, or SR-IOV, allows a physical PCIe device to expose
+multiple virtual functions.
+</p>
+
+<div class="diagram">
+                 Physical NIC
+                     |
+              Physical Function
+                     |
+        +------------+------------+
+        |            |            |
+       VF0          VF1          VF2
+        |            |            |
+       VM1          VM2          VM3
+</div>
+
+<p>
+Instead of forcing every virtual workload to communicate through a traditional virtual switch
+path, a virtual function can provide a more direct interface to a workload.
+</p>
+
+<p>
+This can reduce overhead and improve packet-processing performance.
+</p>
+
+<p>
+The trade-off is complexity.
+</p>
+
+<p>
+SR-IOV requires coordination between:
+</p>
 
 <ul>
-<li>Bloquear excesso de <code>ULR</code></li>
-<li>Validar <code>CCR</code> para evitar fraude</li>
-<li>Detectar loops de signaling</li>
+<li>BIOS</li>
+<li>CPU / PCIe topology</li>
+<li>NIC</li>
+<li>Host operating system</li>
+<li>Hypervisor</li>
+<li>Virtual machine or container platform</li>
+<li>Network function</li>
 </ul>
 
-<p><strong>Ponto crítico:</strong></p>
+<blockquote>
+Performance acceleration is never just a checkbox. It is a chain of dependencies.
+</blockquote>
 
-<p>Diameter é mais estruturado que SS7, mas ainda depende de confiança entre redes.</p>
+<h2>DPDK</h2>
 
----
+<p>
+<strong>Data Plane Development Kit</strong>, or DPDK, is a collection of libraries and drivers
+designed to accelerate packet processing in user space.
+</p>
 
-<h2>9.6 Proteção no 5G (API Security)</h2>
+<p>
+Traditional Linux networking involves the kernel network stack.
+</p>
 
-<p>No 5G, o foco muda completamente: agora estamos protegendo APIs.</p>
+<div class="diagram">
+NIC
+ |
+ v
+Linux Kernel
+ |
+ v
+Network Stack
+ |
+ v
+Socket
+ |
+ v
+Application
+</div>
 
-<h3>Elementos principais:</h3>
+<p>
+DPDK can provide a different processing model.
+</p>
+
+<div class="diagram">
+NIC
+ |
+ v
+DPDK
+ |
+ v
+User-space Packet Processing
+ |
+ v
+Network Application
+</div>
+
+<p>
+The objective is to process packets with much lower overhead and higher efficiency.
+</p>
+
+<p>
+This can involve techniques such as:
+</p>
 
 <ul>
-<li>API Gateway</li>
-<li>Service Mesh</li>
-<li>Autenticação OAuth2</li>
-<li>mTLS (mutual TLS)</li>
+<li>Polling instead of relying entirely on interrupts</li>
+<li>Large batches of packets</li>
+<li>Efficient memory access</li>
+<li>User-space drivers</li>
+<li>Pre-allocated packet buffers</li>
+<li>Reduced kernel transitions</li>
 </ul>
 
-<h3>Fluxo seguro:</h3>
+<p>
+The trade-off is CPU consumption.
+</p>
 
-<ol>
-<li>Serviço solicita token</li>
-<li>Token é validado</li>
-<li>Comunicação ocorre via mTLS</li>
-<li>Request é auditado</li>
-</ol>
+<p>
+A polling-based packet-processing application may intentionally keep CPU cores busy.
+</p>
 
-<p>👉 Isso aproxima telecom do mundo de cloud e microserviços.</p>
+<div class="impact">
+In high-performance telecom networking, a CPU core showing 100% utilization is not automatically a problem. It may be doing exactly what it was designed to do.
+</div>
 
----
+<h2>Interrupts Versus Polling</h2>
 
-<h2>9.7 Allow-list vs Block-list</h2>
+<p>
+Traditional network applications often depend heavily on interrupts.
+</p>
 
-<p>Existem dois modelos principais de controle:</p>
+<div class="diagram">
+Packet Arrives
+     |
+     v
+NIC Interrupt
+     |
+     v
+CPU Wakes / Handles Event
+     |
+     v
+Process Packet
+</div>
 
-<table>
-<tr>
-<th>Modelo</th>
-<th>Descrição</th>
-<th>Risco</th>
-</tr>
-<tr>
-<td>Block-list</td>
-<td>Bloqueia o que é conhecido como malicioso</td>
-<td>Alto (ataques novos passam)</td>
-</tr>
-<tr>
-<td>Allow-list</td>
-<td>Permite apenas o que é explicitamente autorizado</td>
-<td>Baixo (mais seguro)</td>
-</tr>
-</table>
+<p>
+At very high packet rates, interrupt handling itself can become expensive.
+</p>
 
-<p><strong>Melhor prática:</strong></p>
+<p>
+A polling architecture takes a different approach.
+</p>
 
-<p>👉 Usar allow-list sempre que possível.</p>
+<div class="diagram">
+CPU Core
+   |
+   +---- Poll NIC
+   |
+   +---- Check Packet
+   |
+   +---- Process Packet
+   |
+   +---- Poll Again
+   |
+   +---- Poll Again
+   |
+   +---- Poll Again
+</div>
 
----
+<p>
+The CPU is continuously available for packet processing.
+</p>
 
-<h2>9.8 Validação de contexto (o segredo da defesa)</h2>
+<p>
+This can improve predictability and throughput.
+</p>
 
-<p>Não basta olhar a mensagem — é preciso entender o contexto.</p>
+<p>
+But it consumes dedicated CPU resources.
+</p>
 
-<h3>Exemplos:</h3>
+<h2>Hugepages</h2>
+
+<p>
+Memory management becomes increasingly important when packet-processing performance matters.
+</p>
+
+<p>
+Traditional memory pages are relatively small.
+</p>
+
+<p>
+Large memory pages, commonly called <strong>hugepages</strong>, reduce the number of page-table entries
+required to map large amounts of memory.
+</p>
+
+<div class="diagram">
+Normal Pages
+
+Memory
+|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+
+Hugepages
+
+|*******|*******|*******|*******|
+
+</div>
+
+<p>
+Fewer page mappings can reduce translation overhead.
+</p>
+
+<p>
+Hugepages are especially relevant for workloads using DPDK and other high-performance networking
+frameworks.
+</p>
+
+<p>
+They can also provide more predictable memory behavior when correctly configured.
+</p>
+
+<div class="note">
+Hugepages are not a magic performance switch. They are one component of a larger memory and CPU architecture.
+</div>
+
+<h2>CPU Pinning</h2>
+
+<p>
+A telecom workload should not necessarily be allowed to move freely across every CPU core.
+</p>
+
+<p>
+CPU pinning assigns a workload to specific CPU cores.
+</p>
+
+<div class="diagram">
+Physical CPU
+
+Core 0  -> OS
+Core 1  -> OS
+Core 2  -> UPF worker
+Core 3  -> UPF worker
+Core 4  -> UPF worker
+Core 5  -> UPF worker
+Core 6  -> Other workload
+Core 7  -> Other workload
+
+</div>
+
+<p>
+Why does this matter?
+</p>
+
+<p>
+Because CPU migration has costs.
+</p>
+
+<p>
+Cache locality can change.
+Scheduling decisions can change.
+A workload can compete with unrelated processes.
+</p>
+
+<p>
+For latency-sensitive packet processing, these effects can become visible.
+</p>
+
+<blockquote>
+Predictable performance often requires predictable CPU placement.
+</blockquote>
+
+<h2>CPU Isolation</h2>
+
+<p>
+CPU pinning is closely related to CPU isolation.
+</p>
+
+<p>
+The objective is to prevent unrelated operating-system activities from interfering with critical
+packet-processing cores.
+</p>
+
+<div class="diagram">
+CPU 0   OS / System
+CPU 1   OS / System
+
+CPU 2   Dedicated to UPF
+CPU 3   Dedicated to UPF
+CPU 4   Dedicated to UPF
+CPU 5   Dedicated to UPF
+
+</div>
+
+<p>
+The goal is not necessarily maximum CPU utilization.
+</p>
+
+<p>
+The goal is predictable execution.
+</p>
+
+<div class="impact">
+Telecom performance is often about controlling variability, not simply maximizing average throughput.
+</div>
+
+<h2>NUMA Awareness</h2>
+
+<p>
+Modern servers often contain multiple CPU sockets or NUMA nodes.
+</p>
+
+<p>
+<strong>NUMA</strong> stands for <strong>Non-Uniform Memory Access</strong>.
+</p>
+
+<div class="diagram">
+          NUMA NODE 0                 NUMA NODE 1
+
+```
+   +-------------+             +-------------+
+   | CPU         |             | CPU         |
+   | CPU         |             | CPU         |
+   | CPU         |             | CPU         |
+   +------+------+\            +------+------+
+          |                             |
+          v                             v
+      Memory 0                      Memory 1
+
+          \____________________________/
+                   Interconnect
+```
+
+</div>
+
+<p>
+A CPU can access memory associated with its local NUMA node more efficiently than memory attached
+to another node.
+</p>
+
+<p>
+This becomes critical for high-performance packet processing.
+</p>
+
+<p>
+Imagine a NIC physically connected to NUMA node 0.
+</p>
+
+<div class="diagram">
+NIC
+ |
+ v
+PCIe
+ |
+ v
+NUMA Node 0
+ |
+ +---- CPU 0
+ |
+ +---- Memory 0
+
+Bad placement:
+
+NIC
+|
+v
+NUMA 0
+|
+Interconnect
+|
+v
+NUMA 1
+|
+CPU
+
+</div>
+
+<p>
+The second configuration may introduce additional latency and memory-access overhead.
+</p>
+
+<div class="impact">
+If the NIC, CPU, and memory are on different NUMA nodes, the packet may cross the architecture before the application even sees it.
+</div>
+
+<h2>NUMA-Aware Design</h2>
+
+<p>
+A high-performance network function should ideally align:
+</p>
+
+<div class="diagram">
+NIC
+ |
+ v
+PCIe
+ |
+ v
+NUMA Node
+ |
+ +---- CPU Cores
+ |
+ +---- Memory
+ |
+ +---- Packet Processing
+</div>
+
+<p>
+This is why telecom deployment specifications often include explicit CPU and NUMA requirements.
+</p>
+
+<p>
+A server can have enormous CPU capacity and still perform poorly if the workload is placed
+incorrectly.
+</p>
+
+<h2>PTP and Time Synchronization</h2>
+
+<p>
+Performance is not the only infrastructure requirement.
+</p>
+
+<p>
+Telecom networks also depend heavily on accurate time.
+</p>
+
+<p>
+<strong>Precision Time Protocol</strong>, or <strong>PTP</strong>, is used to synchronize clocks across
+networked systems with very high precision.
+</p>
+
+<div class="diagram">
+          Grandmaster Clock
+                  |
+        +---------+---------+
+        |         |         |
+        v         v         v
+      gNB        UPF       Other NF
+        |         |         |
+        +---------+---------+
+                  |
+            Synchronized Time
+</div>
+
+<p>
+Time synchronization is particularly important in radio networks and distributed telecom
+infrastructure.
+</p>
+
+<p>
+The engineering challenge is not simply synchronizing the operating-system clock.
+</p>
+
+<p>
+Hardware timestamping, NIC capabilities, network topology, boundary clocks, transparent clocks,
+and PTP configuration can all matter.
+</p>
+
+<blockquote>
+A distributed telecom system cannot behave like one system if its components do not agree on time.
+</blockquote>
+
+<h2>Why Time Matters to Telecom</h2>
+
+<p>
+Consider a radio network with tightly coordinated transmission behavior.
+</p>
+
+<p>
+Small timing errors can affect:
+</p>
 
 <ul>
-<li>IMSI pertence à rede?</li>
-<li>Origem da mensagem faz sentido?</li>
-<li>Usuário está em roaming?</li>
+<li>Radio synchronization</li>
+<li>Frame alignment</li>
+<li>Frequency coordination</li>
+<li>Interference management</li>
+<li>Distributed radio functions</li>
 </ul>
 
-<p>👉 Muitos ataques passam porque parecem “válidos” isoladamente.</p>
+<p>
+This becomes increasingly important as network architectures become more distributed.
+</p>
 
----
+<div class="note">
+PTP is infrastructure, but its consequences are visible at the radio and service level.
+</div>
 
-<h2>9.9 Segmentação de rede</h2>
+<h2>The Performance Stack</h2>
 
-<p>Uma prática essencial:</p>
+<p>
+A telecom packet does not experience performance at just one layer.
+</p>
+
+<div class="diagram">
+Application
+     |
+Network Function
+     |
+Packet Processing Framework
+     |
+Container / VM
+     |
+Virtual Networking
+     |
+Host Kernel / Hypervisor
+     |
+NIC
+     |
+PCIe
+     |
+NUMA
+     |
+CPU / Memory
+     |
+Physical Network
+</div>
+
+<p>
+Every layer can contribute to latency, throughput limitations, jitter, or packet loss.
+</p>
+
+<div class="impact">
+When performance is bad, the question is not “Is the application slow?” The question is “Which layer is adding the cost?”
+</div>
+
+<h2>Throughput Is Not Enough</h2>
+
+<p>
+A common mistake is to evaluate telecom infrastructure only by throughput.
+</p>
+
+<p>
+Suppose a UPF can process:
+</p>
+
+<div class="diagram">
+100 Gbit/s average throughput
+</div>
+
+<p>
+That number sounds excellent.
+</p>
+
+<p>
+But what if the workload experiences significant latency spikes under packet-per-second load?
+</p>
+
+<p>
+What if packets are dropped when packet size becomes small?
+</p>
+
+<p>
+What if one CPU core becomes saturated while the remaining cores are idle?
+</p>
+
+<p>
+What if packet processing becomes unpredictable during peak traffic?
+</p>
+
+<p>
+Average throughput does not answer these questions.
+</p>
+
+<p>
+Telecom performance must consider:
+</p>
 
 <ul>
-<li>Separar tráfego interno e externo</li>
-<li>Isolar funções críticas (HLR, HSS, UDM)</li>
-<li>Controlar acesso entre domínios</li>
+<li>Throughput</li>
+<li>Packets per second</li>
+<li>Latency</li>
+<li>Jitter</li>
+<li>Packet loss</li>
+<li>CPU utilization</li>
+<li>Memory bandwidth</li>
+<li>Cache behavior</li>
+<li>NUMA locality</li>
+<li>Interrupt behavior</li>
+<li>Queue depth</li>
 </ul>
 
-<p>👉 Reduz impacto de invasões.</p>
+<h2>Packets Per Second</h2>
 
----
+<p>
+Bandwidth alone can be misleading.
+</p>
 
-<h2>9.10 Rate limiting e proteção contra abuso</h2>
+<p>
+A network processing large packets and a network processing tiny packets may have the same
+bitrate but radically different CPU requirements.
+</p>
 
-<p>Fundamental contra ataques volumétricos:</p>
+<div class="diagram">
+Large packets:
+
+Few packets
+|
+v
+Less per-packet processing
+
+Small packets:
+
+Many packets
+|
+v
+More per-packet processing
+|
+v
+Higher CPU pressure
+
+</div>
+
+<p>
+This is why packets per second can become a critical metric for user-plane workloads.
+</p>
+
+<blockquote>
+Bits measure how much traffic exists. Packets determine how much work the CPU must perform.
+</blockquote>
+
+<h2>Latency and Jitter</h2>
+
+<p>
+Latency measures how long a packet takes to traverse a system.
+</p>
+
+<p>
+Jitter describes variation in that delay.
+</p>
+
+<div class="diagram">
+Packet 1 ---- 20 μs
+Packet 2 ---- 21 μs
+Packet 3 ---- 20 μs
+Packet 4 ---- 22 μs
+Packet 5 ---- 80 μs
+</div>
+
+<p>
+The average might still look acceptable.
+</p>
+
+<p>
+But the outlier matters.
+</p>
+
+<p>
+For latency-sensitive telecom workloads, tail latency can be more important than average latency.
+</p>
+
+<div class="impact">
+A network that is fast most of the time but unpredictable under load can be harder to operate than a network that is consistently slightly slower.
+</div>
+
+<h2>Queueing and Buffering</h2>
+
+<p>
+Packets do not always move immediately from one component to another.
+</p>
+
+<p>
+They may wait in queues.
+</p>
+
+<div class="diagram">
+NIC
+ |
+ v
+RX Queue
+ |
+ v
+Packet Processing
+ |
+ v
+TX Queue
+ |
+ v
+NIC
+</div>
+
+<p>
+If processing cannot keep up with packet arrival, queues grow.
+</p>
+
+<p>
+Eventually buffers may fill and packets can be dropped.
+</p>
+
+<p>
+This creates an important troubleshooting pattern:
+</p>
+
+<div class="diagram">
+Traffic increases
+      |
+      v
+CPU pressure increases
+      |
+      v
+Queues grow
+      |
+      v
+Latency increases
+      |
+      v
+Buffers fill
+      |
+      v
+Packet loss
+</div>
+
+<p>
+The final symptom may be packet loss.
+</p>
+
+<p>
+But the root cause may be CPU contention several layers below.
+</p>
+
+<h2>Cloud-Native Networking</h2>
+
+<p>
+As telecom networks evolved toward cloud-native architectures, the infrastructure model changed
+again.
+</p>
+
+<div class="diagram">
+Physical Infrastructure
+          |
+          v
+Cloud Platform
+          |
+          v
+Kubernetes
+          |
+          v
+Container Network
+          |
+          v
+CNF
+          |
+          v
+Telecom Service
+</div>
+
+<p>
+This introduces additional abstractions.
+</p>
+
+<p>
+Containers need networking.
+</p>
+
+<p>
+Networking requires interfaces.
+</p>
+
+<p>
+Interfaces require connectivity to the physical infrastructure.
+</p>
+
+<p>
+High-performance telecom applications may therefore require mechanisms such as SR-IOV,
+specialized CNI configurations, CPU pinning, hugepages, and NUMA-aware placement.
+</p>
+
+<p>
+These topics become especially important for cloud-native network functions.
+</p>
+
+<h2>The Cloud-Native Performance Problem</h2>
+
+<p>
+Cloud-native architecture provides tremendous flexibility.
+</p>
+
+<p>
+But flexibility can conflict with deterministic performance if the infrastructure is not
+carefully designed.
+</p>
+
+<div class="diagram">
+Highly Flexible
+
+Container
+|
+Scheduler
+|
+Any CPU
+|
+Any NUMA
+|
+Any Node
+|
+Virtual Network
+
+</div>
+
+<p>
+This is convenient for generic workloads.
+</p>
+
+<p>
+For a high-performance UPF, however, the desired architecture may look very different.
+</p>
+
+<div class="diagram">
+UPF Container
+     |
+Dedicated CPU
+     |
+Specific NUMA Node
+     |
+Local Memory
+     |
+SR-IOV VF
+     |
+High-Speed NIC
+</div>
+
+<div class="impact">
+Cloud-native does not mean “ignore the hardware.” In telecom, cloud-native often means learning how to control the hardware through software.
+</div>
+
+<h2>Troubleshooting Performance</h2>
+
+<p>
+When a telecom application reports poor performance, do not start by restarting it.
+</p>
+
+<p>
+Build a performance path.
+</p>
+
+<div class="diagram">
+Application
+    |
+    v
+CPU
+    |
+    v
+Memory
+    |
+    v
+NUMA
+    |
+    v
+Virtual Interface
+    |
+    v
+Virtual Switch / SR-IOV
+    |
+    v
+Physical NIC
+    |
+    v
+Network
+</div>
+
+<p>
+Then ask questions at every layer.
+</p>
 
 <ul>
-<li>Limitar requisições por segundo</li>
-<li>Detectar picos anormais</li>
-<li>Aplicar throttling automático</li>
+<li>Is the application CPU-bound?</li>
+<li>Are packet-processing cores saturated?</li>
+<li>Are workloads migrating between CPUs?</li>
+<li>Is the workload crossing NUMA nodes?</li>
+<li>Are hugepages correctly allocated?</li>
+<li>Is SR-IOV configured?</li>
+<li>Is DPDK using the expected interface?</li>
+<li>Are RX/TX queues correctly configured?</li>
+<li>Are packets being dropped at the NIC?</li>
+<li>Is the virtual switch becoming a bottleneck?</li>
+<li>Is memory bandwidth saturated?</li>
 </ul>
 
-<p>Exemplo:</p>
+<blockquote>
+Performance troubleshooting is architecture troubleshooting with numbers attached.
+</blockquote>
 
-<p>Se uma rede envia milhares de ATI por segundo → bloquear automaticamente</p>
+<h2>A Practical Example: UPF Packet Loss</h2>
 
----
+<p>
+Imagine a UPF starts dropping packets during peak traffic.
+</p>
 
-<h2>9.11 Integração com monitoramento</h2>
+<p>
+The first instinct might be:
+</p>
 
-<p>Arquitetura de defesa não funciona sem visibilidade.</p>
+<div class="note">
+“The UPF software is broken.”
+</div>
 
-<ul>
-<li>Logs centralizados</li>
-<li>Correlação de eventos</li>
-<li>Alertas em tempo real</li>
-</ul>
+<p>
+But consider the actual chain.
+</p>
 
-<p>👉 Firewall sem monitoramento é defesa cega.</p>
+<div class="diagram">
+Traffic Increase
+      |
+      v
+Packet Rate Increase
+      |
+      v
+CPU Core Saturation
+      |
+      v
+RX Queue Growth
+      |
+      v
+Buffer Exhaustion
+      |
+      v
+Packet Loss
+</div>
 
----
+<p>
+Now imagine the CPU itself is not fully saturated.
+</p>
 
-<h2>9.12 Explicação didática</h2>
+<p>
+Perhaps the NIC is attached to NUMA node 0 while the packet-processing cores are running on
+NUMA node 1.
+</p>
 
-<p>Imagine a rede como um aeroporto:</p>
+<div class="diagram">
+NIC
+ |
+ v
+NUMA 0
+ |
+ | Interconnect
+ v
+NUMA 1
+ |
+ v
+CPU
+ |
+ v
+UPF
+</div>
 
-<ul>
-<li>SS7 Firewall → controle de passaporte</li>
-<li>Diameter Firewall → controle de embarque</li>
-<li>API Gateway → autenticação digital</li>
-<li>Monitoramento → câmeras e segurança</li>
-</ul>
+<p>
+The performance problem may be architectural rather than application-level.
+</p>
 
-<p>👉 Segurança real acontece quando tudo trabalha junto.</p>
+<p>
+Move the CPU and memory closer to the NIC.
+</p>
 
----
+<p>
+The same software may suddenly process more packets with lower latency.
+</p>
 
-<h2>9.13 Conclusão</h2>
+<div class="impact">
+Sometimes the fastest way to optimize software is to move it closer to the hardware it already depends on.
+</div>
 
-<p>Uma arquitetura segura não depende de um único elemento, mas da combinação de:</p>
+<h2>A Practical Example: High CPU Usage</h2>
 
-<ul>
-<li>Filtragem rigorosa</li>
-<li>Validação de contexto</li>
-<li>Controle de acesso</li>
-<li>Monitoramento contínuo</li>
-</ul>
+<p>
+Suppose monitoring reports:
+</p>
 
-<p><strong>O objetivo não é impedir todos os ataques — mas tornar a exploração difícil, cara e detectável.</strong></p>
+<div class="diagram">
+UPF CPU = 95%
+Traffic = Moderate
+Packet Loss = 0%
+Latency = Stable
+</div>
 
-<footer>
-<p>Fim do Capítulo 9 – Arquitetura de Defesa</p>
-</footer>
+<p>
+Is this a problem?
+</p>
+
+<p>
+Not necessarily.
+</p>
+
+<p>
+If the workload is deliberately using dedicated polling cores, high utilization may be expected.
+</p>
+
+<p>
+Now compare:
+</p>
+
+<div class="diagram">
+UPF CPU = 95%
+Traffic = Moderate
+Packet Loss = Increasing
+Latency = Increasing
+</div>
+
+<p>
+Now the interpretation changes.
+</p>
+
+<p>
+The same CPU metric has a different meaning because the surrounding evidence changed.
+</p>
+
+<blockquote>
+A metric is not a diagnosis. A metric becomes useful when correlated with behavior.
+</blockquote>
+
+<h2>Performance Baselines</h2>
+
+<p>
+A production network should have a known baseline.
+</p>
+
+<p>
+Engineers should know what normal looks like.
+</p>
+
+<div class="diagram">
+Normal Load
+ |
+ +---- CPU
+ +---- PPS
+ +---- Throughput
+ +---- Latency
+ +---- Jitter
+ +---- Packet Loss
+ +---- Queue Depth
+ +---- Memory
+ +---- NIC Counters
+</div>
+
+<p>
+Without a baseline, every incident becomes a guessing exercise.
+</p>
+
+<p>
+With a baseline, deviations become evidence.
+</p>
+
+<div class="impact">
+You cannot reliably troubleshoot abnormal behavior if you never measured normal behavior.
+</div>
+
+<h2>Observability Across the Stack</h2>
+
+<p>
+Cloud-native telecom environments require visibility across multiple layers.
+</p>
+
+<div class="diagram">
+Application Metrics
+        |
+Container Metrics
+        |
+Kubernetes Metrics
+        |
+Host Metrics
+        |
+NIC Metrics
+        |
+Network Metrics
+        |
+Physical Infrastructure
+</div>
+
+<p>
+A single dashboard rarely tells the whole story.
+</p>
+
+<p>
+The engineer needs correlation.
+</p>
+
+<p>
+For example:
+</p>
+
+<div class="diagram">
+13:00
+
+Traffic       +30%
+CPU           +25%
+PPS           +40%
+RX Drops      +5%
+Latency       +20%
+
+</div>
+
+<p>
+Those values together tell a story.
+</p>
+
+<p>
+A single CPU graph would not.
+</p>
+
+<h2>The Hidden Cost of Abstraction</h2>
+
+<p>
+Virtualization and cloud-native technologies introduce abstraction layers.
+</p>
+
+<p>
+Each layer provides operational advantages.
+</p>
+
+<p>
+Each layer can also hide what is actually happening.
+</p>
+
+<div class="diagram">
+Application
+    |
+Container
+    |
+Pod
+    |
+CNI
+    |
+Virtual Interface
+    |
+Virtual Switch
+    |
+Host
+    |
+NIC
+    |
+PCIe
+    |
+NUMA
+    |
+CPU
+</div>
+
+<p>
+An application engineer may only see:
+</p>
+
+<div class="note">
+“Packets are slow.”
+</div>
+
+<p>
+A telecom infrastructure engineer sees a much larger system.
+</p>
+
+<p>
+That is the difference between application troubleshooting and infrastructure-aware
+troubleshooting.
+</p>
+
+<blockquote>
+The more abstract the platform becomes, the more important it is to understand what the abstraction is hiding.
+</blockquote>
+
+<h2>The Telecom Engineer's New Skill Set</h2>
+
+<p>
+The modern telecom engineer cannot remain isolated inside the protocol stack.
+</p>
+
+<p>
+Understanding GTP-U is essential.
+</p>
+
+<p>
+But understanding how GTP-U is processed by a CPU is also essential.
+</p>
+
+<p>
+Understanding PFCP is essential.
+</p>
+
+<p>
+But understanding how the UPF receives the resulting packets is equally important.
+</p>
+
+<p>
+Understanding a 5G architecture diagram is only one part of the job.
+</p>
+
+<div class="diagram">
+Telecom Protocols
+       +
+Linux
+       +
+Virtualization
+       +
+Networking
+       +
+Containers
+       +
+Kubernetes
+       +
+Hardware
+       +
+Observability
+       =
+Modern Telecom Engineering
+</div>
+
+<div class="impact">
+The modern telecom engineer operates at the boundary between telecommunications and computing.
+</div>
+
+<h2>What Changes from EPC to 5G Cloud-Native Networks?</h2>
+
+<p>
+The transition from EPC to 5G Core is not simply a change in network functions.
+</p>
+
+<p>
+The operational model also changes.
+</p>
+
+<div class="diagram">
+Legacy Telecom
+
+Hardware Appliance
+|
+Network Function
+|
+Service
+
+Modern Telecom
+
+Commodity Hardware
+|
+Virtualization
+|
+Cloud Platform
+|
+Container / CNF
+|
+Network Function
+|
+Service
+
+</div>
+
+<p>
+This creates greater flexibility, but also requires engineers to understand more layers.
+</p>
+
+<p>
+A failure can originate in the application.
+</p>
+
+<p>
+It can originate in the container.
+</p>
+
+<p>
+It can originate in Kubernetes.
+</p>
+
+<p>
+It can originate in the CNI.
+</p>
+
+<p>
+It can originate in the host.
+</p>
+
+<p>
+It can originate in the NIC.
+</p>
+
+<p>
+Or it can originate in the physical network.
+</p>
+
+<div class="impact">
+Modern telecom troubleshooting is increasingly a distributed-systems problem with packets at its center.
+</div>
+
+<h2>The Complete Performance Picture</h2>
+
+<p>
+A high-performance telecom platform can be understood as a chain.
+</p>
+
+<div class="diagram">
+                APPLICATION
+                     |
+                     v
+              NETWORK FUNCTION
+                     |
+                     v
+              PACKET PROCESSING
+                     |
+                     v
+              CPU / MEMORY
+                     |
+                     v
+                  NUMA
+                     |
+                     v
+                 PCIe / NIC
+                     |
+                     v
+              VIRTUAL NETWORK
+                     |
+                     v
+               PHYSICAL NETWORK
+</div>
+
+<p>
+A weakness at any point can affect the service.
+</p>
+
+<p>
+That is why telecom performance engineering is fundamentally a systems discipline.
+</p>
+
+<p>
+It is not enough to optimize one component.
+</p>
+
+<p>
+The entire path must work together.
+</p>
+
+<h2>Chapter Takeaways</h2>
+
+<p>
+NFV introduced the idea that telecom network functions could be implemented as software running
+on standardized infrastructure.
+</p>
+
+<p>
+NFVI provides the compute, memory, storage, networking, virtualization, and supporting
+infrastructure required by those workloads.
+</p>
+
+<p>
+Virtual machines provide strong workload isolation but introduce virtualization overhead.
+</p>
+
+<p>
+Containers provide a lighter application-oriented model and became fundamental to cloud-native
+telecom architectures.
+</p>
+
+<p>
+Virtual networking can introduce additional packet-processing layers.
+</p>
+
+<p>
+SR-IOV can provide more direct access to high-performance network interfaces.
+</p>
+
+<p>
+DPDK can accelerate packet processing by moving critical operations into efficient user-space
+processing paths.
+</p>
+
+<p>
+Hugepages improve memory-management efficiency for suitable high-performance workloads.
+</p>
+
+<p>
+CPU pinning provides predictable processor placement.
+</p>
+
+<p>
+NUMA awareness keeps CPUs, memory, and network interfaces physically close within the server
+architecture.
+</p>
+
+<p>
+PTP provides the accurate time synchronization required by many telecom systems.
+</p>
+
+<p>
+And performance must be evaluated using more than throughput.
+</p>
+
+<div class="diagram">
+Performance
+
+Throughput
++
+Packets / Second
++
+Latency
++
+Jitter
++
+Packet Loss
++
+CPU
++
+Memory
++
+NUMA
++
+NIC
++
+Queues
++
+Time Synchronization
+
+</div>
+
+<p>
+The most important lesson is simple:
+</p>
+
+<blockquote>
+A 5G Core may be implemented in software, but its performance is still constrained by real hardware, real memory, real networks, and real time.
+</blockquote>
+
+<p>
+Once these concepts are understood, cloud-native telecom infrastructure becomes much easier to
+reason about.
+</p>
+
+<p>
+The next step is to move deeper into the platform that orchestrates these workloads.
+</p>
+
+<p>
+That means Kubernetes, containers, CNFs, CNI, Multus, service networking, scheduling,
+high-performance interfaces, and the operational model required to run telecom workloads at
+scale.
+</p>
+
+<div class="impact">
+The network has become software. The engineer's responsibility has therefore expanded from understanding packets to understanding the platform that moves them.
+</div>
 
 </body>
 </html>
