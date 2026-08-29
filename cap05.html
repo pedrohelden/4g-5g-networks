@@ -1,296 +1,1603 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+
+<html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Capítulo 5 – Casos Reais e Incidentes em Redes Móveis</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Chapter 5 — Troubleshooting EPC and User Plane</title>
+
 <style>
-  body {
+body {
     background-color: #1e2a38;
     color: #cbd5e1;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    line-height: 1.7;
-  }
-  h1, h2, h3 {
-    color: #60a5fa;
-    margin-bottom: 0.7em;
-  }
-  p, li {
-    max-width: 900px;
-  }
-  p {
-    margin-bottom: 1.4em;
-    font-size: 1.1em;
-  }
-  ul {
-    max-width: 900px;
-    padding-left: 25px;
-    margin-bottom: 2em;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 900px;
-    margin: 1.5em 0 3em 0;
-    background: #293845;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #3e4f65;
-  }
-  th {
-    background-color: #3b82f6;
-    color: #fff;
-  }
+    margin: 40px auto;
+    max-width: 1100px;
+    padding: 0 30px;
+    line-height: 1.75;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
+}
+
+h1 {
+    color: #f8fafc;
+    font-size: 42px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+h2 {
+    color: #93c5fd;
+    font-size: 28px;
+    margin-top: 55px;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+h3 {
+    color: #bfdbfe;
+    font-size: 21px;
+    margin-top: 35px;
+}
+
+p {
+    margin: 18px 0;
+}
+
+strong {
+    color: #f8fafc;
+}
+
+em {
+    color: #dbeafe;
+}
+
+blockquote {
+    border-left: 4px solid #60a5fa;
+    margin: 30px 0;
+    padding: 15px 25px;
+    background-color: #253548;
+    color: #e2e8f0;
+    font-size: 20px;
+    font-style: italic;
+}
+
+.note {
+    background-color: #253548;
+    border-left: 4px solid #38bdf8;
+    padding: 18px 24px;
+    margin: 30px 0;
+}
+
+.impact {
+    background-color: #26384a;
+    border-left: 5px solid #f59e0b;
+    padding: 20px 25px;
+    margin: 35px 0;
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.diagram {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    overflow-x: auto;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.5;
+}
+
+.flow {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.65;
+}
+
+.interface {
+    background-color: #223247;
+    border-left: 4px solid #818cf8;
+    padding: 18px 24px;
+    margin: 25px 0;
+}
+
+ul {
+    margin-top: 10px;
+}
+
+li {
+    margin: 8px 0;
+}
+
+.chapter-end {
+    margin-top: 70px;
+    padding-top: 30px;
+    border-top: 1px solid #475569;
+}
+
+.small {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+code {
+    color: #bfdbfe;
+    background-color: #162231;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
 </style>
+
 </head>
 
 <body>
 
-<h1>Capítulo 5 – Casos Reais e Incidentes em Redes Móveis</h1>
+<h1>Troubleshooting EPC and User Plane</h1>
 
-<p>Depois de entender os ataques e a arquitetura das redes móveis, é hora de olhar para o mundo real.</p>
+<p class="small">
+From subscriber symptoms to packet evidence, tunnel state, and root cause.
+</p>
 
-<p>Este capítulo mostra <strong>como esses ataques realmente acontecem</strong>, com exemplos práticos e explicações claras da <strong>kill chain (cadeia de ataque)</strong> — ou seja, o passo a passo que o atacante segue.</p>
+<blockquote>
+A network problem is rarely where the symptom appears.
+</blockquote>
 
-<hr>
+<p>
+In the previous chapters, we learned how LTE is built and how its signaling procedures create the
+state required for subscriber connectivity.
+</p>
 
-<h2>5.1 O que é uma Kill Chain em redes móveis?</h2>
+<p>
+Now we move into the part of network engineering where architecture knowledge becomes practical:
+<strong>troubleshooting</strong>.
+</p>
 
-<p>A <strong>kill chain</strong> é a sequência de etapas que um atacante executa para atingir seu objetivo.</p>
+<p>
+A subscriber reports that the Internet is not working.
+A VoLTE call has no audio.
+A device shows full radio signal but cannot establish a data session.
+A bearer exists, but packets are disappearing.
+A GTP tunnel appears healthy, yet the application cannot reach its destination.
+</p>
+
+<p>
+These symptoms are easy to describe.
+The difficult part is determining exactly where the failure occurs.
+</p>
+
+<p>
+That is the difference between checking a network and troubleshooting a network.
+</p>
+
+<div class="impact">
+Troubleshooting is not the art of guessing what is broken. It is the discipline of proving where the failure begins.
+</div>
+
+<h2>Start With the Symptom, Not the Component</h2>
+
+<p>
+One of the most common mistakes in telecom troubleshooting is starting with a favorite network
+element.
+</p>
+
+<p>
+An engineer sees a subscriber without Internet access and immediately checks the PGW.
+Another sees an attach failure and immediately restarts the MME.
+Someone sees packet loss and immediately blames the transport network.
+</p>
+
+<p>
+This approach is dangerous because the first component investigated is often chosen by intuition
+rather than evidence.
+</p>
+
+<p>
+A better approach starts with the observable symptom.
+</p>
+
+<div class="diagram">
+Observed Symptom
+       |
+       v
+What exactly is failing?
+       |
+       v
+At what stage does it fail?
+       |
+       v
+Which message should appear next?
+       |
+       v
+Was that message observed?
+       |
+       v
+Where does the expected behavior stop?
+       |
+       v
+Which network boundary owns that failure?
+</div>
+
+<p>
+The objective is to reduce uncertainty one step at a time.
+</p>
+
+<blockquote>
+The fastest troubleshooting path is usually the one that eliminates the largest number of possibilities with the smallest amount of evidence.
+</blockquote>
+
+<h2>The End-to-End Path</h2>
+
+<p>
+Before opening Wireshark, looking at logs, or checking counters, reconstruct the subscriber's
+expected path.
+</p>
+
+<div class="diagram">
+UE
+ |
+ | LTE-Uu
+ v
+eNodeB
+ |
+ | S1-MME
+ v
+MME
+ |
+ | S11
+ v
+SGW
+ |
+ | S5/S8
+ v
+PGW
+ |
+ | External IP
+ v
+Router / Firewall
+ |
+ v
+Internet
+</div>
+
+<p>
+The return path is equally important.
+</p>
+
+<div class="diagram">
+Internet
+   |
+   v
+Router / Firewall
+   |
+   v
+PGW
+   |
+   v
+SGW
+   |
+   v
+eNodeB
+   |
+   v
+UE
+</div>
+
+<p>
+This immediately creates a powerful troubleshooting question:
+</p>
+
+<p>
+<strong>Where can the packet disappear?</strong>
+</p>
+
+<p>
+It can disappear at the radio interface.
+It can fail to reach the eNodeB.
+It can fail to cross S1-U.
+It can be incorrectly mapped to a bearer.
+It can be lost at the SGW.
+It can fail on S5/S8.
+It can reach the PGW and then fail because of routing, policy, firewall, DNS, or external
+connectivity.
+</p>
+
+<div class="impact">
+Every hop is a hypothesis. Every capture point can turn a hypothesis into evidence.
+</div>
+
+<h2>Divide the Problem Into Planes</h2>
+
+<p>
+Before diving into individual protocols, determine whether the problem is primarily related to
+the control plane or the user plane.
+</p>
+
+<div class="diagram">
+                 Subscriber Problem
+                        |
+             +----------+----------+
+             |                     |
+        Control Plane          User Plane
+             |                     |
+       Can UE attach?          Can packets flow?
+       Authentication?        S1-U?
+       Bearer setup?          GTP-U?
+       Session creation?      S5/S8?
+             |                Routing?
+             |                NAT?
+             |                DNS?
+             |                Firewall?
+</div>
+
+<p>
+This simple separation can dramatically reduce the troubleshooting scope.
+</p>
+
+<p>
+If the UE cannot authenticate, investigating Internet routing is premature.
+</p>
+
+<p>
+If authentication and bearer establishment succeed but no GTP-U traffic is observed, the
+investigation should move toward the user plane.
+</p>
+
+<p>
+If GTP-U reaches the PGW but the original IP packet never leaves toward the external network,
+the problem is probably beyond the tunnel itself.
+</p>
+
+<blockquote>
+Do not troubleshoot the Internet when the subscriber has not yet reached the Internet.
+</blockquote>
+
+<h2>Finding the First Broken Step</h2>
+
+<p>
+Suppose a subscriber reports:
+</p>
+
+<div class="note">
+“I have LTE coverage, but mobile data does not work.”
+</div>
+
+<p>
+That statement is not yet a diagnosis.
+It contains almost no information about where the failure occurs.
+</p>
+
+<p>
+We need to decompose it.
+</p>
 
 <ul>
-<li>1. Descoberta do alvo</li>
-<li>2. Coleta de informações</li>
-<li>3. Exploração da rede</li>
-<li>4. Execução do ataque</li>
-<li>5. Persistência ou exploração contínua</li>
+<li>Does the UE have radio connectivity?</li>
+<li>Does the UE send an Attach Request?</li>
+<li>Does the MME receive it?</li>
+<li>Does authentication succeed?</li>
+<li>Does security activation complete?</li>
+<li>Does the PDN session get created?</li>
+<li>Is the default bearer established?</li>
+<li>Are GTP-U tunnels present?</li>
+<li>Does the UE have an IP address?</li>
+<li>Can the UE reach the gateway?</li>
+<li>Does DNS resolve?</li>
+<li>Can packets reach the Internet?</li>
+<li>Do return packets come back?</li>
 </ul>
 
-<p>👉 Em redes móveis, muitas vezes tudo acontece em segundos.</p>
+<p>
+Each answer removes entire classes of possible causes.
+</p>
 
-<hr>
+<div class="impact">
+The best troubleshooting question is the one that divides the problem space.
+</div>
 
-<h2>5.2 Caso 1 – Rastreamento de localização (SS7)</h2>
+<h2>Reading S1AP and NAS for Evidence</h2>
 
-<h3>🎯 Objetivo</h3>
-<p>Descobrir a localização de um usuário.</p>
+<p>
+When a subscriber cannot attach, S1AP and NAS are often the first places to investigate.
+</p>
 
-<h3>🧨 Métodos usados</h3>
-<ul>
-<li>AnyTimeInterrogation</li>
-<li>SubscriberLocationReport</li>
-</ul>
+<p>
+The eNodeB and MME communicate using S1AP over SCTP.
+NAS messages between the UE and MME are transported through this signaling relationship.
+</p>
 
-<h3>🔗 Kill Chain</h3>
+<p>
+A simplified sequence may look like:
+</p>
 
-<table>
-<tr><th>Etapa</th><th>Descrição</th></tr>
-<tr><td>1. Entrada</td><td>Atacante acessa rede SS7 via operadora ou parceiro</td></tr>
-<tr><td>2. Identificação</td><td>Obtém MSISDN da vítima</td></tr>
-<tr><td>3. Query</td><td>Envia AnyTimeInterrogation</td></tr>
-<tr><td>4. Resposta</td><td>Recebe localização (MSC/VLR)</td></tr>
-<tr><td>5. Monitoramento</td><td>Repete requisição para tracking contínuo</td></tr>
-</table>
+<div class="flow">
+UE                 eNodeB                 MME
+ |                    |                    |
+ |-- Attach Request ->|                    |
+ |                    |-- Initial UE Msg ->|
+ |                    |                    |
+ |                    |<-- Downlink NAS ---|
+ |<-- Authentication -|                    |
+ |                    |                    |
+ |-- Authentication ->|                    |
+ |                    |------------------->|
+ |                    |                    |
+ |                    |<-- Security / NAS -|
+ |                    |                    |
+ |                    |<-- Context Setup -|
+ |<-- Radio Context --|                    |
+</div>
 
-<p><strong>Impacto:</strong> rastreamento em tempo real do usuário.</p>
+<p>
+The key question is not simply whether S1AP packets exist.
+</p>
 
-<hr>
+<p>
+The key question is:
+<strong>which expected message was the last successful message?</strong>
+</p>
 
-<h2>5.3 Caso 2 – Interceptação de SMS (OTP bancário)</h2>
+<p>
+If an Attach Request is observed but no Authentication Request follows, the failure is already
+localized significantly.
+</p>
 
-<h3>🎯 Objetivo</h3>
-<p>Interceptar SMS de autenticação.</p>
+<p>
+If authentication succeeds but no session establishment follows, the investigation moves further
+into EPC session management.
+</p>
 
-<h3>🧨 Métodos</h3>
-<ul>
-<li>SendRoutingInfo</li>
-<li>UpdateLocation</li>
-</ul>
+<blockquote>
+The last successful message is often more valuable than the first error message.
+</blockquote>
 
-<h3>🔗 Kill Chain</h3>
+<h2>SCTP: The Transport Layer You Cannot Ignore</h2>
 
-<table>
-<tr><th>Etapa</th><th>Descrição</th></tr>
-<tr><td>1. Reconhecimento</td><td>Obtém número da vítima</td></tr>
-<tr><td>2. Manipulação</td><td>Envia UpdateLocation falso</td></tr>
-<tr><td>3. Registro</td><td>Rede acredita que usuário está em outra MSC</td></tr>
-<tr><td>4. Interceptação</td><td>SMS é redirecionado</td></tr>
-<tr><td>5. Exploração</td><td>Uso de OTP para fraude</td></tr>
-</table>
+<p>
+S1AP depends on <strong>SCTP</strong>.
+Therefore, an S1AP problem may actually be a transport problem.
+</p>
 
-<p><strong>Impacto:</strong> acesso a contas bancárias.</p>
-
-<hr>
-
-<h2>5.4 Caso 3 – Vazamento de IMSI</h2>
-
-<h3>🎯 Objetivo</h3>
-<p>Descobrir identidade do assinante na rede.</p>
-
-<h3>🧨 Métodos</h3>
-<ul>
-<li>SendIMSI</li>
-<li>SendIdentification</li>
-</ul>
-
-<h3>🔗 Kill Chain</h3>
-
-<table>
-<tr><th>Etapa</th><th>Descrição</th></tr>
-<tr><td>1. Entrada</td><td>Acesso à rede SS7</td></tr>
-<tr><td>2. Query</td><td>Envio de SendIMSI</td></tr>
-<tr><td>3. Resposta</td><td>Recebe IMSI da vítima</td></tr>
-<tr><td>4. Correlação</td><td>Relaciona IMSI com serviços</td></tr>
-<tr><td>5. Uso</td><td>Outros ataques mais avançados</td></tr>
-</table>
-
-<p><strong>Impacto:</strong> quebra de anonimato e base para ataques futuros.</p>
-
-<hr>
-
-<h2>5.5 Caso 4 – Fraude de chamadas</h2>
-
-<h3>🎯 Objetivo</h3>
-<p>Gerar chamadas fraudulentas.</p>
-
-<h3>🧨 Métodos</h3>
-<ul>
-<li>CAMEL InitiateCallAttempt</li>
-<li>ActivateSS</li>
-</ul>
-
-<h3>🔗 Kill Chain</h3>
-
-<table>
-<tr><th>Etapa</th><th>Descrição</th></tr>
-<tr><td>1. Acesso</td><td>Entrada na rede</td></tr>
-<tr><td>2. Execução</td><td>Força chamadas via CAMEL</td></tr>
-<tr><td>3. Billing</td><td>Custo é atribuído à vítima</td></tr>
-<tr><td>4. Escala</td><td>Repete para múltiplos usuários</td></tr>
-</table>
-
-<p><strong>Impacto:</strong> prejuízo financeiro para operadora e cliente.</p>
-
-<hr>
-
-<h2>5.6 Caso 5 – Diameter Storm (4G)</h2>
-
-<h3>⚠️ O que é?</h3>
-
-<p><strong>Diameter Storm</strong> é um tipo de ataque ou falha em que há um <strong>volume massivo de mensagens Diameter</strong> circulando na rede, causando congestionamento severo.</p>
-
-<p>Não é apenas um ataque — pode ser causado também por erro de configuração.</p>
-
-<h3>🎯 Objetivo / efeito</h3>
+<p>
+When investigating S1 signaling, verify:
+</p>
 
 <ul>
-<li>Derrubar elementos do core (MME, HSS)</li>
-<li>Causar lentidão generalizada</li>
-<li>Impedir autenticação de usuários</li>
+<li>SCTP association establishment</li>
+<li>Source and destination IP addresses</li>
+<li>SCTP port 36412</li>
+<li>Association state</li>
+<li>Packet loss or retransmissions</li>
+<li>Routing between eNodeB and MME</li>
+<li>Firewall or ACL behavior</li>
 </ul>
 
-<h3>🔗 Kill Chain</h3>
+<p>
+A failed SCTP association can prevent higher-level S1AP signaling from existing at all.
+</p>
 
-<table>
-<tr><th>Etapa</th><th>Descrição</th></tr>
-<tr><td>1. Gatilho</td><td>Falha ou ataque inicia volume alto de requests</td></tr>
-<tr><td>2. Amplificação</td><td>Retries automáticos aumentam tráfego</td></tr>
-<tr><td>3. Saturação</td><td>HSS/MME ficam sobrecarregados</td></tr>
-<tr><td>4. Colapso</td><td>Usuários não conseguem se registrar</td></tr>
-<tr><td>5. Efeito cascata</td><td>Outros elementos começam a falhar</td></tr>
-</table>
+<div class="diagram">
+eNodeB
+ |
+ | SCTP Association
+ |
+ +----------------------+
+                        |
+                       MME
 
-<h3>🧠 Por que isso acontece?</h3>
+If SCTP fails:
+
+SCTP  X
+|
+S1AP  X
+|
+NAS transport  X
+
+</div>
+
+<p>
+This is an example of dependency-based troubleshooting.
+</p>
+
+<p>
+If the transport layer is broken, searching for an application-layer signaling problem may waste
+hours.
+</p>
+
+<div class="impact">
+Always verify that the lower layer can carry the upper layer before blaming the upper layer.
+</div>
+
+<h2>GTP-C: Did the Network Build the Session?</h2>
+
+<p>
+Once attach and authentication are successful, the investigation often moves toward GTP-C.
+</p>
+
+<p>
+GTP-C is used to establish and modify session and bearer state between EPC components.
+</p>
+
+<p>
+The important question becomes:
+</p>
+
+<p>
+<strong>Did the network actually create the state required for user-plane forwarding?</strong>
+</p>
+
+<div class="flow">
+MME                  SGW                  PGW
+ |                    |                    |
+ |-- Create Session ->|                    |
+ |                    |-- Create Session ->|
+ |                    |                    |
+ |                    |<-- Response -------|
+ |<-- Response -------|                    |
+ |                    |                    |
+</div>
+
+<p>
+A missing or rejected Create Session procedure can prevent user-plane connectivity even when the
+UE has successfully authenticated.
+</p>
+
+<p>
+At this point, useful investigation areas include:
+</p>
 
 <ul>
-<li>Protocolos fazem retry automático</li>
-<li>Dependência forte entre elementos</li>
-<li>Falta de rate limiting</li>
+<li>APN configuration</li>
+<li>Serving gateway selection</li>
+<li>PDN gateway selection</li>
+<li>Subscriber subscription data</li>
+<li>IP address allocation</li>
+<li>Bearer parameters</li>
+<li>Cause values in GTP-C responses</li>
+<li>Policy interactions</li>
+<li>Routing toward the selected gateway</li>
 </ul>
 
-<p><strong>Impacto:</strong> queda massiva da rede 4G.</p>
+<h2>Bearers: The State Behind the Traffic</h2>
 
-<hr>
+<p>
+A user-plane packet does not simply enter the EPC and hope that a gateway figures out where it
+belongs.
+</p>
 
-<h2>5.7 Caso 6 – API Abuse no 5G</h2>
+<p>
+The network maintains bearer state.
+</p>
 
-<h3>🎯 Objetivo</h3>
-<p>Explorar APIs da arquitetura SBA.</p>
+<p>
+That state links the subscriber session with the radio and core forwarding paths.
+</p>
 
-<h3>🧨 Métodos</h3>
+<p>
+A simplified model looks like this:
+</p>
+
+<div class="diagram">
+Subscriber Session
+       |
+       +---- Default Bearer
+       |
+       +---- Bearer Context
+                |
+                +---- eNodeB tunnel
+                |
+                +---- SGW tunnel
+                |
+                +---- PGW context
+</div>
+
+<p>
+When the bearer state is inconsistent between nodes, packets can be lost even though the
+individual components appear operational.
+</p>
+
+<p>
+For example, an eNodeB may send GTP-U traffic using a TEID that the SGW no longer recognizes.
+</p>
+
+<p>
+Or the SGW may forward traffic toward a PGW using an outdated tunnel context.
+</p>
+
+<blockquote>
+A tunnel can be operational at one endpoint and broken from the perspective of the session.
+</blockquote>
+
+<h2>TEIDs: Following the Tunnel</h2>
+
+<p>
+The <strong>Tunnel Endpoint Identifier</strong>, or TEID, is one of the most useful fields when
+investigating GTP-U.
+</p>
+
+<p>
+A TEID identifies the logical tunnel context used by a GTP endpoint.
+</p>
+
+<div class="diagram">
+                S1-U
+
+eNodeB
+|
+| GTP-U
+| TEID 0x12345678
+v
+SGW
+|
+| GTP-U
+| TEID 0xABCDEF01
+v
+PGW
+
+</div>
+
+<p>
+Notice that the TEID does not necessarily remain identical across every interface.
+Different tunnel legs can have different identifiers.
+</p>
+
+<p>
+Therefore, an engineer should correlate the control-plane information that established the tunnel
+with the user-plane TEIDs observed in packet captures.
+</p>
+
+<p>
+This is especially useful when a packet is seen on one interface but not another.
+</p>
+
+<div class="impact">
+If you cannot correlate the user-plane packet with the correct tunnel context, you are not yet troubleshooting the session — you are only observing traffic.
+</div>
+
+<h2>GTP-U: Is the Packet Actually Moving?</h2>
+
+<p>
+Once the bearer and tunnel context exist, the next question is simple:
+</p>
+
+<p>
+<strong>Are GTP-U packets actually flowing?</strong>
+</p>
+
+<p>
+A typical user-plane path may look like:
+</p>
+
+<div class="diagram">
+UE
+ |
+ | Original IP packet
+ v
+eNodeB
+ |
+ | GTP-U
+ v
+SGW
+ |
+ | GTP-U
+ v
+PGW
+ |
+ | Original IP packet
+ v
+Internet
+</div>
+
+<p>
+A capture taken on S1-U will normally show the original subscriber packet encapsulated inside
+GTP-U.
+</p>
+
+<p>
+A capture on the PGW's external interface may instead show the subscriber packet without the
+GTP encapsulation.
+</p>
+
+<p>
+This difference allows us to compare packet visibility across interfaces.
+</p>
+
+<h2>The Two-Capture Method</h2>
+
+<p>
+One of the most powerful techniques in packet troubleshooting is to capture traffic on two sides
+of the suspected failure point.
+</p>
+
+<div class="diagram">
+             Capture A                 Capture B
+
+eNodeB =================== SGW =================== PGW
+S1-U                  S5/S8
+
+```
+     Packet seen A?          Packet seen B?
+
+         YES                      NO
+          |
+          +---- Failure likely between A and B
+```
+
+</div>
+
+<p>
+This is much stronger evidence than saying:
+</p>
+
+<p>
+“Packets seem to be dropping.”
+</p>
+
+<p>
+If the same logical traffic is clearly visible before a network boundary and absent after it,
+the investigation can focus on that boundary.
+</p>
+
+<p>
+The same principle can be applied at the PGW:
+</p>
+
+<div class="diagram">
+GTP-U side                         External side
+
+PGW
+|
+| Capture A
+|
++----------------+
+|
+| Capture B
+|
+External Router
+
+</div>
+
+<p>
+If GTP-U packets arrive at the PGW but the corresponding IP packets do not leave toward the
+external network, the problem is no longer an S1-U problem.
+</p>
+
+<blockquote>
+Packet captures turn “somewhere in the network” into a measurable boundary.
+</blockquote>
+
+<h2>Wireshark as a Telecom Tool</h2>
+
+<p>
+Wireshark becomes particularly powerful when the engineer understands the architecture behind the
+packets.
+</p>
+
+<p>
+Useful filters can include:
+</p>
+
+<div class="diagram">
+s1ap
+nas-eps
+sctp
+gtp
+gtpv2
+gtp.teid
+ip.addr == x.x.x.x
+udp.port == 2123
+udp.port == 2152
+</div>
+
+<p>
+The exact protocol dissector names can vary depending on the capture and Wireshark version, so
+filters should always be validated against the actual decoded packet fields.
+</p>
+
+<p>
+The important idea is to filter by function rather than simply scrolling through thousands of
+packets.
+</p>
+
+<p>
+For example:
+</p>
+
 <ul>
-<li>Chamadas HTTP/2 maliciosas</li>
-<li>Token abuse</li>
+<li><strong>SCTP</strong> can reveal transport problems below S1AP.</li>
+<li><strong>S1AP</strong> can reveal signaling between eNodeB and MME.</li>
+<li><strong>NAS-EPS</strong> can reveal attach and mobility procedures.</li>
+<li><strong>GTP-C</strong> can reveal session establishment.</li>
+<li><strong>GTP-U</strong> can reveal actual subscriber traffic.</li>
 </ul>
 
-<h3>🔗 Kill Chain</h3>
+<div class="impact">
+The value of Wireshark does not come from displaying packets. It comes from allowing you to test a hypothesis against packet-level evidence.
+</div>
 
-<table>
-<tr><th>Etapa</th><th>Descrição</th></tr>
-<tr><td>1. Descoberta</td><td>Enumeração de APIs</td></tr>
-<tr><td>2. Acesso</td><td>Uso de credenciais válidas ou falhas</td></tr>
-<tr><td>3. Exploração</td><td>Chamadas abusivas</td></tr>
-<tr><td>4. Impacto</td><td>Exposição de dados ou DoS</td></tr>
-</table>
+<h2>TShark: Automation for Large Captures</h2>
 
-<p><strong>Impacto:</strong> vazamento de dados e instabilidade.</p>
+<p>
+When captures become large, manually inspecting them becomes inefficient.
+</p>
 
-<hr>
+<p>
+This is where <strong>TShark</strong> becomes extremely useful.
+</p>
 
-<h2>5.8 Comparação dos incidentes</h2>
+<p>
+TShark allows packet analysis to be integrated into scripts and repeatable troubleshooting
+procedures.
+</p>
 
-<table>
-<tr>
-<th>Tipo</th>
-<th>Tecnologia</th>
-<th>Impacto</th>
-</tr>
-<tr>
-<td>Tracking</td>
-<td>SS7</td>
-<td>Privacidade</td>
-</tr>
-<tr>
-<td>Interceptação</td>
-<td>SS7</td>
-<td>Segurança financeira</td>
-</tr>
-<tr>
-<td>Fraude</td>
-<td>SS7</td>
-<td>Financeiro</td>
-</tr>
-<tr>
-<td>Storm</td>
-<td>4G</td>
-<td>Disponibilidade</td>
-</tr>
-<tr>
-<td>API Abuse</td>
-<td>5G</td>
-<td>Dados + Disponibilidade</td>
-</tr>
-</table>
+<p>
+Instead of manually searching through a multi-gigabyte capture, an engineer can extract specific
+protocols, fields, IP addresses, TEIDs, timestamps, or error conditions.
+</p>
 
-<hr>
-
-<h2>5.9 Conclusão</h2>
-
-<p>Os ataques em redes móveis não são teóricos — eles já aconteceram e continuam acontecendo.</p>
+<p>
+For example, a troubleshooting workflow can extract:
+</p>
 
 <ul>
-<li>SS7 → ataques diretos e silenciosos</li>
-<li>4G → falhas de escala e sinalização</li>
-<li>5G → riscos de API e exposição</li>
+<li>All GTP-U packets for a TEID</li>
+<li>All GTP-C Create Session procedures</li>
+<li>All S1AP messages for a specific subscriber context</li>
+<li>All packets associated with a particular IP address</li>
+<li>Retransmissions and transport errors</li>
+<li>First and last packet timestamps</li>
 </ul>
 
-<p><strong>A diferença entre um incidente e uma rede segura está na capacidade de detectar e reagir rapidamente.</strong></p>
+<p>
+This turns packet analysis into something repeatable.
+</p>
 
-<footer>
-<p>Fim do Capítulo 5 – Casos Reais e Incidentes</p>
-</footer>
+<blockquote>
+A good troubleshooting tool should reduce the time between a question and the evidence needed to answer it.
+</blockquote>
+
+<h2>IP Connectivity: The Tunnel Can Be Healthy While the Network Is Broken</h2>
+
+<p>
+One of the most dangerous assumptions in EPC troubleshooting is:
+</p>
+
+<div class="note">
+“GTP-U is working, therefore the Internet must be working.”
+</div>
+
+<p>
+That is not necessarily true.
+</p>
+
+<p>
+GTP-U only proves that encapsulated traffic is moving through a particular tunnel path.
+It does not prove that the original IP packet can successfully reach its destination.
+</p>
+
+<p>
+After decapsulation at the PGW, conventional IP networking becomes critical.
+</p>
+
+<div class="diagram">
+              Mobile Core
+
+UE
+|
+| GTP-U
+v
+PGW
+|
+| Decapsulated IP
+v
+Routing Table
+|
++---- Firewall
+|
++---- NAT
+|
++---- Default Route
+|
+v
+External Network
+
+</div>
+
+<p>
+Possible failures include:
+</p>
+
+<ul>
+<li>Missing routes</li>
+<li>Incorrect next-hop configuration</li>
+<li>Asymmetric routing</li>
+<li>Incorrect NAT</li>
+<li>Firewall filtering</li>
+<li>ACLs</li>
+<li>MTU problems</li>
+<li>ARP or neighbor-resolution problems</li>
+<li>Incorrect VRF</li>
+</ul>
+
+<p>
+This is where telecom troubleshooting meets traditional IP engineering.
+</p>
+
+<div class="impact">
+The packet does not stop being an IP packet just because it spent part of its journey inside GTP.
+</div>
+
+<h2>DNS: When the Network Works but Applications Do Not</h2>
+
+<p>
+A subscriber can have working IP connectivity and still report that “the Internet is not working.”
+</p>
+
+<p>
+DNS is one of the first things to investigate in such cases.
+</p>
+
+<p>
+Consider:
+</p>
+
+<div class="diagram">
+UE
+ |
+ | DNS Query
+ v
+DNS Resolver
+ |
+ | DNS Response
+ v
+UE
+ |
+ | TCP / TLS / HTTP
+ v
+Destination
+</div>
+
+<p>
+If DNS resolution fails, applications that depend on domain names may appear completely broken
+even when basic IP connectivity is healthy.
+</p>
+
+<p>
+Useful tests include checking whether:
+</p>
+
+<ul>
+<li>The UE receives the expected DNS server addresses</li>
+<li>DNS queries leave the subscriber network</li>
+<li>Responses return</li>
+<li>UDP/53 or TCP/53 traffic is permitted when required</li>
+<li>IPv4 and IPv6 DNS behavior is consistent</li>
+<li>The configured resolver is reachable</li>
+</ul>
+
+<p>
+This distinction is critical:
+</p>
+
+<blockquote>
+“No website opens” does not automatically mean “there is no IP connectivity.”
+</blockquote>
+
+<h2>DHCP and Address Configuration</h2>
+
+<p>
+In many IP networks, engineers naturally think about DHCP when a host needs an address.
+LTE subscriber addressing is different in important ways, because the EPC manages subscriber
+session and IP allocation as part of PDN connectivity.
+</p>
+
+<p>
+The UE can receive an IP address as part of the session establishment process rather than using
+ordinary Ethernet-style DHCP for the initial mobile data session.
+</p>
+
+<p>
+Nevertheless, DHCP can still appear in mobile environments for specific services, enterprise
+deployments, local networks, tethering scenarios, or other infrastructure functions.
+</p>
+
+<p>
+The important troubleshooting principle is therefore not:
+</p>
+
+<div class="note">
+“Every IP problem must be a DHCP problem.”
+</div>
+
+<p>
+Instead, ask:
+</p>
+
+<p>
+<strong>Who is responsible for assigning this particular address, and at which layer is that
+assignment supposed to happen?</strong>
+</p>
+
+<div class="impact">
+Do not apply a familiar troubleshooting model to the wrong architecture.
+</div>
+
+<h2>MTU and Fragmentation</h2>
+
+<p>
+MTU problems are particularly interesting in mobile networks because encapsulation adds overhead.
+</p>
+
+<p>
+An original IP packet may fit within an endpoint's expected MTU but become problematic when
+additional headers are introduced by tunneling.
+</p>
+
+<div class="diagram">
+Original packet
++-----------------------------+
+| IP + Payload                |
++-----------------------------+
+
+After tunneling
+
++--------------------------------------+
+| Outer IP | UDP | GTP-U | Inner IP   |
++--------------------------------------+
+↑
+Additional overhead
+
+</div>
+
+<p>
+Symptoms can include:
+</p>
+
+<ul>
+<li>Some websites work while others do not</li>
+<li>Small packets succeed but large packets fail</li>
+<li>TCP connections establish but stall during data transfer</li>
+<li>Fragmentation appears unexpectedly</li>
+<li>Path MTU Discovery fails</li>
+<li>ICMP messages are filtered</li>
+</ul>
+
+<p>
+These failures are often difficult to recognize because basic ping tests may succeed.
+</p>
+
+<blockquote>
+A network can pass small packets perfectly and still be fundamentally broken for real applications.
+</blockquote>
+
+<h2>Return Traffic: The Forgotten Half of Troubleshooting</h2>
+
+<p>
+Engineers frequently focus on the outbound packet.
+</p>
+
+<p>
+But communication requires a return path.
+</p>
+
+<div class="diagram">
+UE
+ |
+ | Request
+ v
+Internet
+ |
+ | Response
+ v
+UE
+</div>
+
+<p>
+A subscriber may successfully send packets toward the Internet while responses are lost on the
+way back.
+</p>
+
+<p>
+Possible causes include:
+</p>
+
+<ul>
+<li>Missing return route</li>
+<li>Incorrect NAT</li>
+<li>Asymmetric routing</li>
+<li>Firewall state mismatch</li>
+<li>Incorrect PGW configuration</li>
+<li>Incorrect GTP-U tunnel mapping</li>
+<li>Transport network problems</li>
+</ul>
+
+<p>
+This is why two-way packet captures are so valuable.
+</p>
+
+<div class="impact">
+If you only prove that the request leaves, you have proved only half of the connection.
+</div>
+
+<h2>A Complete End-to-End Troubleshooting Method</h2>
+
+<p>
+A disciplined investigation can follow the subscriber's packet through the architecture.
+</p>
+
+<div class="flow">
+Subscriber reports problem
+          |
+          v
+Confirm exact symptom
+          |
+          v
+Check UE / radio state
+          |
+          v
+Check S1AP / NAS
+          |
+          v
+Check authentication
+          |
+          v
+Check GTP-C
+          |
+          v
+Check bearer state
+          |
+          v
+Check TEIDs
+          |
+          v
+Check GTP-U
+          |
+          v
+Check PGW decapsulation
+          |
+          v
+Check IP routing
+          |
+          v
+Check NAT / firewall
+          |
+          v
+Check DNS
+          |
+          v
+Check return path
+          |
+          v
+Identify first broken boundary
+          |
+          v
+Root Cause
+</div>
+
+<p>
+The sequence is not rigid.
+Experienced engineers will often jump directly to the most informative evidence.
+</p>
+
+<p>
+But the underlying logic remains:
+<strong>start from the symptom and progressively reduce the possible failure domain.</strong>
+</p>
+
+<h2>Building a Timeline</h2>
+
+<p>
+Time is one of the most powerful dimensions available in packet analysis.
+</p>
+
+<p>
+A subscriber procedure can be reconstructed chronologically:
+</p>
+
+<div class="diagram">
+10:00:01.001   Attach Request
+10:00:01.015   Authentication Request
+10:00:01.041   Authentication Response
+10:00:01.060   Security Mode Command
+10:00:01.071   Security Mode Complete
+10:00:01.102   Create Session Request
+10:00:01.145   Create Session Response
+10:00:01.201   Initial Context Setup
+10:00:01.250   First GTP-U packet
+</div>
+
+<p>
+If the expected Create Session Response is missing, the timeline immediately highlights the
+problem.
+</p>
+
+<p>
+If the first GTP-U packet never appears, the investigation can focus on the state immediately
+before user-plane activation.
+</p>
+
+<p>
+If GTP-U begins but stops seconds later, the problem may be associated with tunnel state,
+mobility, policy, transport, or an external dependency.
+</p>
+
+<blockquote>
+A packet capture is not just a collection of packets. It is a timestamped history of network decisions.
+</blockquote>
+
+<h2>Correlation Is More Important Than Volume</h2>
+
+<p>
+Large telecom networks generate enormous amounts of data.
+Logs, counters, traces, packet captures, alarms, and monitoring systems can easily overwhelm an
+engineer.
+</p>
+
+<p>
+More data does not automatically mean more understanding.
+</p>
+
+<p>
+The objective is to correlate the same subscriber and the same session across multiple systems.
+</p>
+
+<div class="diagram">
+Subscriber Identity
+       |
+       +---- MME context
+       |
+       +---- eNodeB context
+       |
+       +---- Bearer ID
+       |
+       +---- GTP TEID
+       |
+       +---- UE IP address
+       |
+       +---- PGW session
+       |
+       +---- Application traffic
+</div>
+
+<p>
+When these identifiers are correlated, the distributed network begins to look like one coherent
+system.
+</p>
+
+<div class="impact">
+The breakthrough in difficult troubleshooting often comes when separate pieces of evidence are proven to belong to the same session.
+</div>
+
+<h2>From Symptom to Root Cause</h2>
+
+<p>
+Consider a practical example.
+</p>
+
+<p>
+The subscriber reports no Internet connectivity.
+</p>
+
+<p>
+The UE is attached.
+Authentication succeeded.
+The default bearer exists.
+GTP-C session establishment succeeded.
+GTP-U packets are visible on S1-U.
+The same traffic reaches the PGW.
+</p>
+
+<p>
+At the PGW external interface, however, the corresponding packets never appear.
+</p>
+
+<p>
+At this point, continuing to investigate the eNodeB would be irrational.
+</p>
+
+<p>
+The evidence has already moved the failure domain toward the PGW's external processing path:
+routing, firewall, NAT, policy, VRF, interface state, or another function between the GTP-U
+decapsulation point and the external network.
+</p>
+
+<div class="diagram">
+UE
+ |
+ | GTP-U       YES
+ v
+eNodeB
+ |
+ |             YES
+ v
+SGW
+ |
+ |             YES
+ v
+PGW
+ |
+ |             NO
+ X
+External Network
+
+Likely failure domain:
+PGW forwarding / routing / policy / NAT / firewall
+
+</div>
+
+<p>
+This is what a real troubleshooting conclusion should look like.
+</p>
+
+<p>
+Not:
+</p>
+
+<div class="note">
+“The network is dropping packets.”
+</div>
+
+<p>
+But:
+</p>
+
+<div class="note">
+“GTP-U traffic reaches the PGW, but the corresponding decapsulated IP traffic is not observed
+on the external interface. The failure is therefore localized to the PGW forwarding path or
+downstream connectivity.”
+</div>
+
+<blockquote>
+Good troubleshooting does not merely identify what is broken. It defines the boundary beyond which the problem cannot be.
+</blockquote>
+
+<h2>What Experienced Engineers Do Differently</h2>
+
+<p>
+Experienced engineers are not necessarily better because they know more commands.
+</p>
+
+<p>
+They are often better because they ask better questions.
+</p>
+
+<p>
+They avoid changing multiple variables simultaneously.
+</p>
+
+<p>
+They preserve evidence before restarting components.
+</p>
+
+<p>
+They compare a failing session with a known-good session.
+</p>
+
+<p>
+They correlate timestamps across nodes.
+</p>
+
+<p>
+They understand the expected call flow before interpreting an abnormal one.
+</p>
+
+<p>
+They distinguish symptoms from causes.
+</p>
+
+<p>
+And most importantly, they do not confuse activity with health.
+</p>
+
+<div class="impact">
+A system producing packets is not necessarily a healthy system. A healthy system is one producing the packets it should produce, at the time it should produce them, with the state it should maintain.
+</div>
+
+<h2>Known-Good Versus Failing Sessions</h2>
+
+<p>
+One of the most effective techniques in telecom troubleshooting is comparison.
+</p>
+
+<p>
+Capture a working subscriber and compare it with the failing subscriber.
+</p>
+
+<div class="diagram">
+                 WORKING          FAILING
+
+Attach             YES               YES
+Authentication     YES               YES
+Bearer             YES               YES
+GTP-C              YES               YES
+GTP-U              YES               YES
+PGW external IP    YES               NO
+|
+v
+Investigate here
+
+</div>
+
+<p>
+This approach dramatically reduces noise.
+</p>
+
+<p>
+Instead of trying to understand everything that happened, the engineer asks:
+</p>
+
+<p>
+<strong>What is different between the successful and unsuccessful cases?</strong>
+</p>
+
+<p>
+The answer often points directly toward the failure.
+</p>
+
+<h2>The Troubleshooting Mindset</h2>
+
+<p>
+There is a temptation in complex networks to search for a single broken component.
+</p>
+
+<p>
+But many failures are caused by inconsistencies between components.
+</p>
+
+<p>
+A tunnel may exist on one node but not another.
+A route may exist in one VRF but not another.
+A policy may be installed but not enforced.
+A bearer may exist but use an incorrect identifier.
+A DNS server may be reachable but return unusable information.
+</p>
+
+<p>
+The network can therefore appear healthy when each component is examined independently.
+The failure only becomes visible when the components are viewed together.
+</p>
+
+<blockquote>
+The hardest network problems often live between systems, not inside them.
+</blockquote>
+
+<div class="chapter-end">
+
+<h2>Chapter Takeaways</h2>
+
+<p>
+Troubleshooting LTE is fundamentally an exercise in reconstructing state and following traffic.
+</p>
+
+<p>
+Start with the subscriber's exact symptom.
+Do not assume which component is responsible.
+</p>
+
+<p>
+Separate control-plane problems from user-plane problems.
+</p>
+
+<p>
+Use <strong>S1AP and NAS</strong> to understand access, mobility, authentication, and signaling.
+</p>
+
+<p>
+Use <strong>SCTP</strong> to verify the transport foundation of S1AP.
+</p>
+
+<p>
+Use <strong>GTP-C</strong> to determine whether session and bearer state was successfully created.
+</p>
+
+<p>
+Use <strong>bearer information and TEIDs</strong> to correlate logical subscriber sessions with
+actual tunnels.
+</p>
+
+<p>
+Use <strong>GTP-U</strong> to determine whether subscriber traffic is physically moving through
+the mobile core.
+</p>
+
+<p>
+Once traffic is decapsulated, return to the fundamentals of <strong>IP networking</strong>:
+routing, NAT, firewalling, VRFs, MTU, ARP, and return paths.
+</p>
+
+<p>
+Treat <strong>DNS</strong> as an application dependency rather than assuming every application
+failure is an IP connectivity failure.
+</p>
+
+<p>
+Understand where IP addressing is actually provided in the architecture instead of automatically
+assuming DHCP.
+</p>
+
+<p>
+Use <strong>Wireshark and TShark</strong> not simply to inspect packets, but to test specific
+hypotheses.
+</p>
+
+<p>
+Capture traffic at multiple points whenever possible.
+</p>
+
+<p>
+Correlate subscriber identity, bearer identifiers, TEIDs, IP addresses, timestamps, and logs.
+</p>
+
+<div class="diagram">
+             TROUBLESHOOTING MODEL
+
+```
+             Symptom
+                |
+                v
+         Expected Behavior
+                |
+                v
+          Call Flow
+                |
+                v
+         First Missing Step
+                |
+                v
+          Failure Domain
+                |
+                v
+             Evidence
+                |
+                v
+           Root Cause
+                |
+                v
+             Fix
+                |
+                v
+           Verification
+```
+
+</div>
+
+<div class="impact">
+Do not stop when you find the symptom. Do not stop when you find the failed packet. Stop when you can explain why the packet failed, where it failed, and why the evidence proves it.
+</div>
+
+<p>
+That is the difference between monitoring a network and engineering a network.
+</p>
+
+<p>
+The EPC is a distributed system. Its failures are distributed as well.
+The engineer's job is to reconstruct the path, identify the state, follow the evidence, and reduce
+the problem until only one plausible failure domain remains.
+</p>
+
+<blockquote>
+When you can explain the packet's journey, you can explain the failure.
+</blockquote>
+
+<p>
+In the next chapter, we will move beyond the LTE EPC and into the architecture of
+<strong>5G Core, NSA, and SA</strong> — where the principles remain familiar, but the architecture
+becomes significantly more distributed, service-based, and cloud-oriented.
+</p>
+
+<blockquote>
+The technology changes. The engineering method remains: understand the expected path, observe the real path, and find the first place where they diverge.
+</blockquote>
+
+</div>
 
 </body>
 </html>
