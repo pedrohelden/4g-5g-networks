@@ -5,152 +5,155 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Chapter 2: Cisco Routers and Network Troubleshooting</title>
-
 <style>
-    body {
-        background-color: #1e2a38;
-        color: #cbd5e1;
-        margin: 40px;
-        line-height: 1.7;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    }
+body {
+    background-color: #1e2a38;
+    color: #cbd5e1;
+    margin: 0;
+    padding: 40px 20px;
+    line-height: 1.7;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    article.chapter {
-        max-width: 1100px;
-        margin: 0 auto;
-    }
+article.chapter {
+    max-width: 1100px;
+    margin: 0 auto;
+}
 
-    h1, h2, h3 {
-        color: #60a5fa;
-    }
+h1, h2, h3 {
+    color: #60a5fa;
+}
 
-    h1 {
-        font-size: 2.2em;
-        margin-bottom: 25px;
-    }
+h1 {
+    font-size: 2.2em;
+    margin-bottom: 25px;
+}
 
-    h2 {
-        font-size: 1.7em;
-        margin-top: 45px;
-        border-bottom: 1px solid #3e4f65;
-        padding-bottom: 8px;
-    }
+h2 {
+    font-size: 1.7em;
+    margin-top: 45px;
+    border-bottom: 1px solid #3e4f65;
+    padding-bottom: 8px;
+}
 
-    h3 {
-        font-size: 1.3em;
-        margin-top: 30px;
-    }
+h3 {
+    font-size: 1.3em;
+    margin-top: 30px;
+}
 
-    p, ul, ol {
-        max-width: 950px;
-    }
+p, ul, ol {
+    max-width: 950px;
+    margin-left: auto;
+    margin-right: auto;
+}
 
-    li {
-        margin-bottom: 7px;
-    }
+li {
+    margin-bottom: 7px;
+}
 
-    table {
-        border-collapse: collapse;
-        width: 100%;
-        max-width: 1000px;
-        margin: 25px 0;
-        background: #293845;
-    }
+table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 1000px;
+    margin: 25px auto;
+    background: #293845;
+}
 
-    th, td {
-        border: 1px solid #3e4f65;
-        padding: 10px;
-        text-align: left;
-        vertical-align: top;
-    }
+th, td {
+    border: 1px solid #3e4f65;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+}
 
-    th {
-        background: #3b82f6;
-        color: white;
-    }
+th {
+    background: #3b82f6;
+    color: white;
+}
 
-    pre {
-        background: #2d3b4e;
-        padding: 15px;
-        overflow-x: auto;
-        border-radius: 4px;
-        max-width: 950px;
-    }
+pre {
+    background: #2d3b4e;
+    padding: 15px;
+    overflow-x: auto;
+    border-radius: 4px;
+    max-width: 950px;
+    margin: 25px auto;
+}
 
-    code {
-        font-family: Consolas, "Courier New", monospace;
-    }
+code {
+    font-family: Consolas, "Courier New", monospace;
+}
 
-    blockquote {
-        border-left: 4px solid #60a5fa;
-        margin: 25px 0;
-        padding: 10px 20px;
-        background: #293845;
-        max-width: 900px;
-    }
+blockquote {
+    border-left: 4px solid #60a5fa;
+    margin: 25px auto;
+    padding: 10px 20px;
+    background: #293845;
+    max-width: 900px;
+}
 
-    .technical-figure {
-        margin: 35px auto;
-        max-width: 1000px;
-        text-align: center;
-    }
+.technical-figure {
+    margin: 35px auto;
+    max-width: 1000px;
+    text-align: center;
+}
 
-    .technical-figure img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 4px;
-    }
+.technical-figure img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
 
-    .technical-figure figcaption {
-        margin-top: 10px;
-        color: #94a3b8;
-        font-size: 0.95em;
-        font-style: italic;
-    }
+.technical-figure figcaption {
+    margin-top: 10px;
+    color: #94a3b8;
+    font-size: 0.95em;
+    font-style: italic;
+}
 
-    .note {
-        background: #293845;
-        border-left: 4px solid #60a5fa;
-        padding: 15px 20px;
-        margin: 25px 0;
-        max-width: 900px;
-    }
+.note {
+    background: #293845;
+    border-left: 4px solid #60a5fa;
+    padding: 15px 20px;
+    margin: 25px auto;
+    max-width: 900px;
+}
 
-    .impact {
-        background: #293845;
-        border-left: 4px solid #f59e0b;
-        padding: 15px 20px;
-        margin: 25px 0;
-        max-width: 900px;
-    }
+.impact {
+    background: #293845;
+    border-left: 4px solid #f59e0b;
+    padding: 15px 20px;
+    margin: 25px auto;
+    max-width: 900px;
+}
 
-    .insight {
-        background: #293845;
-        border-left: 4px solid #22c55e;
-        padding: 15px 20px;
-        margin: 25px 0;
-        max-width: 900px;
-    }
+.insight {
+    background: #293845;
+    border-left: 4px solid #22c55e;
+    padding: 15px 20px;
+    margin: 25px auto;
+    max-width: 900px;
+}
 
-    .troubleshooting {
-        background: #293845;
-        border-left: 4px solid #ef4444;
-        padding: 15px 20px;
-        margin: 25px 0;
-        max-width: 900px;
-    }
+.troubleshooting {
+    background: #293845;
+    border-left: 4px solid #ef4444;
+    padding: 15px 20px;
+    margin: 25px auto;
+    max-width: 900px;
+}
 
-    .command {
-        background: #293845;
-        border-left: 4px solid #a78bfa;
-        padding: 15px 20px;
-        margin: 25px 0;
-        max-width: 950px;
-    }
+.command {
+    background: #293845;
+    border-left: 4px solid #a78bfa;
+    padding: 15px 20px;
+    margin: 25px auto;
+    max-width: 950px;
+}
 
-    strong {
-        color: #e2e8f0;
-    }
+strong {
+    color: #e2e8f0;
+}
 </style>
 </head>
 
