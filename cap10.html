@@ -1,303 +1,2037 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+
+<html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Capítulo 10 – Detecção e Monitoramento em Redes Móveis</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Chapter 10 — Kubernetes for 4G/5G</title>
+
 <style>
-  body {
+body {
     background-color: #1e2a38;
     color: #cbd5e1;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    line-height: 1.7;
-  }
-  h1, h2, h3 {
-    color: #60a5fa;
-    margin-bottom: 0.7em;
-  }
-  p, li {
-    max-width: 900px;
-  }
-  p {
-    margin-bottom: 1.4em;
-    font-size: 1.1em;
-  }
-  ul {
-    max-width: 900px;
-    padding-left: 25px;
-    margin-bottom: 2em;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 900px;
-    margin: 1.5em 0 3em 0;
-    background: #293845;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #3e4f65;
-  }
-  th {
-    background-color: #3b82f6;
-    color: #fff;
-  }
-  pre {
-    background: #2d3b4e;
-    padding: 12px;
-    border-radius: 6px;
-    color: #a5d6ff;
+    margin: 40px auto;
+    max-width: 1100px;
+    padding: 0 30px;
+    line-height: 1.75;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
+}
+
+h1 {
+    color: #f8fafc;
+    font-size: 42px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+h2 {
+    color: #93c5fd;
+    font-size: 28px;
+    margin-top: 55px;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+h3 {
+    color: #bfdbfe;
+    font-size: 21px;
+    margin-top: 35px;
+}
+
+p {
+    margin: 18px 0;
+}
+
+strong {
+    color: #f8fafc;
+}
+
+em {
+    color: #dbeafe;
+}
+
+blockquote {
+    border-left: 4px solid #60a5fa;
+    margin: 30px 0;
+    padding: 15px 25px;
+    background-color: #253548;
+    color: #e2e8f0;
+    font-size: 20px;
+    font-style: italic;
+}
+
+.note {
+    background-color: #253548;
+    border-left: 4px solid #38bdf8;
+    padding: 18px 24px;
+    margin: 30px 0;
+}
+
+.impact {
+    background-color: #26384a;
+    border-left: 5px solid #f59e0b;
+    padding: 20px 25px;
+    margin: 35px 0;
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.diagram {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
     overflow-x: auto;
-  }
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.5;
+}
+
+.flow {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.65;
+}
+
+ul {
+    margin-top: 10px;
+}
+
+li {
+    margin: 8px 0;
+}
+
+.small {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+code {
+    color: #bfdbfe;
+    background-color: #162231;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
 </style>
+
 </head>
 
 <body>
 
-<h1>Capítulo 10 – Detecção e Monitoramento em Redes Móveis</h1>
+<h1>Kubernetes for 4G/5G</h1>
 
-<p>Se o Capítulo 9 mostrou <strong>como proteger</strong>, este capítulo mostra algo ainda mais crítico na prática:</p>
+<p class="small">
+From virtualized infrastructure to a platform capable of orchestrating telecom workloads.
+</p>
 
-<p><strong>👉 como identificar ataques acontecendo em tempo real.</strong></p>
+<blockquote>
+Kubernetes does not replace the network architecture. It becomes the platform on which the network architecture runs.
+</blockquote>
 
-<p>Em redes móveis modernas, segurança não é apenas bloqueio — é <strong>visibilidade contínua</strong>.</p>
+<p>
+The previous chapter established an important idea:
+</p>
 
-<p>Esse é o papel de ambientes como SOC (Security Operations Center) e NOC (Network Operations Center).</p>
+<p>
+Modern telecom networks are increasingly implemented as software.
+</p>
 
-<hr>
+<p>
+But software needs infrastructure.
+</p>
 
-<h2>10.1 O desafio da detecção em telecom</h2>
+<p>
+NFVI provides the compute, memory, networking, virtualization, and hardware acceleration required
+to run those workloads.
+</p>
 
-<p>Diferente do mundo tradicional de TI, redes móveis possuem características únicas:</p>
+<p>
+The next question is obvious:
+</p>
+
+<p>
+<strong>Who manages all those workloads?</strong>
+</p>
+
+<p>
+In cloud-native architectures, one of the most important answers is Kubernetes.
+</p>
+
+<p>
+Kubernetes provides a platform for deploying, scheduling, scaling, monitoring, and recovering
+containerized applications.
+</p>
+
+<p>
+For telecom, however, Kubernetes cannot simply be treated as another enterprise application
+platform.
+</p>
+
+<p>
+A 5G Core has strict networking requirements.
+</p>
+
+<p>
+It may require multiple interfaces.
+</p>
+
+<p>
+It may require dedicated CPU resources.
+</p>
+
+<p>
+It may require deterministic networking.
+</p>
+
+<p>
+It may maintain state.
+</p>
+
+<p>
+It may need to survive node failures.
+</p>
+
+<p>
+And some network functions may process enormous numbers of packets.
+</p>
+
+<div class="impact">
+Running a web application on Kubernetes and running a 5G Core on Kubernetes are fundamentally different engineering problems.
+</div>
+
+<h2>Why Kubernetes?</h2>
+
+<p>
+Kubernetes was designed to manage containerized workloads across clusters of machines.
+</p>
+
+<p>
+Instead of manually placing every application on every server, an engineer describes the desired
+state.
+</p>
+
+<div class="diagram">
+Desired State
+
+"Run three instances of this application."
+
+```
+         |
+         v
+
+    Kubernetes
+         |
+  +------+------+
+  |      |      |
+  v      v      v
+Pod    Pod    Pod
+```
+
+</div>
+
+<p>
+The platform then attempts to maintain that state.
+</p>
+
+<p>
+If a pod fails, Kubernetes can create another one.
+</p>
+
+<p>
+If a node fails, workloads can potentially be rescheduled elsewhere.
+</p>
+
+<p>
+If capacity changes, replicas can be increased or reduced.
+</p>
+
+<blockquote>
+The engineer describes what the system should look like. Kubernetes continuously works to make reality match that description.
+</blockquote>
+
+<h2>The Kubernetes Cluster</h2>
+
+<p>
+A Kubernetes environment is normally organized as a cluster.
+</p>
+
+<div class="diagram">
+                    Kubernetes Cluster
+
+```
+    +-----------------------------------+
+    |                                   |
+    |        Control Plane              |
+    |                                   |
+    | API Server                        |
+    | Scheduler                         |
+    | Controllers                       |
+    | Cluster State                     |
+    |                                   |
+    +----------------+------------------+
+                     |
+          +----------+----------+
+          |          |          |
+          v          v          v
+       Worker      Worker      Worker
+        Node        Node        Node
+          |          |          |
+        Pods       Pods       Pods
+```
+
+</div>
+
+<p>
+The control plane is responsible for coordinating the cluster.
+</p>
+
+<p>
+Worker nodes provide the resources where workloads actually execute.
+</p>
+
+<p>
+The separation is conceptually important.
+</p>
+
+<p>
+The control plane decides.
+</p>
+
+<p>
+The worker nodes execute.
+</p>
+
+<h2>Pods</h2>
+
+<p>
+The basic execution unit in Kubernetes is the <strong>Pod</strong>.
+</p>
+
+<p>
+A pod is not exactly the same thing as a container.
+</p>
+
+<p>
+A pod can contain one or more containers that share networking and certain other resources.
+</p>
+
+<div class="diagram">
+                    Pod
+
+```
+    +-----------------------------+
+    |                             |
+    | Container A                 |
+    | Container B                 |
+    |                             |
+    | Shared Network Namespace    |
+    | Shared Pod IP               |
+    |                             |
+    +-----------------------------+
+```
+
+</div>
+
+<p>
+In many simple applications, one pod contains one main container.
+</p>
+
+<p>
+In telecom, additional sidecar containers may be used for logging, monitoring, configuration,
+security, or other supporting functions.
+</p>
+
+<div class="impact">
+The pod is the fundamental networking boundary that Kubernetes presents to the application.
+</div>
+
+<h2>Pod Networking</h2>
+
+<p>
+By default, containers inside a pod share the same network namespace.
+</p>
+
+<p>
+That means they can communicate through localhost.
+</p>
+
+<div class="diagram">
+                 POD
+
+```
+  +-----------------------+
+  |                       |
+  | Container A           |
+  |       |               |
+  |       | localhost     |
+  |       v               |
+  | Container B           |
+  |                       |
+  | eth0                  |
+  +----------+------------+
+             |
+             v
+         Pod Network
+```
+
+</div>
+
+<p>
+The pod normally receives a network identity from the Kubernetes networking layer.
+</p>
+
+<p>
+That identity is provided through the Container Network Interface.
+</p>
+
+<h2>CNI</h2>
+
+<p>
+<strong>Container Network Interface</strong>, or CNI, is a standard used to configure networking
+for containers.
+</p>
+
+<p>
+When a pod is created, the CNI plugin can be responsible for configuring its network connectivity.
+</p>
+
+<div class="flow">
+Pod Creation
+     |
+     v
+Kubernetes
+     |
+     v
+CNI
+     |
+     +---- Create network namespace
+     |
+     +---- Create interface
+     |
+     +---- Assign IP
+     |
+     +---- Configure routes
+     |
+     +---- Connect to network
+</div>
+
+<p>
+This makes CNI a critical component of cloud-native telecom networking.
+</p>
+
+<p>
+If the CNI configuration is wrong, the application may be perfectly healthy while the network
+function remains unreachable.
+</p>
+
+<div class="impact">
+A telecom application can be completely healthy from the process perspective and completely broken from the network perspective.
+</div>
+
+<h2>The Default Kubernetes Network</h2>
+
+<p>
+A typical Kubernetes pod starts with a primary network interface such as <code>eth0</code>.
+</p>
+
+<div class="diagram">
+                 Pod
+
+```
+    +------------------+
+    |                  |
+    | Network Function |
+    |                  |
+    | eth0             |
+    | 10.x.x.x         |
+    |                  |
+    +--------+---------+
+             |
+             v
+          CNI
+             |
+             v
+    Kubernetes Network
+```
+
+</div>
+
+<p>
+For many enterprise applications, one interface is sufficient.
+</p>
+
+<p>
+For telecom, it frequently is not.
+</p>
+
+<h2>Why Telecom Needs Multiple Interfaces</h2>
+
+<p>
+A telecom network function may need to communicate through multiple logical or physical networks.
+</p>
+
+<p>
+Consider a simplified UPF.
+</p>
+
+<div class="diagram">
+                    UPF
+
+```
+      +-----------------------+
+      |                       |
+      | Control / Management  |
+      |                       |
+      | eth0                  |
+      |                       |
+      |                       |
+      | User Plane            |
+      |                       |
+      | net1                  |
+      | net2                  |
+      |                       |
+      +-----------------------+
+```
+
+</div>
+
+<p>
+The interfaces may have different purposes.
+</p>
+
+<p>
+One may connect to management or signaling infrastructure.
+</p>
+
+<p>
+Another may connect toward the access side.
+</p>
+
+<p>
+Another may connect toward the data network.
+</p>
+
+<p>
+In a 5G environment, the exact interface model depends on the network function and deployment
+architecture.
+</p>
+
+<p>
+But the principle remains:
+</p>
+
+<blockquote>
+The network function may need to participate in multiple networks simultaneously.
+</blockquote>
+
+<h2>Multus</h2>
+
+<p>
+This is where <strong>Multus</strong> becomes important.
+</p>
+
+<p>
+Multus is a CNI meta-plugin that allows a Kubernetes pod to attach to multiple network
+interfaces.
+</p>
+
+<div class="diagram">
+                    Pod
+
+```
+         +-------------+
+         |             |
+         | 5G Network  |
+         | Function    |
+         |             |
+         | eth0         | ---> Kubernetes Network
+         | net1         | ---> Network A
+         | net2         | ---> Network B
+         | net3         | ---> Network C
+         |             |
+         +-------------+
+```
+
+</div>
+
+<p>
+The primary CNI creates the default interface.
+</p>
+
+<p>
+Multus can then attach additional interfaces.
+</p>
+
+<div class="flow">
+Pod
+ |
+ v
+Primary CNI
+ |
+ +---- eth0
+ |
+ v
+Multus
+ |
+ +---- net1
+ +---- net2
+ +---- net3
+</div>
+
+<p>
+This capability is extremely useful for telecom workloads.
+</p>
+
+<div class="impact">
+In cloud-native telecom, networking is often not a single interface. It is a topology.
+</div>
+
+<h2>Network Namespaces</h2>
+
+<p>
+To understand multiple interfaces, it is important to understand Linux network namespaces.
+</p>
+
+<p>
+A network namespace provides an isolated network environment.
+</p>
+
+<p>
+It can contain its own:
+</p>
 
 <ul>
-<li>Alto volume de signaling (milhões de mensagens por segundo)</li>
-<li>Protocolos especializados (SS7, Diameter, HTTP/2)</li>
-<li>Tráfego legítimo pode parecer malicioso</li>
-<li>Ataques muitas vezes são silenciosos (low & slow)</li>
+<li>Interfaces</li>
+<li>IP addresses</li>
+<li>Routing tables</li>
+<li>Firewall rules</li>
+<li>Network sockets</li>
 </ul>
 
-<p>👉 Resultado:</p>
+<div class="diagram">
+Host
 
-<p><strong>Detectar ataque em telecom é encontrar uma agulha em um palheiro em tempo real.</strong></p>
++-------------------------------------+
+|                                     |
+| Host Network Namespace              |
+|                                     |
+| eth0                                |
+| eth1                                |
+| routes                              |
+|                                     |
+|       +-------------------------+   |
+|       | Pod Network Namespace   |   |
+|       |                         |   |
+|       | eth0                    |   |
+|       | net1                    |   |
+|       | net2                    |   |
+|       | routes                  |   |
+|       +-------------------------+   |
+|                                     |
++-------------------------------------+
 
-<hr>
+</div>
 
-<h2>10.2 Tipos de detecção</h2>
+<p>
+The pod therefore has its own network view.
+</p>
 
-<table>
-<tr>
-<th>Tipo</th>
-<th>Descrição</th>
-<th>Exemplo</th>
-</tr>
+<p>
+This is one reason a troubleshooting engineer must know how to enter a pod and inspect its
+network namespace.
+</p>
 
-<tr>
-<td>Baseada em regra</td>
-<td>Assinaturas conhecidas</td>
-<td>Bloquear ATI externo</td>
-</tr>
+<h2>Multiple Interfaces in Practice</h2>
 
-<tr>
-<td>Baseada em comportamento</td>
-<td>Desvio do padrão normal</td>
-<td>Volume anormal de ULR</td>
-</tr>
+<p>
+Imagine a 5G network function with three interfaces.
+</p>
 
-<tr>
-<td>Baseada em contexto</td>
-<td>Combinação de eventos</td>
-<td>Tracking + interceptação</td>
-</tr>
+<div class="diagram">
+                    CNF Pod
 
-<tr>
-<td>Baseada em risco</td>
-<td>Score dinâmico</td>
-<td>Origem + frequência + impacto</td>
-</tr>
-</table>
+```
+      +------------------------+
+      |                        |
+      | eth0   Management      |
+      |   |                    |
+      |   +---- Kubernetes     |
+      |                        |
+      | net1   Signaling       |
+      |   |                    |
+      |   +---- Telecom Net A  |
+      |                        |
+      | net2   User Plane      |
+      |   |                    |
+      |   +---- Telecom Net B  |
+      |                        |
+      +------------------------+
+```
 
-<p>👉 Sistemas modernos usam uma combinação dessas abordagens.</p>
+</div>
 
-<hr>
+<p>
+The first question during troubleshooting should be:
+</p>
 
-<h2>10.3 Principais indicadores de ataque (KPIs de segurança)</h2>
+<p>
+<strong>Which interface carries the traffic I am investigating?</strong>
+</p>
 
-<h3>📍 Indicadores de Tracking</h3>
+<p>
+This sounds simple.
+</p>
 
-<table>
-<tr><th>Indicador</th><th>Descrição</th></tr>
-<tr><td>ATI externo</td><td>Consulta de localização fora do roaming</td></tr>
-<tr><td>Frequência por MSISDN</td><td>Múltiplas consultas em curto tempo</td></tr>
-<tr><td>Origem suspeita</td><td>Operadora desconhecida</td></tr>
-</table>
+<p>
+In a complex cloud-native environment, it is not.
+</p>
 
-<h3>📡 Indicadores de Interceptação</h3>
+<p>
+A packet may be perfectly visible on <code>net1</code> and completely absent from <code>net2</code>.
+</p>
 
-<table>
-<tr><th>Indicador</th><th>Descrição</th></tr>
-<tr><td>SRI anômalo</td><td>Consulta de roteamento inesperada</td></tr>
-<tr><td>Alteração de VLR</td><td>Mudança não usual de localização</td></tr>
-<tr><td>RegisterSS suspeito</td><td>Ativação de redirecionamento</td></tr>
-</table>
+<p>
+Looking only at <code>eth0</code> may lead to the wrong conclusion.
+</p>
 
-<h3>🔓 Indicadores de Data Disclosure</h3>
+<div class="impact">
+If you capture traffic on the wrong interface, you can spend hours proving that a packet does not exist where you are simply not looking.
+</div>
 
-<table>
-<tr><th>Indicador</th><th>Descrição</th></tr>
-<tr><td>SendIMSI externo</td><td>Solicitação de identidade do assinante</td></tr>
-<tr><td>ATI + SRI combinados</td><td>Coleta completa de dados</td></tr>
-</table>
+<h2>Services</h2>
 
-<h3>⚙️ Indicadores de DoS</h3>
+<p>
+Pods are dynamic.
+</p>
 
-<table>
-<tr><th>Indicador</th><th>Descrição</th></tr>
-<tr><td>Volume de signaling</td><td>Aumento abrupto</td></tr>
-<tr><td>Falhas em cascata</td><td>Timeouts em múltiplos nós</td></tr>
-<tr><td>Retry storms</td><td>Repetição massiva de requests</td></tr>
-</table>
+<p>
+Their IP addresses may change.
+</p>
 
-<hr>
+<p>
+Applications therefore need a stable way to reach workloads.
+</p>
 
-<h2>10.4 Exemplo real de detecção (caso prático)</h2>
+<p>
+Kubernetes provides the concept of a <strong>Service</strong>.
+</p>
 
-<h3>Cenário: ataque de tracking</h3>
+<div class="diagram">
+             Service
+          Stable Identity
+                |
+        +-------+-------+
+        |       |       |
+        v       v       v
+      Pod A   Pod B   Pod C
+</div>
 
-<pre>
-1. Origem externa envia ATI
-2. Consulta repetida para mesmo MSISDN
-3. Intervalo curto entre mensagens
-</pre>
+<p>
+The service provides a stable logical endpoint while pods behind it may be created or destroyed.
+</p>
 
-<p><strong>Correlação:</strong></p>
+<p>
+For enterprise applications this abstraction is extremely useful.
+</p>
+
+<p>
+For telecom, however, the engineer must understand exactly which traffic should use a Kubernetes
+Service and which traffic should use a specialized telecom interface.
+</p>
+
+<h2>Services and Telecom Traffic</h2>
+
+<p>
+Not every telecom packet should necessarily travel through the same networking mechanism.
+</p>
+
+<p>
+A management API may use ordinary Kubernetes networking.
+</p>
+
+<p>
+A service-based 5G control-plane interaction may use the pod network.
+</p>
+
+<p>
+A high-performance user-plane path may require a dedicated interface.
+</p>
+
+<div class="diagram">
+Control Plane
+
+NF
+|
+eth0
+|
+Kubernetes Network
+
+User Plane
+
+NF
+|
+net1
+|
+SR-IOV / High Performance Network
+|
+Physical Network
+
+</div>
+
+<p>
+This separation is one of the key concepts in cloud-native telecom architecture.
+</p>
+
+<h2>Deployments</h2>
+
+<p>
+A Deployment describes how Kubernetes should manage replicated stateless workloads.
+</p>
+
+<div class="diagram">
+Deployment
+    |
+    +---- Pod 1
+    |
+    +---- Pod 2
+    |
+    +---- Pod 3
+</div>
+
+<p>
+If one pod disappears, Kubernetes can create another.
+</p>
+
+<p>
+This is ideal for applications where instances are interchangeable.
+</p>
+
+<p>
+For example:
+</p>
 
 <ul>
-<li>Origem não confiável</li>
-<li>Alta frequência</li>
-<li>Alvo específico</li>
+<li>API services</li>
+<li>Stateless microservices</li>
+<li>Web front ends</li>
+<li>Supporting control-plane components</li>
 </ul>
 
-<p><strong>Conclusão:</strong></p>
+<p>
+But telecom introduces another challenge.
+</p>
 
-<p>👉 Tentativa de rastreamento ativo</p>
+<p>
+Not every workload is stateless.
+</p>
 
-<hr>
+<h2>Stateful Applications</h2>
 
-<h2>10.5 Detecção em 4G (Diameter)</h2>
+<p>
+Some telecom functions maintain important state.
+</p>
 
-<p>No 4G, ataques são mais sutis e muitas vezes parecem tráfego legítimo.</p>
+<p>
+Consider session information.
+</p>
 
-<h3>Exemplo: início de Diameter Storm</h3>
+<div class="diagram">
+UE
+ |
+ v
+Network Function
+ |
+ +---- Session State
+ |
+ +---- Subscriber Context
+ |
+ +---- Security Context
+ |
+ +---- Policy Context
+</div>
 
-<table>
-<tr><th>Sinal</th><th>Interpretação</th></tr>
-<tr><td>Aumento de ULR</td><td>Possível falha ou ataque</td></tr>
-<tr><td>Retransmissões</td><td>Timeouts na rede</td></tr>
-<tr><td>CPU alta no HSS</td><td>Saturação</td></tr>
-</table>
+<p>
+If the process disappears, that state may matter.
+</p>
 
-<p>👉 Se não tratado rapidamente, evolui para colapso da rede.</p>
+<p>
+A replacement pod cannot simply start from zero in every architecture.
+</p>
 
-<hr>
+<p>
+This is why stateful workloads require different design considerations.
+</p>
 
-<h2>10.6 Detecção em 5G (SBA)</h2>
+<blockquote>
+Stateless recovery means replacing a process. Stateful recovery means preserving or reconstructing the context that process was holding.
+</blockquote>
 
-<p>No 5G, o foco muda para APIs.</p>
+<h2>StatefulSets</h2>
 
-<h3>Indicadores comuns</h3>
+<p>
+Kubernetes provides <strong>StatefulSets</strong> for workloads requiring stable identity and
+persistent characteristics.
+</p>
 
-<table>
-<tr><th>Indicador</th><th>Descrição</th></tr>
-<tr><td>API flood</td><td>Volume alto de requisições</td></tr>
-<tr><td>Token inválido</td><td>Tentativa de acesso não autorizado</td></tr>
-<tr><td>Access pattern anômalo</td><td>Uso fora do padrão esperado</td></tr>
-</table>
+<div class="diagram">
+StatefulSet
 
-<p>👉 Aqui, ferramentas de observabilidade são essenciais.</p>
+```
+|
++---- Pod-0
+|
++---- Pod-1
+|
++---- Pod-2
+```
 
-<hr>
+Stable identities
+Stable association
+Persistent storage where required
 
-<h2>10.7 Playbooks de resposta</h2>
+</div>
 
-<p>Detectar é só metade do trabalho. A outra metade é <strong>responder rápido</strong>.</p>
+<p>
+This is particularly useful for databases and other stateful services.
+</p>
 
-<h3>Exemplo: Playbook – Tracking</h3>
+<p>
+However, simply placing a telecom function in a StatefulSet does not automatically make the
+architecture resilient.
+</p>
 
-<pre>
-1. Detectar ATI suspeito
-2. Validar origem
-3. Bloquear no firewall
-4. Adicionar à blacklist
-5. Monitorar recorrência
-</pre>
+<p>
+The application itself must support the required state-management model.
+</p>
 
-<h3>Exemplo: Playbook – Interceptação</h3>
+<div class="impact">
+Kubernetes can restart a workload. It cannot magically reconstruct state that the application never designed to preserve.
+</div>
 
-<pre>
-1. Detectar SRI anômalo
-2. Verificar mudanças de roteamento
-3. Bloquear origem
-4. Restaurar configuração original
-5. Auditar impacto
-</pre>
+<h2>High Availability</h2>
 
-<h3>Exemplo: Playbook – DoS</h3>
+<p>
+Telecom networks are expected to operate continuously.
+</p>
 
-<pre>
-1. Detectar aumento de signaling
-2. Identificar origem
-3. Rate-limit
-4. Redirecionar tráfego
-5. Escalar incidente
-</pre>
+<p>
+A single failed server should not necessarily result in a service outage.
+</p>
 
-<hr>
+<div class="diagram">
+                 Service
 
-<h2>10.8 Monitoramento contínuo</h2>
+```
+          +----------+
+          |          |
+       +--+--+    +--+--+
+       | NF1 |    | NF2 |
+       +--+--+    +--+--+
+          |          |
+       Node A      Node B
 
-<p>Uma operadora madura monitora:</p>
+         Failure
+            |
+            X
+            |
+          Node A
+
+             |
+             v
+
+          NF2 remains
+          operational
+```
+
+</div>
+
+<p>
+High availability therefore requires redundancy.
+</p>
+
+<p>
+But redundancy must exist at multiple layers.
+</p>
+
+<div class="diagram">
+Application
+    |
+Pod
+    |
+Node
+    |
+Network
+    |
+Power
+    |
+Rack
+    |
+Site
+</div>
+
+<p>
+If every replica runs on the same physical node, the deployment may appear redundant while
+remaining vulnerable to a single node failure.
+</p>
+
+<h2>Anti-Affinity</h2>
+
+<p>
+Kubernetes scheduling mechanisms can be used to distribute replicas across failure domains.
+</p>
+
+<div class="diagram">
+Bad Design
+
+Node A
++---- Pod 1
++---- Pod 2
++---- Pod 3
+
+Better Design
+
+Node A
++---- Pod 1
+
+Node B
++---- Pod 2
+
+Node C
++---- Pod 3
+
+</div>
+
+<p>
+If Node A fails in the first architecture, every replica may disappear.
+</p>
+
+<p>
+In the second architecture, the workload can remain available.
+</p>
+
+<div class="impact">
+Redundancy without failure-domain separation is often only an illusion of redundancy.
+</div>
+
+<h2>Readiness and Liveness</h2>
+
+<p>
+Kubernetes needs to know whether an application is alive and whether it is ready to receive
+traffic.
+</p>
+
+<p>
+These are different concepts.
+</p>
+
+<p>
+A process can be alive but not ready.
+</p>
+
+<div class="diagram">
+Process Running
+      |
+      v
+Application Initializing
+      |
+      v
+Database Connection
+      |
+      v
+Configuration Loaded
+      |
+      v
+Network Ready
+      |
+      v
+READY
+</div>
+
+<p>
+A liveness check asks a question similar to:
+</p>
+
+<p>
+<strong>Is the process still functioning?</strong>
+</p>
+
+<p>
+A readiness check asks:
+</p>
+
+<p>
+<strong>Can this instance safely receive traffic?</strong>
+</p>
+
+<p>
+This distinction is extremely important in telecom.
+</p>
+
+<p>
+A newly started network function may have a running process but may not yet have established all
+required connections.
+</p>
+
+<div class="impact">
+Restarting a healthy-but-not-ready network function can turn a temporary initialization condition into a real outage.
+</div>
+
+<h2>Failure and Recovery</h2>
+
+<p>
+Consider a simplified failure.
+</p>
+
+<div class="flow">
+UPF Pod
+  |
+  X
+Crash
+  |
+  v
+Kubernetes detects failure
+  |
+  v
+New Pod created
+  |
+  v
+CNI configures interfaces
+  |
+  v
+Network function starts
+  |
+  v
+Interfaces become ready
+  |
+  v
+Application becomes READY
+</div>
+
+<p>
+This sounds straightforward.
+</p>
+
+<p>
+But a telecom workload may require:
+</p>
 
 <ul>
-<li>Tráfego SS7 / Diameter / 5G APIs</li>
-<li>Comportamento por assinante</li>
-<li>Eventos por parceiro de roaming</li>
-<li>Saúde da rede (CPU, latência, erros)</li>
+<li>Multiple interfaces</li>
+<li>Specific IP addresses</li>
+<li>Specific routes</li>
+<li>SR-IOV resources</li>
+<li>Hugepages</li>
+<li>Dedicated CPUs</li>
+<li>NUMA placement</li>
+<li>Persistent state</li>
+<li>External service dependencies</li>
 </ul>
 
-<p><strong>👉 Segurança vira operação contínua, não evento pontual.</strong></p>
+<p>
+The recovery process therefore becomes considerably more complex.
+</p>
 
-<hr>
+<h2>Scheduling Telecom Workloads</h2>
 
-<h2>10.9 Desafios reais</h2>
+<p>
+Kubernetes normally tries to place workloads where resources are available.
+</p>
+
+<p>
+Telecom workloads often require more control.
+</p>
+
+<p>
+A UPF might need:
+</p>
+
+<div class="diagram">
+UPF Requirements
+
+CPU
+|
++---- Dedicated cores
+
+Memory
+|
++---- Hugepages
+
+NUMA
+|
++---- Local memory
+
+Network
+|
++---- SR-IOV VF
+
+Topology
+|
++---- Specific node
+
+</div>
+
+<p>
+Kubernetes must therefore be integrated with the underlying infrastructure capabilities.
+</p>
+
+<p>
+Node labels, taints, tolerations, affinity rules, resource requests, device plugins, and topology
+awareness can all become relevant.
+</p>
+
+<h2>Resource Requests and Limits</h2>
+
+<p>
+Kubernetes workloads can declare resource requirements.
+</p>
+
+<div class="diagram">
+Pod
+
+CPU Request
+Memory Request
+CPU Limit
+Memory Limit
+
+</div>
+
+<p>
+This allows the scheduler to make placement decisions.
+</p>
+
+<p>
+However, telecom performance engineering often requires more than simply requesting “4 CPUs.”
+</p>
+
+<p>
+The engineer may care about:
+</p>
 
 <ul>
-<li>Falso positivo alto</li>
-<li>Falta de contexto entre redes</li>
-<li>Ataques distribuídos</li>
-<li>Volume massivo de dados</li>
+<li>Which CPUs?</li>
+<li>Which NUMA node?</li>
+<li>Shared or dedicated cores?</li>
+<li>What memory locality?</li>
+<li>What NIC locality?</li>
 </ul>
 
-<p>👉 Por isso, automação e correlação são essenciais.</p>
+<p>
+The resource number alone is not the entire story.
+</p>
 
-<hr>
+<blockquote>
+Four CPUs in the wrong place are not equivalent to four CPUs in the right place.
+</blockquote>
 
-<h2>10.10 Conclusão</h2>
+<h2>CPU Manager and Performance</h2>
 
-<p>Se proteger é importante — mas <strong>enxergar o ataque acontecendo é o que realmente salva a operação</strong>.</p>
+<p>
+Kubernetes can be configured to support more predictable CPU allocation for workloads that require
+dedicated cores.
+</p>
+
+<p>
+This becomes especially important for high-performance telecom functions.
+</p>
+
+<div class="diagram">
+Generic Workload
+
+CPU Pool
++--+--+--+--+--+--+--+--+
+^     ^        ^
+Flexible scheduling
+
+Telco Workload
+
+CPU Pool
++--+--+--+--+--+--+--+--+
+|
++---- Dedicated cores
+|
+v
+UPF
+
+</div>
+
+<p>
+This connects directly with the CPU pinning concepts introduced in the previous chapter.
+</p>
+
+<p>
+Kubernetes does not eliminate those requirements.
+</p>
+
+<p>
+It becomes the mechanism through which those requirements are expressed and enforced.
+</p>
+
+<h2>Multus and CNI Chains</h2>
+
+<p>
+Multus is particularly powerful because it can chain multiple networking components.
+</p>
+
+<div class="diagram">
+                    Pod
+
+```
+                 |
+               Multus
+                 |
+    +------------+------------+
+    |            |            |
+    v            v            v
+  CNI A        CNI B        CNI C
+    |            |            |
+  eth0          net1         net2
+    |            |            |
+  Cluster      Telecom A   Telecom B
+```
+
+</div>
+
+<p>
+This means a pod can simultaneously participate in the Kubernetes network and in specialized
+telecom networks.
+</p>
+
+<p>
+For example:
+</p>
+
+<div class="diagram">
+eth0
+ |
+ +---- Service-Based Interfaces
+      Management
+      APIs
+
+net1
+|
++---- Control / Telecom Network
+
+net2
+|
++---- High-Speed User Plane
+
+</div>
+
+<p>
+This architecture allows cloud-native applications to coexist with telecom networking
+requirements.
+</p>
+
+<h2>A 5G Core on Kubernetes</h2>
+
+<p>
+Now we can bring the concepts together.
+</p>
+
+<div class="diagram">
+                    Kubernetes Cluster
+
+```
+   +---------------------------------------+
+   |                                       |
+   |   AMF       SMF       PCF       UDM  |
+   |    |         |         |         |    |
+   |   Pod       Pod       Pod       Pod   |
+   |                                       |
+   |              UPF                     |
+   |               |                       |
+   |              Pod                     |
+   |             /   \                     |
+   |          net1   net2                  |
+   |                                       |
+   +---------------------------------------+
+                |
+                v
+          Physical Network
+```
+
+</div>
+
+<p>
+The 5G Core functions become cloud-native workloads.
+</p>
+
+<p>
+The control plane can use service-based communication over the Kubernetes network.
+</p>
+
+<p>
+The user plane can use dedicated high-performance networking.
+</p>
+
+<p>
+The orchestration platform manages lifecycle and placement.
+</p>
+
+<p>
+The infrastructure provides the physical resources.
+</p>
+
+<div class="diagram">
+5G Core
+   |
+   v
+CNFs
+   |
+   v
+Kubernetes
+   |
+   v
+CNI / Multus
+   |
+   v
+Virtual / SR-IOV Networking
+   |
+   v
+NFVI
+   |
+   v
+Physical Infrastructure
+</div>
+
+<h2>Control Plane Versus User Plane</h2>
+
+<p>
+This distinction becomes even more important in cloud-native environments.
+</p>
+
+<div class="diagram">
+                 5G Core
+
+```
+        CONTROL PLANE
+              |
+    +---------+---------+
+    |         |         |
+   AMF       SMF       PCF
+    |         |
+    +---- SBA +
+          |
+    Kubernetes Network
+
+
+         USER PLANE
+              |
+             UPF
+              |
+         High-speed
+          interfaces
+              |
+         Physical NIC
+```
+
+</div>
+
+<p>
+Control-plane traffic is often dominated by signaling and API interactions.
+</p>
+
+<p>
+The user plane can involve enormous packet volumes.
+</p>
+
+<p>
+Therefore, the infrastructure requirements can be dramatically different.
+</p>
+
+<div class="impact">
+The control plane asks the network what to do. The user plane does the work at packet scale.
+</div>
+
+<h2>State and the 5G Core</h2>
+
+<p>
+The 5G Core also introduces distributed state.
+</p>
+
+<p>
+A subscriber session may involve multiple functions.
+</p>
+
+<div class="diagram">
+UE
+ |
+ v
+AMF
+ |
+ +---- Registration Context
+ |
+ v
+SMF
+ |
+ +---- PDU Session Context
+ |
+ v
+UPF
+ |
+ +---- User Plane State
+</div>
+
+<p>
+The system therefore cannot be understood as a collection of independent containers.
+</p>
+
+<p>
+It is a distributed system.
+</p>
+
+<p>
+Each network function has responsibilities.
+</p>
+
+<p>
+The interfaces between those functions become part of the application's state machine.
+</p>
+
+<blockquote>
+A cloud-native 5G Core is not simply many containers. It is a distributed telecom system whose components happen to run as containers.
+</blockquote>
+
+<h2>High Availability in the 5G Core</h2>
+
+<p>
+Suppose an AMF instance fails.
+</p>
+
+<div class="diagram">
+Before
+
+```
+    AMF-1
+      |
+   AMF-2
+      |
+   AMF-3
+```
+
+AMF-2 fails
+
+```
+    AMF-1
+      |
+      X
+      |
+    AMF-3
+```
+
+</div>
+
+<p>
+The remaining architecture must be capable of continuing service according to the network's
+design.
+</p>
+
+<p>
+That requires more than Kubernetes restarting a container.
+</p>
+
+<p>
+It may require:
+</p>
 
 <ul>
-<li>Sem visibilidade → ataque invisível</li>
-<li>Sem correlação → alerta inútil</li>
-<li>Sem resposta → prejuízo inevitável</li>
+<li>Multiple replicas</li>
+<li>Load distribution</li>
+<li>State replication or reconstruction</li>
+<li>Stable service discovery</li>
+<li>Correct readiness behavior</li>
+<li>Failure-aware session handling</li>
+<li>Network redundancy</li>
 </ul>
 
-<p><strong>👉 Em telecom, quem detecta primeiro, ganha.</strong></p>
+<p>
+The orchestration platform provides mechanisms.
+</p>
 
-<footer>
-<p>Fim do Capítulo 10 – Detecção e Monitoramento</p>
-</footer>
+<p>
+The telecom application must provide the actual resilience model.
+</p>
+
+<div class="impact">
+High availability is an architecture, not a Kubernetes setting.
+</div>
+
+<h2>Troubleshooting a CNF</h2>
+
+<p>
+When a cloud-native network function fails, the troubleshooting process must cross layers.
+</p>
+
+<div class="diagram">
+User Symptom
+     |
+     v
+Telecom Protocol
+     |
+     v
+Network Function
+     |
+     v
+Container
+     |
+     v
+Pod
+     |
+     v
+Network Namespace
+     |
+     v
+CNI / Multus
+     |
+     v
+Node
+     |
+     v
+NIC
+     |
+     v
+Physical Network
+</div>
+
+<p>
+This is one of the most important differences between traditional appliance-based troubleshooting
+and cloud-native troubleshooting.
+</p>
+
+<p>
+The engineer can no longer stop at the application.
+</p>
+
+<h2>Example: AMF Cannot Reach SMF</h2>
+
+<p>
+Suppose the AMF reports that it cannot establish communication with the SMF.
+</p>
+
+<p>
+The problem could exist at several layers.
+</p>
+
+<div class="diagram">
+AMF
+ |
+ +---- Application
+ |
+ +---- Pod
+ |
+ +---- eth0
+ |
+ +---- CNI
+ |
+ +---- Kubernetes Network
+ |
+ +---- Service
+ |
+ +---- SMF Pod
+ |
+ +---- SMF Application
+</div>
+
+<p>
+A disciplined investigation might proceed through the layers:
+</p>
+
+<ul>
+<li>Is the AMF process running?</li>
+<li>Is the AMF pod ready?</li>
+<li>Does the pod have an IP?</li>
+<li>Does DNS resolve the SMF service?</li>
+<li>Is the route correct?</li>
+<li>Can the pod reach the SMF service IP?</li>
+<li>Does the service have healthy endpoints?</li>
+<li>Is the SMF listening on the expected port?</li>
+<li>Is traffic blocked by policy?</li>
+<li>Does packet capture show the connection attempt?</li>
+</ul>
+
+<p>
+The final symptom is:
+</p>
+
+<div class="note">
+“AMF cannot communicate with SMF.”
+</div>
+
+<p>
+But that sentence tells us almost nothing about the root cause.
+</p>
+
+<div class="impact">
+The best troubleshooting question is not “What failed?” It is “At which layer did the expected behavior stop?”
+</div>
+
+<h2>Example: UPF Has No User Traffic</h2>
+
+<p>
+Now consider a UPF that appears healthy.
+</p>
+
+<div class="diagram">
+UPF Pod = Running
+UPF Pod = Ready
+CPU = Normal
+Memory = Normal
+</div>
+
+<p>
+But no user traffic is flowing.
+</p>
+
+<p>
+The investigation must move toward the user-plane interface.
+</p>
+
+<div class="flow">
+UE
+ |
+ v
+gNB
+ |
+ v
+Transport
+ |
+ v
+UPF net1
+ |
+ v
+UPF net2
+ |
+ v
+Data Network
+</div>
+
+<p>
+Questions include:
+</p>
+
+<ul>
+<li>Does the UPF have the expected interfaces?</li>
+<li>Are the IP addresses correct?</li>
+<li>Are routes installed?</li>
+<li>Is GTP-U traffic arriving?</li>
+<li>Are TEIDs correct?</li>
+<li>Is the application receiving packets?</li>
+<li>Are packets being dropped by the NIC?</li>
+<li>Is the return route correct?</li>
+</ul>
+
+<p>
+Notice how Kubernetes is only one part of the investigation.
+</p>
+
+<p>
+The telecom protocol still matters.
+</p>
+
+<p>
+The user plane still matters.
+</p>
+
+<p>
+The physical infrastructure still matters.
+</p>
+
+<blockquote>
+Cloud-native changes where the network function runs. It does not change what the network function must accomplish.
+</blockquote>
+
+<h2>Observability</h2>
+
+<p>
+A Kubernetes-based telecom platform should expose visibility at multiple levels.
+</p>
+
+<div class="diagram">
+5G Metrics
+     |
+CNF Metrics
+     |
+Pod Metrics
+     |
+Node Metrics
+     |
+CNI Metrics
+     |
+NIC Metrics
+     |
+Physical Network Metrics
+</div>
+
+<p>
+For troubleshooting, these sources should be correlated.
+</p>
+
+<p>
+For example:
+</p>
+
+<div class="diagram">
+14:32:01
+
+PDU Sessions increasing
+|
+v
+UPF PPS increasing
+|
+v
+CPU utilization increasing
+|
+v
+RX queue increasing
+|
+v
+Packet drops
+|
+v
+User experience degradation
+
+</div>
+
+<p>
+That is far more useful than simply looking at whether the pod is “Running.”
+</p>
+
+<h2>Running Does Not Mean Healthy</h2>
+
+<p>
+This distinction deserves emphasis.
+</p>
+
+<div class="diagram">
+Kubernetes State
+
+Running
+|
+X
+|
+Healthy
+
+</div>
+
+<p>
+A pod can be running while:
+</p>
+
+<ul>
+<li>A network interface is misconfigured</li>
+<li>A route is missing</li>
+<li>A dependency is unavailable</li>
+<li>A service is unreachable</li>
+<li>The application is internally degraded</li>
+<li>Packets are being dropped</li>
+<li>Sessions are failing</li>
+</ul>
+
+<p>
+Kubernetes status describes the orchestration state.
+</p>
+
+<p>
+It does not automatically describe telecom service health.
+</p>
+
+<div class="impact">
+“Running” is a Kubernetes status. “Working” is a telecom conclusion that requires evidence.
+</div>
+
+<h2>From Kubernetes to Telecom Engineering</h2>
+
+<p>
+The real value of Kubernetes for telecom is not that it makes network functions disappear into
+containers.
+</p>
+
+<p>
+Its value is that it provides a programmable platform for operating complex distributed systems.
+</p>
+
+<p>
+It can automate:
+</p>
+
+<ul>
+<li>Deployment</li>
+<li>Scheduling</li>
+<li>Scaling</li>
+<li>Recovery</li>
+<li>Service discovery</li>
+<li>Resource allocation</li>
+<li>Configuration</li>
+<li>Lifecycle management</li>
+</ul>
+
+<p>
+But the telecom engineer must understand what is happening underneath these abstractions.
+</p>
+
+<div class="diagram">
+                     Kubernetes
+
+```
+         Automation & Orchestration
+                     |
+                     v
+             Cloud-Native CNFs
+                     |
+      +--------------+--------------+
+      |                             |
+ Control Plane                  User Plane
+      |                             |
+  SBA / APIs                    GTP-U
+      |                             |
+Kubernetes CNI               Multus / SR-IOV
+      |                             |
+      +--------------+--------------+
+                     |
+                    NFVI
+                     |
+               Physical Network
+```
+
+</div>
+
+<h2>The New Telecom Stack</h2>
+
+<p>
+The traditional telecom engineer could focus primarily on the network element and the protocols
+around it.
+</p>
+
+<p>
+The modern engineer needs a broader mental model.
+</p>
+
+<div class="diagram">
+Service
+  |
+5G Architecture
+  |
+Network Functions
+  |
+Containers / CNFs
+  |
+Kubernetes
+  |
+CNI / Multus
+  |
+Linux Networking
+  |
+Virtualization / Hardware Acceleration
+  |
+NFVI
+  |
+Physical Network
+</div>
+
+<p>
+A failure can originate anywhere in this stack.
+</p>
+
+<p>
+That is why modern telecom troubleshooting requires both protocol knowledge and infrastructure
+knowledge.
+</p>
+
+<div class="impact">
+The packet does not care whether it is running on a VM, a container, or a bare-metal server. The engineer must care.
+</div>
+
+<h2>Chapter Takeaways</h2>
+
+<p>
+Kubernetes provides orchestration for containerized workloads and maintains the desired state of
+the cluster.
+</p>
+
+<p>
+Pods are the fundamental execution and networking unit.
+</p>
+
+<p>
+Deployments are commonly used for replicated stateless workloads.
+</p>
+
+<p>
+StatefulSets provide stable identity and support stateful application patterns.
+</p>
+
+<p>
+Services provide stable logical endpoints for dynamic workloads.
+</p>
+
+<p>
+CNI provides the networking integration between Kubernetes and the underlying network.
+</p>
+
+<p>
+Multus extends this model by allowing pods to attach to multiple network interfaces.
+</p>
+
+<p>
+Network namespaces isolate the network environment of workloads and define the interfaces,
+addresses, routes, and sockets visible to them.
+</p>
+
+<p>
+Telecom workloads frequently require multiple interfaces because control, management, and user
+plane traffic may have different networking requirements.
+</p>
+
+<p>
+High-performance workloads may require CPU pinning, NUMA awareness, hugepages, SR-IOV, and
+specialized networking.
+</p>
+
+<p>
+High availability requires redundancy across pods, nodes, networks, and failure domains.
+</p>
+
+<p>
+Most importantly, Kubernetes status must not be confused with telecom service health.
+</p>
+
+<blockquote>
+A pod can be Running while the network is broken. A node can be Healthy while the user plane is failing. A cluster can be Green while subscribers are offline.
+</blockquote>
+
+<p>
+The engineer therefore needs to correlate Kubernetes state with network protocols, packet
+captures, application logs, infrastructure metrics, and physical network behavior.
+</p>
+
+<div class="impact">
+Cloud-native telecom is not the replacement of networking with Kubernetes. It is the integration of networking, software, orchestration, and infrastructure into one operational system.
+</div>
+
+<p>
+Once this model is understood, the next challenge becomes even more interesting:
+</p>
+
+<p>
+<strong>How do we connect these cloud-native functions to real telecom networks while preserving
+the performance, isolation, and deterministic behavior expected from carrier-grade systems?</strong>
+</p>
+
+<p>
+That question leads directly into advanced container networking, CNI design, Multus, SR-IOV,
+service networking, high-performance data paths, and the architecture required to make cloud-native
+5G operate at scale.
+</p>
 
 </body>
 </html>
