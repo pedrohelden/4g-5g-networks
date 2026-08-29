@@ -1,338 +1,2071 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+
+<html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Capítulo 8 – Defesa Prática e Arquitetura de Segurança em Redes Móveis</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Chapter 8 — 5G Core Call Flows and Troubleshooting</title>
+
 <style>
-  body {
+body {
     background-color: #1e2a38;
     color: #cbd5e1;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    line-height: 1.7;
-  }
-  h1, h2, h3 {
-    color: #60a5fa;
-    margin-bottom: 0.7em;
-  }
-  p, li {
-    max-width: 900px;
-  }
-  p {
-    margin-bottom: 1.4em;
-    font-size: 1.1em;
-  }
-  ul {
-    max-width: 900px;
-    padding-left: 25px;
-    margin-bottom: 2em;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 900px;
-    margin: 1.5em 0 3em 0;
-    background: #293845;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #3e4f65;
-  }
-  th {
-    background-color: #3b82f6;
-    color: #fff;
-  }
+    margin: 40px auto;
+    max-width: 1100px;
+    padding: 0 30px;
+    line-height: 1.75;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
+}
+
+h1 {
+    color: #f8fafc;
+    font-size: 42px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+h2 {
+    color: #93c5fd;
+    font-size: 28px;
+    margin-top: 55px;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+h3 {
+    color: #bfdbfe;
+    font-size: 21px;
+    margin-top: 35px;
+}
+
+p {
+    margin: 18px 0;
+}
+
+strong {
+    color: #f8fafc;
+}
+
+em {
+    color: #dbeafe;
+}
+
+blockquote {
+    border-left: 4px solid #60a5fa;
+    margin: 30px 0;
+    padding: 15px 25px;
+    background-color: #253548;
+    color: #e2e8f0;
+    font-size: 20px;
+    font-style: italic;
+}
+
+.note {
+    background-color: #253548;
+    border-left: 4px solid #38bdf8;
+    padding: 18px 24px;
+    margin: 30px 0;
+}
+
+.impact {
+    background-color: #26384a;
+    border-left: 5px solid #f59e0b;
+    padding: 20px 25px;
+    margin: 35px 0;
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.diagram {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    overflow-x: auto;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.5;
+}
+
+.flow {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.65;
+}
+
+ul {
+    margin-top: 10px;
+}
+
+li {
+    margin: 8px 0;
+}
+
+.small {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+code {
+    color: #bfdbfe;
+    background-color: #162231;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
 </style>
+
 </head>
 
 <body>
 
-<h1>Capítulo 8 – Defesa Prática e Arquitetura de Segurança em Redes Móveis</h1>
+<h1>5G Core Call Flows and Troubleshooting</h1>
 
-<p>Depois de entender como os ataques funcionam na prática, surge a pergunta mais importante:</p>
+<p class="small">
+From expected signaling to evidence-based diagnosis.
+</p>
 
-<p><strong>Como defender uma rede móvel real?</strong></p>
+<blockquote>
+A call flow is not just a sequence of messages. It is the blueprint of what the network is supposed to do.
+</blockquote>
 
-<p>Este capítulo traz uma visão prática, focada em implementação, operação e defesa contínua — como um time de segurança (SOC/NOC) realmente atua.</p>
+<p>
+Understanding the architecture of the 5G Core is necessary.
+Understanding the Service-Based Architecture is necessary.
+Knowing the individual network functions is necessary.
+</p>
 
----
+<p>
+But none of those skills, by themselves, make an engineer good at troubleshooting.
+</p>
 
-<h2>8.1 O princípio fundamental da defesa</h2>
+<p>
+The real test begins when something fails.
+</p>
 
-<p>O modelo moderno de segurança em redes móveis é baseado em um conceito simples:</p>
+<p>
+A UE does not register.
+Authentication times out.
+A PDU session is rejected.
+The UE receives an IP address but cannot reach the Internet.
+The session is established, but user traffic never arrives.
+</p>
 
-<p><strong>Zero Trust: nunca confiar, sempre verificar.</strong></p>
+<p>
+At that point, architecture diagrams are no longer enough.
+</p>
+
+<p>
+The engineer needs a model of the expected behavior.
+</p>
+
+<p>
+That model is the <strong>call flow</strong>.
+</p>
+
+<div class="impact">
+The fastest way to understand a failure is often to find the exact message where reality stopped matching the expected call flow.
+</div>
+
+<h2>Why Call Flows Matter</h2>
+
+<p>
+A mobile network is a state machine.
+</p>
+
+<p>
+One event causes another.
+A message creates state.
+A response confirms or rejects an operation.
+A successful procedure enables the next procedure.
+</p>
+
+<div class="diagram">
+Registration
+    |
+    v
+Authentication
+    |
+    v
+Security Context
+    |
+    v
+PDU Session Establishment
+    |
+    v
+QoS / User Plane Setup
+    |
+    v
+User Traffic
+</div>
+
+<p>
+If registration fails, there may be no usable context for later procedures.
+</p>
+
+<p>
+If authentication fails, session establishment may never begin.
+</p>
+
+<p>
+If PDU session establishment fails, the UE may be registered but have no data connectivity.
+</p>
+
+<p>
+If the session succeeds but GTP-U does not work, signaling may look perfectly healthy while the
+subscriber still cannot access an application.
+</p>
+
+<blockquote>
+A successful procedure does not prove that the next procedure will succeed.
+</blockquote>
+
+<h2>The Three Questions of Troubleshooting</h2>
+
+<p>
+Every troubleshooting investigation should begin with three questions:
+</p>
+
+<div class="diagram">
+What should have happened?
+
+What actually happened?
+
+Where did they become different?
+
+</div>
+
+<p>
+The first question requires architectural knowledge.
+</p>
+
+<p>
+The second requires observation.
+</p>
+
+<p>
+The third requires engineering judgment.
+</p>
+
+<div class="impact">
+Troubleshooting is the process of locating the first point where expected behavior and observed behavior diverge.
+</div>
+
+<h2>The 5G Registration Procedure</h2>
+
+<p>
+Before the UE can use the 5G Core normally, it must establish a registration context.
+</p>
+
+<p>
+A simplified registration flow looks like this:
+</p>
+
+<div class="flow">
+UE              gNB              AMF
+ |                |                |
+ |-- Registration Request -------->|
+ |                |--------------->|
+ |                |                |
+ |<-- Registration Accept ---------|
+ |                |                |
+ |-- Registration Complete ------->|
+ |                |                |
+</div>
+
+<p>
+The actual procedure contains additional messages and interactions, but the high-level model is
+useful.
+</p>
+
+<p>
+The UE sends a NAS Registration Request.
+</p>
+
+<p>
+The gNB transports the NAS message toward the AMF using NGAP signaling.
+</p>
+
+<p>
+The AMF becomes the central control-plane function responsible for the access and mobility
+procedure.
+</p>
+
+<h2>NGAP and NAS</h2>
+
+<p>
+One of the first concepts an engineer must keep clear is the relationship between
+<strong>NAS</strong> and <strong>NGAP</strong>.
+</p>
+
+<div class="diagram">
+UE
+ |
+ | NAS
+ |
+ v
+gNB
+ |
+ | NGAP
+ |
+ v
+AMF
+ |
+ | NAS information
+ |
+ v
+UE
+</div>
+
+<p>
+NAS messages are exchanged logically between the UE and the 5G Core.
+</p>
+
+<p>
+NGAP provides the signaling relationship between the gNB and the AMF.
+</p>
+
+<p>
+The gNB transports NAS signaling but does not become the endpoint of the NAS protocol.
+</p>
+
+<div class="impact">
+When analyzing a registration failure, always distinguish the radio/access transport from the NAS procedure being transported.
+</div>
+
+<h2>Registration: What Should Happen?</h2>
+
+<p>
+A simplified registration sequence can be represented as:
+</p>
+
+<div class="flow">
+UE
+ |
+ | Registration Request
+ v
+gNB
+ |
+ | NGAP Initial UE Message
+ v
+AMF
+ |
+ | Authentication
+ v
+AUSF / UDM
+ |
+ | Authentication Result
+ v
+AMF
+ |
+ | Security / Registration
+ v
+UE
+ |
+ | Registration Complete
+ v
+AMF
+</div>
+
+<p>
+The exact signaling sequence can contain additional steps, security procedures, identity handling,
+and context establishment.
+</p>
+
+<p>
+For troubleshooting, however, the engineer first needs to identify the major phases.
+</p>
+
+<div class="diagram">
+Registration Request
+       |
+       v
+Identity / Context
+       |
+       v
+Authentication
+       |
+       v
+Security
+       |
+       v
+Registration Accept
+       |
+       v
+Registration Complete
+</div>
+
+<h2>Authentication</h2>
+
+<p>
+Authentication is one of the first major control-plane dependencies.
+</p>
+
+<p>
+The AMF does not perform the complete authentication process in isolation.
+It interacts with authentication and subscriber-data functions.
+</p>
+
+<div class="flow">
+UE
+ |
+ | Authentication Request
+ v
+AMF
+ |
+ | SBA
+ v
+AUSF
+ |
+ | Subscriber Data
+ v
+UDM
+ |
+ | Authentication Information
+ v
+AUSF
+ |
+ | Authentication Result
+ v
+AMF
+ |
+ v
+UE
+</div>
+
+<p>
+This introduces several potential failure points.
+</p>
 
 <ul>
-<li>Não confiar em redes externas</li>
-<li>Não confiar em parceiros automaticamente</li>
-<li>Validar cada mensagem e cada requisição</li>
+<li>UE identity problems</li>
+<li>Authentication vector problems</li>
+<li>UDM service failures</li>
+<li>AUSF service failures</li>
+<li>NF discovery problems</li>
+<li>SBI connectivity problems</li>
+<li>TLS or HTTP/2 failures</li>
+<li>Authentication rejection</li>
 </ul>
 
-<p>👉 Isso é o oposto do modelo original do SS7.</p>
+<p>
+A registration failure is therefore not necessarily a radio problem.
+</p>
 
----
+<blockquote>
+The fact that the UE reached the AMF proves that the procedure started. It does not prove that the Core can authenticate the subscriber.
+</blockquote>
 
-<h2>8.2 Arquitetura de defesa em camadas</h2>
+<h2>Registration Troubleshooting</h2>
 
-<p>A proteção eficaz acontece em múltiplas camadas:</p>
+<p>
+Imagine the UE sends a Registration Request.
+</p>
 
-<table>
-<tr>
-<th>Camada</th>
-<th>Proteção</th>
-</tr>
-<tr>
-<td>Borda (Interconnect)</td>
-<td>Firewall SS7 / Diameter</td>
-</tr>
-<tr>
-<td>Core Network</td>
-<td>Validação de mensagens</td>
-</tr>
-<tr>
-<td>Aplicação (5G)</td>
-<td>API Security (OAuth, TLS)</td>
-</tr>
-<tr>
-<td>Monitoramento</td>
-<td>Detecção e resposta</td>
-</tr>
-</table>
+<p>
+The gNB receives it.
+</p>
 
-<p>👉 Se uma camada falha, outra ainda protege.</p>
+<p>
+The AMF receives the corresponding NGAP message.
+</p>
 
----
+<p>
+Then nothing happens.
+</p>
 
-<h2>8.3 Firewall de sinalização (SS7 / Diameter)</h2>
+<p>
+The engineer should not immediately blame the gNB.
+</p>
 
-<p>É o principal mecanismo de defesa.</p>
+<p>
+Instead, reconstruct the flow.
+</p>
 
-<h3>Funções principais:</h3>
+<div class="diagram">
+UE
+ |
+ | Registration Request
+ v
+gNB
+ |
+ | NGAP Initial UE Message
+ v
+AMF
+ |
+ X
+ |
+ | No Authentication
+ |
+ v
+Procedure Stops
+</div>
+
+<p>
+The key question becomes:
+</p>
+
+<div class="note">
+What was the AMF waiting for?
+</div>
+
+<p>
+If the AMF attempted to contact the AUSF, inspect the SBA transaction.
+</p>
+
+<p>
+If no request was generated, inspect the AMF logic and state.
+</p>
+
+<p>
+If a request was generated but no response returned, inspect the network and the AUSF.
+</p>
+
+<p>
+If a response returned with an error, inspect the application-level reason.
+</p>
+
+<div class="impact">
+Never troubleshoot a timeout as a single event. Identify which transaction timed out and which function was expected to answer it.
+</div>
+
+<h2>PDU Session Establishment</h2>
+
+<p>
+Once the UE is registered, it can request a data session.
+</p>
+
+<p>
+In 5G this is the <strong>PDU Session Establishment</strong> procedure.
+</p>
+
+<div class="flow">
+UE
+ |
+ | PDU Session Establishment Request
+ v
+gNB
+ |
+ | NAS / NGAP
+ v
+AMF
+ |
+ | Session Management
+ v
+SMF
+ |
+ | Policy / Selection
+ v
+PCF
+ |
+ | Session Control
+ v
+SMF
+ |
+ | N4 / PFCP
+ v
+UPF
+ |
+ | User Plane Ready
+ v
+SMF
+ |
+ v
+AMF
+ |
+ v
+UE
+</div>
+
+<p>
+This procedure creates the logical state required for user-plane connectivity.
+</p>
+
+<p>
+The SMF becomes central to the session-management process.
+</p>
+
+<p>
+It determines how the session should be established and which UPF should be used.
+</p>
+
+<h2>UE → gNB → AMF → SMF → UPF</h2>
+
+<p>
+The simplest mental model for a 5G data session is:
+</p>
+
+<div class="diagram">
+UE
+ |
+ | NAS
+ v
+gNB
+ |
+ | NGAP
+ v
+AMF
+ |
+ | Session Management
+ v
+SMF
+ |
+ | PFCP
+ v
+UPF
+ |
+ | GTP-U
+ v
+Data Network
+</div>
+
+<p>
+Each step has a different responsibility.
+</p>
 
 <ul>
-<li>Filtrar mensagens por tipo (MAP, CAP, Diameter)</li>
-<li>Validar origem (GT, realm, IP)</li>
-<li>Bloquear mensagens ilegítimas</li>
-<li>Aplicar políticas por parceiro</li>
+<li><strong>UE</strong> requests connectivity.</li>
+<li><strong>gNB</strong> provides radio access and transports signaling and user traffic.</li>
+<li><strong>AMF</strong> handles access and mobility signaling.</li>
+<li><strong>SMF</strong> manages the PDU session.</li>
+<li><strong>UPF</strong> forwards user traffic.</li>
 </ul>
 
-<h3>Exemplo prático:</h3>
+<div class="impact">
+The subscriber sees one connection. The network sees a chain of state transitions across multiple functions.
+</div>
+
+<h2>PFCP: Controlling the User Plane</h2>
+
+<p>
+The <strong>Packet Forwarding Control Protocol</strong>, or PFCP, is used between the SMF and UPF.
+</p>
+
+<p>
+This is a critical distinction.
+</p>
+
+<p>
+The SMF controls.
+</p>
+
+<p>
+The UPF forwards.
+</p>
+
+<div class="diagram">
+                    SMF
+                     |
+                     | PFCP
+                     |
+                     v
+                    UPF
+                     |
+                     |
+                 GTP-U
+                     |
+                     v
+                  Network
+</div>
+
+<p>
+The SMF can install or modify forwarding rules in the UPF.
+</p>
+
+<p>
+Those rules determine how packets should be handled.
+</p>
+
+<p>
+If PFCP signaling fails, the UPF may not have the required forwarding state.
+</p>
+
+<p>
+The UE may therefore complete signaling procedures while user traffic remains broken.
+</p>
+
+<blockquote>
+A session can exist in the control plane while the user plane is still unable to carry packets.
+</blockquote>
+
+<h2>PFCP Session Establishment</h2>
+
+<p>
+A simplified PFCP sequence looks like:
+</p>
+
+<div class="flow">
+SMF                              UPF
+ |                                |
+ |---- PFCP Association ---------->|
+ |<--- PFCP Association Response --|
+ |                                |
+ |---- Session Establishment ----->|
+ |                                |
+ |<--- Session Establishment Resp -|
+ |                                |
+</div>
+
+<p>
+The exact message sequence depends on the deployment and state of the UPF.
+</p>
+
+<p>
+The important concept is that the SMF establishes the forwarding context required by the UPF.
+</p>
+
+<p>
+The engineer should therefore correlate:
+</p>
+
+<div class="diagram">
+PDU Session Request
+        |
+        v
+SMF Session State
+        |
+        v
+PFCP Session
+        |
+        v
+UPF Forwarding State
+</div>
+
+<h2>GTP-U: Where the Packets Actually Travel</h2>
+
+<p>
+Once the user plane is established, subscriber traffic is transported using
+<strong>GTP-U</strong>.
+</p>
+
+<p>
+The simplified path is:
+</p>
+
+<div class="diagram">
+UE
+ |
+ | IP Packet
+ v
+gNB
+ |
+ | GTP-U
+ v
+UPF
+ |
+ | IP
+ v
+Data Network
+</div>
+
+<p>
+The packet generated by the application is encapsulated inside GTP-U for transport across the
+mobile user plane.
+</p>
+
+<p>
+This creates another critical troubleshooting distinction.
+</p>
+
+<div class="diagram">
+Control Plane
+
+NAS
+|
+NGAP
+|
+AMF
+|
+SMF
+|
+PFCP
+|
+UPF
+
+User Plane
+
+Application Packet
+|
+GTP-U
+|
+UPF
+|
+Data Network
+
+</div>
+
+<div class="impact">
+If signaling is healthy but GTP-U is broken, the network can successfully establish a session that cannot actually carry data.
+</div>
+
+<h2>TEIDs and User-Plane Correlation</h2>
+
+<p>
+GTP-U uses a <strong>TEID</strong>, or Tunnel Endpoint Identifier, to identify tunnel context.
+</p>
+
+<p>
+The TEID is extremely valuable during packet analysis.
+</p>
+
+<div class="diagram">
+GTP-U Packet
+     |
+     +---- Source IP
+     |
+     +---- Destination IP
+     |
+     +---- UDP
+     |
+     +---- GTP-U
+             |
+             +---- TEID
+             |
+             +---- Inner IP Packet
+</div>
+
+<p>
+When investigating a user-plane failure, the engineer can use tunnel information to correlate
+packets with the session and forwarding state.
+</p>
+
+<p>
+This is especially useful when many subscribers share the same infrastructure.
+</p>
+
+<blockquote>
+In a busy mobile core, the TEID helps turn “millions of packets” into “this subscriber's tunnel.”
+</blockquote>
+
+<h2>QoS During Session Establishment</h2>
+
+<p>
+The PDU session is not only about connectivity.
+</p>
+
+<p>
+It also establishes the framework for QoS treatment.
+</p>
+
+<p>
+A simplified model is:
+</p>
+
+<div class="diagram">
+PDU Session
+     |
+     +---- QoS Flow
+     |
+     +---- QoS Flow
+     |
+     +---- QoS Flow
+             |
+            5QI
+</div>
+
+<p>
+Different flows can receive different treatment depending on policy and service requirements.
+</p>
+
+<p>
+The SMF and PCF can participate in determining session and policy behavior.
+</p>
+
+<p>
+The UPF then applies the user-plane rules associated with the session.
+</p>
+
+<div class="impact">
+QoS is not a single setting. It is the result of policy, session state, forwarding rules, and radio treatment working together.
+</div>
+
+<h2>Control Plane Versus User Plane</h2>
+
+<p>
+One of the most important troubleshooting skills is separating these two planes.
+</p>
+
+<div class="diagram">
+                  5G CORE
+
+```
+          CONTROL PLANE
+               |
+   +-----------+-----------+
+   |           |           |
+  AMF         SMF        AUSF
+               |
+              PCF
+               |
+              NRF
+               |
+              UDM
+
+
+            USER PLANE
+               |
+              UPF
+               |
+             GTP-U
+               |
+          Data Network
+```
+
+</div>
+
+<p>
+A control-plane problem can prevent a session from being created.
+</p>
+
+<p>
+A user-plane problem can prevent traffic from flowing after the session exists.
+</p>
+
+<p>
+The symptoms can look similar from the subscriber's perspective:
+</p>
+
+<div class="note">
+“The Internet does not work.”
+</div>
+
+<p>
+But the underlying causes can be completely different.
+</p>
+
+<h2>Scenario: Registration Fails</h2>
+
+<p>
+Suppose the UE never reaches the registered state.
+</p>
+
+<p>
+Start with the call flow.
+</p>
+
+<div class="flow">
+UE
+ |
+ | Registration Request
+ v
+gNB
+ |
+ | NGAP
+ v
+AMF
+ |
+ | Authentication Request
+ v
+AUSF
+ |
+ X
+ |
+No Response
+</div>
+
+<p>
+The failure boundary is between the AMF and AUSF.
+</p>
+
+<p>
+Now investigate progressively.
+</p>
+
+<div class="diagram">
+AMF -> AUSF
+
+1. NF discovery
+2. Service endpoint
+3. IP connectivity
+4. TCP
+5. TLS
+6. HTTP/2
+7. API request
+8. API response
+9. Authentication result
+
+</div>
+
+<p>
+This prevents the investigation from becoming random.
+</p>
+
+<h2>Scenario: Registration Succeeds, PDU Session Fails</h2>
+
+<p>
+Now imagine registration is successful.
+</p>
+
+<div class="diagram">
+Registration       SUCCESS
+Authentication     SUCCESS
+Security            SUCCESS
+PDU Session         FAILURE
+</div>
+
+<p>
+The investigation should move forward in the call flow.
+</p>
+
+<div class="flow">
+UE
+ |
+ | PDU Session Request
+ v
+AMF
+ |
+ | Nsmf
+ v
+SMF
+ |
+ X
+ |
+Session rejected
+</div>
+
+<p>
+The likely investigation area has changed.
+</p>
+
+<p>
+Now inspect:
+</p>
 
 <ul>
-<li>Bloquear <code>AnyTimeInterrogation</code> vindo de redes externas</li>
-<li>Permitir <code>SendRoutingInfo</code> apenas para parceiros confiáveis</li>
+<li>SMF selection</li>
+<li>NF discovery</li>
+<li>Subscription data</li>
+<li>Policy interaction</li>
+<li>DNN configuration</li>
+<li>Slice selection</li>
+<li>UPF selection</li>
+<li>SMF internal state</li>
 </ul>
 
----
+<p>
+The successful registration is evidence.
+</p>
 
-<h2>8.4 Proteção específica por tipo de ataque</h2>
+<p>
+It tells us which portions of the network have already demonstrated basic functionality.
+</p>
 
-<h3>📍 Tracking (localização)</h3>
+<div class="impact">
+Every successful stage eliminates entire classes of possible failures.
+</div>
+
+<h2>Scenario: PDU Session Succeeds, Internet Fails</h2>
+
+<p>
+This is one of the most important cases in mobile troubleshooting.
+</p>
+
+<div class="diagram">
+Registration             SUCCESS
+Authentication           SUCCESS
+PDU Session              SUCCESS
+IP Address               ASSIGNED
+PFCP                      SUCCESS
+GTP-U                     ?
+Internet                  FAILURE
+</div>
+
+<p>
+At this point, continuing to investigate AMF registration logic is usually wasted effort.
+</p>
+
+<p>
+The investigation should move toward the user plane.
+</p>
+
+<div class="flow">
+UE
+ |
+ | IP Packet
+ v
+gNB
+ |
+ | GTP-U
+ v
+UPF
+ |
+ | N6
+ v
+Data Network
+ |
+ X
+Internet
+</div>
+
+<p>
+Now ask:
+</p>
 
 <ul>
-<li>Bloquear ATI externo</li>
-<li>Validar contexto de roaming</li>
-<li>Permitir apenas GMLC autorizado</li>
+<li>Is GTP-U arriving at the UPF?</li>
+<li>Is the expected TEID being used?</li>
+<li>Does the UPF have the correct forwarding rules?</li>
+<li>Is the inner UE IP correct?</li>
+<li>Is routing correct toward the Data Network?</li>
+<li>Is return traffic coming back?</li>
+<li>Is NAT required and functioning?</li>
+<li>Are firewall rules blocking the traffic?</li>
+<li>Is DNS working?</li>
 </ul>
 
-<h3>📡 Interceptação</h3>
+<blockquote>
+Once the control plane proves that the session exists, stop treating the problem like a registration problem.
+</blockquote>
+
+<h2>Packet Capture Strategy</h2>
+
+<p>
+Packet captures are among the most powerful tools available to a mobile-core engineer.
+</p>
+
+<p>
+But a capture is useful only when interpreted in context.
+</p>
+
+<p>
+The first step is to identify what interface or point in the architecture is being observed.
+</p>
+
+<div class="diagram">
+Capture Point
+
+```
+  |
+  +---- N2 / NGAP
+  |
+  +---- SBI / HTTP2
+  |
+  +---- N4 / PFCP
+  |
+  +---- N3 / GTP-U
+  |
+  +---- N6 / Data Network
+```
+
+</div>
+
+<p>
+A capture taken on N2 answers different questions from a capture taken on N3.
+</p>
+
+<p>
+A capture on an SBI answers different questions from a capture on N4.
+</p>
+
+<div class="impact">
+A packet capture without architectural context is just a pile of packets.
+</div>
+
+<h2>Reading a Control-Plane Capture</h2>
+
+<p>
+Consider an N2 capture.
+</p>
+
+<div class="diagram">
+NGAP
+ |
+ +---- Initial UE Message
+ |
+ +---- Downlink NAS Transport
+ |
+ +---- Uplink NAS Transport
+ |
+ +---- Initial Context Setup
+ |
+ +---- UE Context Release
+</div>
+
+<p>
+The engineer should reconstruct the sequence rather than inspecting individual packets in
+isolation.
+</p>
+
+<p>
+Ask:
+</p>
 
 <ul>
-<li>Validar <code>SendRoutingInfo</code></li>
-<li>Verificar coerência IMSI vs origem</li>
-<li>Bloquear redirecionamento suspeito</li>
+<li>Which message started the procedure?</li>
+<li>Which message should come next?</li>
+<li>Did it arrive?</li>
+<li>Was the response expected?</li>
+<li>Did the network send a rejection?</li>
+<li>Did the procedure stop after a timeout?</li>
 </ul>
 
-<h3>🔓 Vazamento de dados</h3>
+<p>
+This is how packet analysis becomes call-flow analysis.
+</p>
+
+<h2>Reading an SBI Capture</h2>
+
+<p>
+Now consider an AMF-to-AUSF transaction.
+</p>
+
+<div class="diagram">
+TCP
+ |
+TLS
+ |
+HTTP/2
+ |
+Request
+ |
+Response
+</div>
+
+<p>
+Do not jump directly to the JSON payload.
+</p>
+
+<p>
+First verify that the lower layers are functioning.
+</p>
+
+<p>
+Then inspect the HTTP/2 transaction.
+</p>
+
+<p>
+Finally inspect the application-level content.
+</p>
+
+<div class="diagram">
+Layer                 Question
+
+IP                    Can the endpoints communicate?
+
+TCP                   Was the connection established?
+
+TLS                   Was the secure session established?
+
+HTTP/2                Was the SBI channel established?
+
+API                   Was the request valid?
+
+Application            Was the operation successful?
+
+</div>
+
+<blockquote>
+Always troubleshoot from the bottom up, but interpret the result from the top down.
+</blockquote>
+
+<h2>Reading PFCP Captures</h2>
+
+<p>
+PFCP captures provide direct evidence of SMF-UPF interaction.
+</p>
+
+<div class="diagram">
+SMF                              UPF
+ |                                |
+ |---- Association Request ------>|
+ |<--- Association Response ------|
+ |                                |
+ |---- Session Establishment ---->|
+ |<--- Session Establishment Resp-|
+ |                                |
+ |---- Session Modification ----->|
+ |<--- Session Modification Resp-|
+ |                                |
+</div>
+
+<p>
+If the SMF believes the UPF is configured but the UPF has no matching forwarding state, the
+capture can reveal where the state installation process failed.
+</p>
+
+<p>
+This is particularly important when the control plane appears healthy.
+</p>
+
+<h2>Reading GTP-U Captures</h2>
+
+<p>
+Now move to the user plane.
+</p>
+
+<div class="diagram">
+gNB                           UPF
+ |                             |
+ |---- GTP-U ----------------->|
+ |        TEID: XXXXX          |
+ |        Inner IP: 10.x.x.x   |
+ |                             |
+ |<---- GTP-U ------------------|
+ |        TEID: YYYYY          |
+ |        Inner IP: 10.x.x.x   |
+ |                             |
+</div>
+
+<p>
+The engineer should verify:
+</p>
 
 <ul>
-<li>Bloquear <code>SendIMSI</code></li>
-<li>Filtrar <code>SendIdentification</code></li>
-<li>Restringir queries ao HLR/HSS</li>
+<li>Source and destination addresses</li>
+<li>UDP ports</li>
+<li>GTP-U headers</li>
+<li>TEIDs</li>
+<li>Inner IP addresses</li>
+<li>Packet direction</li>
+<li>Sequence behavior when relevant</li>
+<li>Whether packets return</li>
 </ul>
 
-<h3>💸 Fraude</h3>
+<p>
+A packet appearing in one direction but not the other is powerful evidence.
+</p>
+
+<div class="impact">
+The absence of a packet is also a packet-analysis result.
+</div>
+
+<h2>Following One Subscriber</h2>
+
+<p>
+Large networks generate enormous volumes of signaling.
+</p>
+
+<p>
+A troubleshooting engineer cannot analyze everything.
+</p>
+
+<p>
+The investigation therefore needs correlation.
+</p>
+
+<p>
+Possible identifiers include:
+</p>
 
 <ul>
-<li>Controlar CAP (CAMEL)</li>
-<li>Validar requests de charging</li>
-<li>Monitorar padrões anormais</li>
+<li>Subscriber identity</li>
+<li>SUPI / SUCI-related context</li>
+<li>UE identifiers</li>
+<li>PDU Session ID</li>
+<li>TEID</li>
+<li>IP address</li>
+<li>Transaction identifiers</li>
+<li>Timestamp</li>
 </ul>
 
-<h3>⚙️ DoS</h3>
+<p>
+The objective is to transform:
+</p>
+
+<div class="note">
+“Something is wrong in the network.”
+</div>
+
+<p>
+into:
+</p>
+
+<div class="note">
+“Subscriber X created PDU Session Y, which selected UPF Z, but the expected GTP-U tunnel was not established.”
+</div>
+
+<div class="impact">
+Good troubleshooting reduces a distributed system to one reproducible transaction.
+</div>
+
+<h2>Time Is Evidence</h2>
+
+<p>
+Timestamps are extremely valuable.
+</p>
+
+<p>
+Consider:
+</p>
+
+<div class="diagram">
+10:15:00.001  Registration Request
+10:15:00.010  AMF receives UE context
+10:15:00.020  Authentication request
+10:15:00.025  SBI request
+10:15:00.030  SBI response
+10:15:00.050  Registration Accept
+10:15:01.200  PDU Session Request
+10:15:01.250  SMF selected
+10:15:01.300  PFCP Session Establishment
+10:15:01.320  PFCP response
+10:15:01.350  Session Accept
+10:15:02.000  First GTP-U packet
+</div>
+
+<p>
+Now imagine the PFCP response never appears.
+</p>
+
+<p>
+The timeline immediately identifies a likely failure boundary.
+</p>
+
+<p>
+This is why synchronized clocks and accurate timestamps matter in distributed networks.
+</p>
+
+<blockquote>
+In a distributed system, time is not decoration. Time is correlation.
+</blockquote>
+
+<h2>Building the Failure Boundary</h2>
+
+<p>
+One of the most powerful techniques in troubleshooting is to identify the
+<strong>failure boundary</strong>.
+</p>
+
+<p>
+For example:
+</p>
+
+<div class="diagram">
+UE
+ |
+ | SUCCESS
+ v
+gNB
+ |
+ | SUCCESS
+ v
+AMF
+ |
+ | SUCCESS
+ v
+SMF
+ |
+ | SUCCESS
+ v
+UPF
+ |
+ | FAILURE
+ v
+Data Network
+</div>
+
+<p>
+The investigation should concentrate around the first boundary where expected behavior is no
+longer observed.
+</p>
+
+<p>
+Do not treat every component equally.
+</p>
+
+<div class="impact">
+The closer you locate the first failure boundary, the smaller the problem becomes.
+</div>
+
+<h2>Control Plane Failure Matrix</h2>
+
+<p>
+A practical mental model is:
+</p>
+
+<div class="diagram">
+Symptom
+   |
+   +---- No Registration
+   |       |
+   |       +---- Radio / gNB
+   |       +---- NGAP
+   |       +---- AMF
+   |       +---- Authentication
+   |       +---- SBA
+   |
+   +---- Registration OK
+           |
+           +---- PDU Session Failure
+                   |
+                   +---- AMF
+                   +---- SMF
+                   +---- Policy
+                   +---- Subscriber Data
+                   +---- UPF Selection
+                   +---- Slice / DNN
+</div>
+
+<p>
+This does not replace detailed troubleshooting.
+</p>
+
+<p>
+It provides a starting hypothesis.
+</p>
+
+<h2>User Plane Failure Matrix</h2>
+
+<div class="diagram">
+PDU Session Established
+          |
+          v
+       No Data
+          |
+          +---- No GTP-U
+          |
+          +---- Wrong TEID
+          |
+          +---- UPF Rules
+          |
+          +---- Routing
+          |
+          +---- NAT
+          |
+          +---- Firewall
+          |
+          +---- DNS
+          |
+          +---- Return Path
+</div>
+
+<p>
+Again, the important point is to move from symptom to evidence.
+</p>
+
+<p>
+Do not assume the UPF is broken simply because the subscriber has no Internet.
+</p>
+
+<p>
+The problem may exist outside the mobile core entirely.
+</p>
+
+<h2>End-to-End Troubleshooting</h2>
+
+<p>
+A complete investigation should follow the subscriber's traffic from origin to destination.
+</p>
+
+<div class="flow">
+                    CONTROL PLANE
+
+UE
+|
+| Registration
+v
+gNB
+|
+v
+AMF
+|
++---- AUSF
+|
++---- UDM
+|
++---- SMF
+|
++---- PCF
+|
+v
+Session Established
+
+```
+                USER PLANE
+```
+
+UE
+|
+v
+gNB
+|
+| GTP-U
+v
+UPF
+|
+| IP
+v
+Data Network
+|
+v
+Application
+
+</div>
+
+<p>
+The engineer should verify each major transition.
+</p>
+
+<p>
+A successful control-plane procedure establishes the conditions for the user plane.
+</p>
+
+<p>
+The user plane then proves whether those conditions actually work.
+</p>
+
+<h2>The Most Dangerous Assumption</h2>
+
+<p>
+One of the most common troubleshooting mistakes is assuming:
+</p>
+
+<div class="note">
+“Because the session was established, the network is working.”
+</div>
+
+<p>
+That assumption is dangerous.
+</p>
+
+<p>
+Session establishment proves that a sequence of control-plane operations succeeded.
+</p>
+
+<p>
+It does not automatically prove:
+</p>
 
 <ul>
-<li>Rate limiting</li>
-<li>Detecção de floods</li>
-<li>Blacklisting automático</li>
+<li>Correct UPF forwarding</li>
+<li>Correct routing</li>
+<li>Working GTP-U in both directions</li>
+<li>Working NAT</li>
+<li>Working DNS</li>
+<li>Working external connectivity</li>
+<li>Application reachability</li>
 </ul>
 
----
+<blockquote>
+Control-plane success creates possibility. User-plane traffic provides proof.
+</blockquote>
 
-<h2>8.5 Segurança no 4G (Diameter)</h2>
+<h2>Wireshark and TShark</h2>
 
-<p>O Diameter trouxe melhorias, mas ainda depende de confiança.</p>
+<p>
+Packet-analysis tools such as <strong>Wireshark</strong> and <strong>TShark</strong> are essential
+for this kind of investigation.
+</p>
 
-<h3>Principais riscos:</h3>
+<p>
+Wireshark provides interactive inspection and protocol decoding.
+</p>
+
+<p>
+TShark provides command-line packet analysis and automation capabilities.
+</p>
+
+<p>
+The important skill is not simply knowing how to open a capture.
+</p>
+
+<p>
+It is knowing what to search for.
+</p>
+
+<div class="diagram">
+Capture
+  |
+  +---- Subscriber
+  |
+  +---- Timestamp
+  |
+  +---- Protocol
+  |
+  +---- Procedure
+  |
+  +---- Transaction
+  |
+  +---- Failure
+</div>
+
+<p>
+An experienced engineer does not scroll through thousands of packets hoping to discover a
+problem.
+</p>
+
+<p>
+The engineer forms a hypothesis and uses the capture to prove or disprove it.
+</p>
+
+<div class="impact">
+Packet analysis is not packet browsing. It is hypothesis testing with network evidence.
+</div>
+
+<h2>Call Flow as a Diagnostic Tool</h2>
+
+<p>
+Suppose a subscriber reports:
+</p>
+
+<div class="note">
+“My phone shows 5G, but I have no Internet.”
+</div>
+
+<p>
+That statement is not a diagnosis.
+</p>
+
+<p>
+It is a symptom.
+</p>
+
+<p>
+The engineer should translate it into a sequence of technical questions.
+</p>
+
+<div class="diagram">
+5G Radio Available?
+        |
+        v
+Registration Successful?
+        |
+        v
+Authentication Successful?
+        |
+        v
+PDU Session Established?
+        |
+        v
+IP Address Assigned?
+        |
+        v
+PFCP State Installed?
+        |
+        v
+GTP-U Packets Present?
+        |
+        v
+UPF Forwarding?
+        |
+        v
+External Routing?
+        |
+        v
+DNS?
+        |
+        v
+Application?
+</div>
+
+<p>
+Every successful answer narrows the search space.
+</p>
+
+<p>
+Every failed answer defines the next investigation.
+</p>
+
+<h2>From Symptom to Root Cause</h2>
+
+<p>
+Consider a hypothetical case.
+</p>
+
+<div class="diagram">
+Symptom:
+No Internet
+
+Evidence:
+Registration = SUCCESS
+Authentication = SUCCESS
+PDU Session = SUCCESS
+IP Assignment = SUCCESS
+PFCP = SUCCESS
+GTP-U Uplink = SUCCESS
+GTP-U Downlink = NO RESPONSE
+
+</div>
+
+<p>
+The investigation should now focus on the downlink path.
+</p>
+
+<div class="diagram">
+Internet
+   |
+   v
+Data Network
+   |
+   X
+   |
+UPF
+   |
+   v
+GTP-U
+   |
+   v
+gNB
+   |
+   v
+UE
+</div>
+
+<p>
+Possible causes now include:
+</p>
 
 <ul>
-<li>Diameter Storm</li>
-<li>Fraude via CCR</li>
-<li>Vazamento via AIR/ULR</li>
+<li>Incorrect return routing</li>
+<li>Missing UPF forwarding rule</li>
+<li>Wrong downlink tunnel information</li>
+<li>Firewall filtering</li>
+<li>NAT behavior</li>
+<li>External network failure</li>
 </ul>
 
-<h3>Controles:</h3>
+<p>
+Notice what is no longer at the top of the list:
+</p>
+
+<div class="note">
+“Maybe the UE failed to register.”
+</div>
+
+<p>
+The evidence has already disproved that hypothesis.
+</p>
+
+<div class="impact">
+Good troubleshooting is not about finding more possibilities. It is about eliminating possibilities with evidence.
+</div>
+
+<h2>The Engineer's Mental Model</h2>
+
+<p>
+A strong 5G Core engineer constantly maintains two models.
+</p>
+
+<div class="diagram">
+MODEL 1
+What should happen?
+
+```
+    Call Flow
+       |
+       v
+```
+
+Expected State
+
+</div>
+
+<div class="diagram">
+MODEL 2
+What actually happened?
+
+```
+    Packet Capture
+         +
+    Logs / Metrics
+         +
+    Counters
+         |
+         v
+    Observed State
+```
+
+</div>
+
+<p>
+Troubleshooting is the comparison between those two models.
+</p>
+
+<div class="diagram">
+Expected State
+      |
+      |
+      v
+   Compare
+      ^
+      |
+      |
+Observed State
+
+```
+   |
+   v
+```
+
+First Divergence
+|
+v
+Failure Boundary
+|
+v
+Root Cause
+
+</div>
+
+<blockquote>
+The call flow tells you where you should be. The packets tell you where you actually are.
+</blockquote>
+
+<h2>Chapter Takeaways</h2>
+
+<p>
+5G Core troubleshooting begins with understanding expected call flows.
+</p>
+
+<p>
+The major procedures include:
+</p>
 
 <ul>
-<li>Diameter Edge Agent (DEA)</li>
-<li>Rate limiting por peer</li>
-<li>Validação de sessão</li>
+<li>Registration</li>
+<li>Authentication</li>
+<li>PDU Session Establishment</li>
+<li>QoS and policy establishment</li>
+<li>User-plane activation</li>
 </ul>
 
----
+<p>
+The simplified path:
+</p>
 
-<h2>8.6 Segurança no 5G (SBA)</h2>
+<div class="diagram">
+UE
+ |
+ v
+gNB
+ |
+ v
+AMF
+ |
+ v
+SMF
+ |
+ v
+UPF
+ |
+ v
+Data Network
+</div>
 
-<p>No 5G, a segurança muda completamente:</p>
+<p>
+does not mean that every message travels through every function.
+It means that these functions participate in different parts of the overall service.
+</p>
 
-<ul>
-<li>Baseado em APIs (HTTP/2)</li>
-<li>Comunicação entre serviços (SBA)</li>
-</ul>
+<p>
+<strong>NGAP</strong> carries signaling between the gNB and AMF.
+</p>
 
-<h3>Riscos:</h3>
+<p>
+<strong>NAS</strong> provides UE-to-core signaling for procedures such as registration and session
+management.
+</p>
 
-<ul>
-<li>Exposição de APIs</li>
-<li>Falta de autenticação forte</li>
-<li>Ataques de API abuse</li>
-</ul>
+<p>
+<strong>SBA</strong> allows core functions to communicate through service-based interactions.
+</p>
 
-<h3>Proteções:</h3>
+<p>
+<strong>PFCP</strong> controls the forwarding state between SMF and UPF.
+</p>
 
-<ul>
-<li>OAuth2</li>
-<li>mTLS (mutual TLS)</li>
-<li>API Gateway</li>
-<li>Service mesh</li>
-</ul>
+<p>
+<strong>GTP-U</strong> carries subscriber user-plane traffic.
+</p>
 
----
+<p>
+<strong>QoS</strong> determines how different traffic flows are treated.
+</p>
 
-<h2>8.7 Monitoramento e detecção (SOC/NOC)</h2>
+<p>
+The most important troubleshooting principle is to separate control-plane and user-plane
+failures.
+</p>
 
-<p>Defesa não é só bloquear — é observar.</p>
+<div class="diagram">
+CONTROL PLANE
 
-<h3>Indicadores de ataque:</h3>
+Registration
+|
+Authentication
+|
+PDU Session
+|
+PFCP
+|
+Session State
 
-<table>
-<tr>
-<th>Sintoma</th>
-<th>Possível ataque</th>
-</tr>
-<tr>
-<td>Muitos ATI requests</td>
-<td>Tracking</td>
-</tr>
-<tr>
-<td>Alterações de routing</td>
-<td>Interceptação</td>
-</tr>
-<tr>
-<td>Picos de signaling</td>
-<td>DoS / Storm</td>
-</tr>
-<tr>
-<td>Requests incomuns</td>
-<td>Reconhecimento</td>
-</tr>
-</table>
+USER PLANE
 
----
+IP Packet
+|
+GTP-U
+|
+UPF
+|
+Data Network
+|
+Application
 
-<h2>8.8 Playbook de resposta</h2>
+</div>
 
-<p>Quando um ataque acontece:</p>
+<p>
+When investigating a failure, reconstruct the call flow.
+</p>
 
-<ol>
-<li>Detectar (alerta)</li>
-<li>Classificar (tipo de ataque)</li>
-<li>Bloquear origem</li>
-<li>Aplicar regra no firewall</li>
-<li>Monitorar impacto</li>
-</ol>
+<p>
+Identify what should have happened.
+</p>
 
-<p>👉 Tempo de resposta é crítico.</p>
+<p>
+Compare it with what actually happened.
+</p>
 
----
+<p>
+Find the first divergence.
+</p>
 
-<h2>8.9 Maturidade de segurança</h2>
+<p>
+Then investigate the smallest possible failure domain.
+</p>
 
-<table>
-<tr>
-<th>Nível</th>
-<th>Descrição</th>
-</tr>
-<tr>
-<td>Básico</td>
-<td>Regras estáticas</td>
-</tr>
-<tr>
-<td>Intermediário</td>
-<td>Monitoramento ativo</td>
-</tr>
-<tr>
-<td>Avançado</td>
-<td>Automação + análise</td>
-</tr>
-<tr>
-<td>Elite</td>
-<td>Detecção em tempo real + IA</td>
-</tr>
-</table>
+<div class="impact">
+Do not start by asking “what is broken?” Start by asking “what was the last thing that worked?”
+</div>
 
----
+<p>
+That single question can transform a complex 5G Core incident into a manageable investigation.
+</p>
 
-<h2>8.10 Explicação didática</h2>
+<p>
+The strongest engineers do not memorize every possible failure.
+They understand the architecture well enough to determine which failures are possible,
+then use evidence to eliminate them.
+</p>
 
-<p>Imagina a rede como um prédio:</p>
+<blockquote>
+A call flow is the story of a successful network. Troubleshooting is discovering where that story stopped being true.
+</blockquote>
 
-<ul>
-<li>SS7 → porta aberta</li>
-<li>4G → porteiro distraído</li>
-<li>5G → sistema digital com senha</li>
-</ul>
+<p>
+With the 5G Core understood as a set of distributed functions and call flows understood as
+state transitions, the next challenge becomes operational:
+<strong>how do these network functions actually run at scale?</strong>
+</p>
 
-<p>Mas segurança real é:</p>
+<p>
+That question takes us from telecom architecture into the infrastructure underneath it:
+virtual machines, containers, Linux networking, Kubernetes, CNFs, CNI, and the cloud-native
+platform on which the modern 5G Core depends.
+</p>
 
-<ul>
-<li>Câmeras</li>
-<li>Controle de acesso</li>
-<li>Monitoramento constante</li>
-</ul>
-
-<p>👉 Não basta ter porta — tem que vigiar.</p>
-
----
-
-<h2>8.11 Conclusão</h2>
-
-<p>Defender redes móveis exige:</p>
-
-<ul>
-<li>Arquitetura segura</li>
-<li>Controle rigoroso de sinalização</li>
-<li>Monitoramento contínuo</li>
-<li>Resposta rápida</li>
-</ul>
-
-<p><strong>A ameaça evolui — a defesa precisa evoluir mais rápido.</strong></p>
-
-<footer>
-<p>Fim do Capítulo 8 – Defesa Prática e Arquitetura de Segurança</p>
-</footer>
+<blockquote>
+The future of troubleshooting is not choosing between telecom knowledge and software knowledge. It is combining both to follow the failure all the way to its source.
+</blockquote>
 
 </body>
 </html>
