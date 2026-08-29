@@ -235,19 +235,14 @@ and physical domains.
 A simplified representation is:
 </p>
 
-<pre><code>UE
- |
- | Radio Access
- v
-RAN
- |
- | IP Transport
- v
-Mobile Core
- |
- | Data Network
- v
-Internet / Enterprise / IMS / Application</code></pre>
+<img
+    src="imgs/c01/c01img01.jpg"
+    alt="A mobile network can be understood as a distributed communication system"
+    style="display:block; width:100%; max-width:1000px; height:auto; margin:35px auto 10px auto; border:1px solid #334155;"
+>
+<p style="text-align:center; color:#94a3b8; font-size:15px; margin-top:5px;">
+    Figure 1.1 A mobile network can be understood as a distributed communication system
+</p>
 
 <p>
 Every arrow in this diagram represents more than physical connectivity.
@@ -337,38 +332,15 @@ The subscriber may perceive this as one operation, but the network
 processes several independent transactions.
 </p>
 
-<pre><code>User opens application
-        |
-        v
-Application requests destination
-        |
-        v
-DNS resolution
-        |
-        v
-Subscriber packet generated
-        |
-        v
-UE sends packet through radio
-        |
-        v
-RAN transports packet toward Core
-        |
-        v
-Mobile Core processes subscriber session
-        |
-        v
-Packet forwarded toward Data Network
-        |
-        v
-Internet routing
-        |
-        v
-Destination server
-        |
-        v
-Response returns through the network</code></pre>
-
+<img
+    src="imgs/c01/c01img02.jpg"
+    alt="The mobile network processes several independent transactions"
+    style="display:block; width:100%; max-width:1000px; height:auto; margin:35px auto 10px auto; border:1px solid #334155;"
+>
+<p style="text-align:center; color:#94a3b8; font-size:15px; margin-top:5px;">
+    Figure 1.2 The mobile network processes several independent transactions
+</p>
+    
 <p>
 At every stage, a different failure can occur.
 </p>
