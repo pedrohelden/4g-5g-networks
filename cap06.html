@@ -1,282 +1,1489 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+
+<html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Capítulo 6 – SS7 em Profundidade</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Chapter 6 — 5G Core: SA and NSA Architecture</title>
+
 <style>
-  body {
+body {
     background-color: #1e2a38;
     color: #cbd5e1;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    line-height: 1.7;
-  }
-  h1, h2, h3 {
-    color: #60a5fa;
-    margin-bottom: 0.7em;
-  }
-  p, li {
-    max-width: 900px;
-  }
-  p {
-    margin-bottom: 1.4em;
-    font-size: 1.1em;
-  }
-  ul {
-    max-width: 900px;
-    padding-left: 25px;
-    margin-bottom: 2em;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 900px;
-    margin: 1.5em 0 3em 0;
-    background: #293845;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #3e4f65;
-  }
-  th {
-    background-color: #3b82f6;
-    color: #fff;
-  }
-  code {
-    background: #2d3b4e;
+    margin: 40px auto;
+    max-width: 1100px;
+    padding: 0 30px;
+    line-height: 1.75;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
+}
+
+h1 {
+    color: #f8fafc;
+    font-size: 42px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+h2 {
+    color: #93c5fd;
+    font-size: 28px;
+    margin-top: 55px;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+h3 {
+    color: #bfdbfe;
+    font-size: 21px;
+    margin-top: 35px;
+}
+
+p {
+    margin: 18px 0;
+}
+
+strong {
+    color: #f8fafc;
+}
+
+em {
+    color: #dbeafe;
+}
+
+blockquote {
+    border-left: 4px solid #60a5fa;
+    margin: 30px 0;
+    padding: 15px 25px;
+    background-color: #253548;
+    color: #e2e8f0;
+    font-size: 20px;
+    font-style: italic;
+}
+
+.note {
+    background-color: #253548;
+    border-left: 4px solid #38bdf8;
+    padding: 18px 24px;
+    margin: 30px 0;
+}
+
+.impact {
+    background-color: #26384a;
+    border-left: 5px solid #f59e0b;
+    padding: 20px 25px;
+    margin: 35px 0;
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.diagram {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    overflow-x: auto;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.5;
+}
+
+.flow {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.65;
+}
+
+.interface {
+    background-color: #223247;
+    border-left: 4px solid #818cf8;
+    padding: 18px 24px;
+    margin: 25px 0;
+}
+
+ul {
+    margin-top: 10px;
+}
+
+li {
+    margin: 8px 0;
+}
+
+.chapter-end {
+    margin-top: 70px;
+    padding-top: 30px;
+    border-top: 1px solid #475569;
+}
+
+.small {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+code {
+    color: #bfdbfe;
+    background-color: #162231;
     padding: 2px 6px;
-    border-radius: 3px;
-    color: #a5d6ff;
-  }
+    border-radius: 4px;
+}
 </style>
+
 </head>
 
 <body>
 
-<h1>Capítulo 6 – SS7 em Profundidade</h1>
+<h1>5G Core: SA and NSA Architecture</h1>
 
-<p>Agora que você já entende como os ataques funcionam, vamos abrir a “caixa preta” do SS7.</p>
+<p class="small">
+From LTE evolution to service-based 5G networking.
+</p>
 
-<p>Este capítulo mostra como o protocolo funciona por dentro, por que ele é vulnerável e como os ataques realmente acontecem no nível de sinalização.</p>
+<blockquote>
+5G is not simply faster LTE. It changes the way the mobile core is designed, deployed, and operated.
+</blockquote>
 
-<hr>
+<p>
+The evolution from 4G LTE to 5G is often presented as a radio evolution.
+Higher frequencies, wider channels, massive MIMO, beamforming, and lower latency are certainly
+important parts of 5G.
+</p>
 
-<h2>6.1 O que é o SS7 de verdade?</h2>
+<p>
+But one of the most significant transformations happens somewhere else:
+<strong>inside the core network</strong>.
+</p>
 
-<p>O <strong>SS7 (Signaling System No. 7)</strong> é o sistema responsável por controlar a rede móvel — ele não transporta voz ou dados diretamente, mas sim os comandos que fazem tudo acontecer.</p>
+<p>
+The 4G EPC introduced a highly distributed packet core built around network elements such as the
+MME, SGW, PGW, HSS, and PCRF.
+</p>
 
-<p>Exemplos do que o SS7 faz:</p>
+<p>
+The 5G Core introduces a different architectural philosophy.
+Instead of simply replacing one box with another, 3GPP defines a set of
+<strong>network functions</strong> that communicate through a
+<strong>service-based architecture</strong>.
+</p>
+
+<p>
+This difference is fundamental.
+</p>
+
+<div class="impact">
+The biggest change from EPC to 5GC is not the number of functions. It is the way those functions interact, scale, and evolve.
+</div>
+
+<h2>NSA and SA: Two Different Paths to 5G</h2>
+
+<p>
+The transition to 5G did not happen overnight.
+</p>
+
+<p>
+Operators already had enormous investments in LTE radio networks, EPC infrastructure, transport,
+spectrum, and operational systems.
+</p>
+
+<p>
+Replacing the entire mobile core before launching 5G would have been expensive and slow.
+</p>
+
+<p>
+This created two major deployment models:
+<strong>Non-Standalone (NSA)</strong> and
+<strong>Standalone (SA)</strong>.
+</p>
+
+<div class="diagram">
+                    5G Evolution
+
+```
+             +-------------+
+             |     5G      |
+             +-------------+
+                   |
+         +---------+---------+
+         |                   |
+        NSA                 SA
+         |                   |
+   LTE + 5G NR            5G NR
+         |                   |
+        EPC                 5GC
+```
+
+</div>
+
+<p>
+The distinction is simple at a high level:
+</p>
+
+<p>
+<strong>NSA uses the existing 4G core as an anchor.</strong>
+</p>
+
+<p>
+<strong>SA uses the 5G Core directly.</strong>
+</p>
+
+<p>
+But the engineering implications are much deeper than that simple definition.
+</p>
+
+<h2>5G NSA: Extending the LTE Architecture</h2>
+
+<p>
+In the most common NSA deployment model, the 4G EPC remains the control-plane anchor while a
+5G NR cell is added to provide additional radio capacity and performance.
+</p>
+
+<div class="diagram">
+                         EPC
+                    +-----------+
+                    |    MME    |
+                    +-----------+
+                         |
+                         |
+                    +-----------+
+                    |    SGW    |
+                    +-----------+
+                         |
+                    +-----------+
+                    |    PGW    |
+                    +-----------+
+                         |
+                         |
+                       Internet
+
+```
+        LTE + 5G Dual Connectivity
+
+              +-----------+
+              |    eNB    |
+              +-----------+
+                   |
+                   |
+              +-----------+
+              |    gNB    |
+              +-----------+
+                   |
+                   |
+                   UE
+```
+
+</div>
+
+<p>
+In NSA, the UE can use LTE and 5G NR together through a dual-connectivity architecture.
+</p>
+
+<p>
+The LTE side provides the anchor while the NR side contributes additional radio resources.
+</p>
+
+<p>
+This is why NSA is sometimes described as an evolutionary deployment.
+The operator can introduce 5G radio technology without immediately replacing the EPC.
+</p>
+
+<blockquote>
+NSA allowed operators to deploy 5G faster because they did not need to abandon the infrastructure that already carried millions of subscribers.
+</blockquote>
+
+<h2>The EPC Anchor</h2>
+
+<p>
+The term <strong>anchor</strong> is important.
+</p>
+
+<p>
+In an NSA architecture, the LTE/EPC domain retains important control and session-management
+responsibilities.
+</p>
+
+<p>
+The exact architecture depends on the NSA option and deployment, but conceptually the relationship
+looks like:
+</p>
+
+<div class="diagram">
+UE
+ |
+ +----------------------+
+ |                      |
+LTE                      5G NR
+ |                      |
+eNB                    gNB
+ |                      |
+ +----------+-----------+
+            |
+        EPC Anchor
+            |
+            v
+       Core Network
+</div>
+
+<p>
+The NR radio therefore does not automatically imply that the subscriber has moved to the 5G Core.
+</p>
+
+<p>
+This is one of the most important concepts to understand when troubleshooting real networks.
+</p>
+
+<div class="impact">
+A device displaying “5G” does not necessarily mean that the subscriber is using a 5G Core.
+</div>
+
+<p>
+An NSA subscriber may be using 5G NR while the session remains anchored in EPC.
+</p>
+
+<h2>5G SA: A New Core</h2>
+
+<p>
+Standalone architecture changes the picture.
+</p>
+
+<p>
+In SA, the 5G radio connects to a native 5G Core.
+</p>
+
+<div class="diagram">
+                    5G SA
+
+```
+                   UE
+                    |
+                    |
+                   gNB
+                    |
+                    | N2 / N3
+                    |
+          +---------+---------+
+          |                   |
+         AMF                 UPF
+          |                   |
+          |                   |
+      Control Plane       User Plane
+          |                   |
+    +-----+-----+              |
+    |     |     |              |
+   SMF   AUSF   UDM            |
+    |                          |
+    +----------+---------------+
+               |
+              DN
+         Data Network
+```
+
+</div>
+
+<p>
+The architecture is now explicitly separated into control-plane and user-plane functions.
+</p>
+
+<p>
+The AMF handles access and mobility.
+</p>
+
+<p>
+The SMF manages sessions.
+</p>
+
+<p>
+The UPF forwards user traffic.
+</p>
+
+<p>
+Other functions provide authentication, subscriber data, policy, network discovery, and network
+selection.
+</p>
+
+<p>
+This decomposition is one of the defining characteristics of 5GC.
+</p>
+
+<h2>From Network Elements to Network Functions</h2>
+
+<p>
+The EPC often feels like a collection of specialized nodes.
+</p>
+
+<div class="diagram">
+4G EPC
+
+MME ---- SGW ---- PGW
+|
++---- HSS
+|
++---- PCRF
+
+</div>
+
+<p>
+The 5GC is more naturally understood as a collection of cooperating network functions.
+</p>
+
+<div class="diagram">
+5G Core
+
+AMF ---- SMF ---- UPF
+|        |
+|        +---- PCF
+|
++---- AUSF ---- UDM
+|
++---- NSSF
+|
++---- NRF
+
+</div>
+
+<p>
+This does not mean that every deployment consists of separate physical appliances.
+</p>
+
+<p>
+A network function may run as software on virtualized or containerized infrastructure.
+</p>
+
+<p>
+That makes the architecture much more flexible, but it also introduces a new operational reality.
+</p>
+
+<div class="impact">
+In 5G, the network itself becomes software.
+</div>
+
+<h2>AMF — Access and Mobility Management Function</h2>
+
+<p>
+The <strong>AMF</strong> is one of the central control-plane functions in the 5G Core.
+</p>
+
+<p>
+Its responsibilities include access and mobility management, registration management, connection
+management, and interaction with authentication procedures.
+</p>
+
+<p>
+It is conceptually related to some of the responsibilities previously associated with the LTE
+MME, but it is not simply an MME with a new name.
+</p>
+
+<p>
+The AMF participates in a service-based architecture and interacts with other 5GC functions using
+defined service interfaces.
+</p>
+
+<div class="diagram">
+                UE
+                 |
+                 | N1
+                 |
+                AMF
+                 |
+        +--------+--------+
+        |        |        |
+       AUSF     UDM      SMF
+</div>
+
+<p>
+The AMF is therefore a major control-plane coordination point.
+</p>
+
+<blockquote>
+The AMF does not carry the subscriber's application traffic. It manages the control state that allows the network to carry it.
+</blockquote>
+
+<h2>SMF — Session Management Function</h2>
+
+<p>
+The <strong>SMF</strong> manages PDU sessions.
+</p>
+
+<p>
+This includes responsibilities such as:
+</p>
 
 <ul>
-<li>Localizar usuários</li>
-<li>Encaminhar chamadas</li>
-<li>Entregar SMS</li>
-<li>Gerenciar roaming</li>
+<li>PDU session establishment</li>
+<li>Session modification</li>
+<li>Session release</li>
+<li>UPF selection</li>
+<li>IP address management</li>
+<li>Traffic steering</li>
+<li>Interaction with policy functions</li>
 </ul>
 
-<p><strong>Analogia:</strong></p>
+<p>
+The SMF can therefore be viewed as the function that controls how the user-plane session is built.
+</p>
+
+<div class="diagram">
+                    SMF
+                     |
+            +--------+--------+
+            |                 |
+          Policy            UPF
+            |                 |
+           PCF              N3/N6
+                              |
+                              v
+                       Data Network
+</div>
+
+<p>
+The SMF controls the session.
+The UPF forwards the packets.
+</p>
+
+<div class="impact">
+Control decides where traffic should go. The user plane actually moves it.
+</div>
+
+<h2>UPF — User Plane Function</h2>
+
+<p>
+The <strong>UPF</strong> is the forwarding engine of the 5G Core.
+</p>
+
+<p>
+It performs user-plane packet processing and forwarding.
+</p>
+
+<p>
+This includes functions such as:
+</p>
 
 <ul>
-<li>Dados (voz/internet) = carros</li>
-<li>SS7 = sistema de trânsito que decide para onde eles vão</li>
+<li>Packet forwarding</li>
+<li>GTP-U termination and forwarding</li>
+<li>Traffic detection</li>
+<li>QoS enforcement</li>
+<li>Traffic steering</li>
+<li>Interaction with external data networks</li>
 </ul>
 
-<hr>
+<p>
+The UPF can be deployed centrally or closer to users at the edge.
+</p>
 
-<h2>6.2 Arquitetura do SS7</h2>
+<div class="diagram">
+                 Central Core
+                     |
+                    UPF
+                     |
+                  Internet
 
-<table>
-<tr>
-<th>Elemento</th>
-<th>Função</th>
-</tr>
-<tr>
-<td>MSC</td>
-<td>Central de comutação (chamadas)</td>
-</tr>
-<tr>
-<td>HLR</td>
-<td>Banco de dados do assinante</td>
-</tr>
-<tr>
-<td>VLR</td>
-<td>Registro temporário do usuário</td>
-</tr>
-<tr>
-<td>STP</td>
-<td>Roteador de sinalização</td>
-</tr>
-<tr>
-<td>GMSC</td>
-<td>Gateway para outras redes</td>
-</tr>
-</table>
+```
+             Edge Location
+                 |
+                UPF
+                 |
+                MEC / Local DN
+```
 
-<p>👉 O STP é o “roteador” do SS7 — ele decide para onde cada mensagem vai.</p>
+</div>
 
-<hr>
+<p>
+This is one of the architectural foundations for low-latency services.
+</p>
 
-<h2>6.3 Stack de protocolos</h2>
+<p>
+Instead of forcing every packet through a distant centralized core, an operator can deploy UPFs
+closer to the application or subscriber.
+</p>
 
-<table>
-<tr><th>Camada</th><th>Protocolo</th><th>Função</th></tr>
-<tr><td>Aplicação</td><td>MAP</td><td>Operações (localização, SMS)</td></tr>
-<tr><td>Transação</td><td>TCAP</td><td>Controle de sessão</td></tr>
-<tr><td>Rede</td><td>SCCP</td><td>Endereçamento</td></tr>
-<tr><td>Transporte</td><td>MTP</td><td>Entrega confiável</td></tr>
-</table>
+<blockquote>
+Latency is not solved only by faster radio. Sometimes the biggest improvement comes from moving the user plane closer to the application.
+</blockquote>
 
-<p><strong>Resumo simples:</strong></p>
-<ul>
-<li>MAP = o que fazer</li>
-<li>TCAP = como conversar</li>
-<li>SCCP = para onde enviar</li>
-</ul>
+<h2>UDM — Unified Data Management</h2>
 
-<hr>
+<p>
+The <strong>UDM</strong> provides subscriber-related data management functions in the 5G Core.
+</p>
 
-<h2>6.4 Fluxo real – entrega de SMS</h2>
+<p>
+It is part of the architecture responsible for handling subscriber identity and subscription
+information.
+</p>
 
-<table>
-<tr><th>Passo</th><th>Ação</th></tr>
-<tr><td>1</td><td>SMS chega no SMSC</td></tr>
-<tr><td>2</td><td>SMSC envia SendRoutingInfo</td></tr>
-<tr><td>3</td><td>HLR responde com MSC do usuário</td></tr>
-<tr><td>4</td><td>SMS é encaminhado</td></tr>
-</table>
+<p>
+The UDM works together with the AUSF and other functions during authentication and subscriber
+management procedures.
+</p>
 
-<p>👉 Esse fluxo simples é exatamente o que o atacante explora.</p>
+<div class="diagram">
+UE
+ |
+ v
+AMF
+ |
+ v
+AUSF
+ |
+ v
+UDM
+ |
+Subscriber Data
+</div>
 
-<hr>
+<p>
+The important architectural change is that subscriber information and service logic are more
+clearly decomposed into specialized functions.
+</p>
 
-<h2>6.5 O grande problema: modelo de confiança</h2>
+<h2>AUSF — Authentication Server Function</h2>
 
-<p>O SS7 foi criado com uma premissa:</p>
+<p>
+The <strong>AUSF</strong> is responsible for authentication-related functions.
+</p>
 
-<p><strong>“Se está conectado na rede, é confiável.”</strong></p>
+<p>
+It works with the UDM and other network functions to support subscriber authentication.
+</p>
 
-<p>Hoje isso é falso.</p>
+<div class="flow">
+UE
+ |
+ | Registration
+ v
+AMF
+ |
+ | Authentication
+ v
+AUSF
+ |
+ | Subscriber Data
+ v
+UDM
+ |
+ v
+Authentication Result
+</div>
 
-<ul>
-<li>Operadoras terceiras</li>
-<li>Interconexões globais</li>
-<li>Acesso indevido</li>
-</ul>
+<p>
+This decomposition makes authentication an explicit service within the 5G Core architecture.
+</p>
 
-<p>👉 Resultado: qualquer rede conectada pode enviar comandos perigosos.</p>
+<div class="impact">
+In a service-based core, authentication is no longer simply a procedure hidden inside one monolithic node. It becomes a network capability exposed through defined interactions.
+</div>
 
-<hr>
+<h2>PCF — Policy Control Function</h2>
 
-<h2>6.6 Exemplo técnico de mensagem (simplificado)</h2>
+<p>
+The <strong>PCF</strong> provides policy control.
+</p>
 
-<pre>
-MAP: SendRoutingInfo
-IMSI: 724XXXXXXXXXXXX
-MSISDN: +5511999999999
-</pre>
+<p>
+It is conceptually related to the policy role previously performed by the PCRF in EPC.
+</p>
 
-<p>👉 Esse tipo de mensagem pode revelar localização ou rota de chamadas.</p>
+<p>
+However, the 5G architecture expands the policy framework and integrates it into the service-based
+architecture.
+</p>
 
-<hr>
-
-<h2>6.7 Ataque detalhado – interceptação de SMS</h2>
-
-<h3>🎯 Objetivo</h3>
-<p>Roubar SMS (ex: código bancário)</p>
-
-<h3>🔗 Fluxo técnico</h3>
-
-<table>
-<tr><th>Etapa</th><th>Mensagem</th><th>Descrição</th></tr>
-<tr><td>1</td><td>UpdateLocation</td><td>Atacante registra falsa localização</td></tr>
-<tr><td>2</td><td>CancelLocation</td><td>Remove registro original</td></tr>
-<tr><td>3</td><td>InsertSubscriberData</td><td>Atualiza dados no VLR falso</td></tr>
-<tr><td>4</td><td>ForwardSM</td><td>SMS enviado para atacante</td></tr>
-</table>
-
-<p><strong>Resultado:</strong> vítima continua usando o celular normalmente, mas SMS é desviado.</p>
-
-<hr>
-
-<h2>6.8 Ataque detalhado – rastreamento</h2>
-
-<h3>🎯 Objetivo</h3>
-<p>Descobrir localização do usuário</p>
-
-<h3>🔗 Fluxo</h3>
-
-<table>
-<tr><th>Etapa</th><th>Mensagem</th><th>Descrição</th></tr>
-<tr><td>1</td><td>AnyTimeInterrogation</td><td>Consulta localização</td></tr>
-<tr><td>2</td><td>ProvideSubscriberInfo</td><td>HLR responde com dados</td></tr>
-</table>
-
-<p><strong>Resultado:</strong> localização precisa (às vezes nível de célula).</p>
-
-<hr>
-
-<h2>6.9 Ataque detalhado – descoberta de IMSI</h2>
-
-<h3>🎯 Objetivo</h3>
-<p>Descobrir identidade interna do SIM</p>
-
-<h3>🔗 Fluxo</h3>
-
-<table>
-<tr><th>Etapa</th><th>Mensagem</th><th>Descrição</th></tr>
-<tr><td>1</td><td>SendIMSI</td><td>Solicita IMSI</td></tr>
-<tr><td>2</td><td>Resposta</td><td>HLR retorna IMSI</td></tr>
-</table>
-
-<p><strong>Resultado:</strong> base para outros ataques.</p>
-
-<hr>
-
-<h2>6.10 Como operadoras se defendem</h2>
-
-<table>
-<tr><th>Controle</th><th>Descrição</th></tr>
-<tr><td>Firewall SS7</td><td>Filtra mensagens suspeitas</td></tr>
-<tr><td>Whitelist</td><td>Permite apenas redes confiáveis</td></tr>
-<tr><td>Validação de origem</td><td>Confere se origem é legítima</td></tr>
-<tr><td>Bloqueio de MAP sensível</td><td>Bloqueia comandos perigosos</td></tr>
-</table>
-
-<p><strong>Regra principal:</strong></p>
-<p>❌ Não confiar na rede externa<br>
-✅ Permitir apenas o necessário</p>
-
-<hr>
-
-<h2>6.11 Impacto no negócio</h2>
+<p>
+Policy can influence:
+</p>
 
 <ul>
-<li>Fraude financeira</li>
-<li>Roubo de contas bancárias</li>
-<li>Violação de privacidade</li>
-<li>Danos à reputação</li>
+<li>QoS</li>
+<li>Session behavior</li>
+<li>Traffic treatment</li>
+<li>Charging-related policy</li>
+<li>Application-aware policy decisions</li>
 </ul>
 
-<p>👉 Um único ataque pode afetar milhares de usuários.</p>
+<div class="diagram">
+             Application / Service
+                      |
+                      v
+                     PCF
+                      |
+                      v
+                     SMF
+                      |
+                      v
+                     UPF
+                      |
+                      v
+                    Traffic
+</div>
 
-<hr>
+<p>
+The policy layer can therefore influence how a session is established and how its traffic is
+treated.
+</p>
 
-<h2>6.12 Conclusão</h2>
+<h2>NRF — Network Repository Function</h2>
 
-<p>O SS7 continua sendo uma das maiores superfícies de ataque das redes móveis.</p>
+<p>
+One of the most distinctive concepts in the service-based architecture is the
+<strong>NRF</strong>.
+</p>
+
+<p>
+The Network Repository Function acts as a repository and discovery mechanism for network
+functions.
+</p>
+
+<p>
+A network function can register its capabilities with the NRF.
+Other functions can use the NRF to discover available services.
+</p>
+
+<div class="diagram">
+                NRF
+                 |
+        +--------+--------+
+        |        |        |
+       AMF      SMF      AUSF
+        |        |        |
+        +--------+--------+
+                 |
+        Service Discovery
+</div>
+
+<p>
+This is very different from simply configuring every node with a static list of every other node.
+</p>
+
+<p>
+Service discovery becomes an architectural capability.
+</p>
+
+<blockquote>
+In a cloud-native network, knowing where a service is can be as important as knowing what the service does.
+</blockquote>
+
+<h2>NSSF — Network Slice Selection Function</h2>
+
+<p>
+The <strong>NSSF</strong> supports network slice selection.
+</p>
+
+<p>
+Network slicing allows an operator to logically separate network resources and behavior for
+different services or customers.
+</p>
+
+<p>
+Different slices can be associated with different requirements.
+</p>
+
+<div class="diagram">
+                    5G Core
+                       |
+              +--------+--------+
+              |        |        |
+            Slice A  Slice B  Slice C
+              |        |        |
+             eMBB     IoT     Critical
+```
+</div>
+
+<p>
+A simplified conceptual model might be:
+</p>
 
 <ul>
-<li>Arquitetura poderosa</li>
-<li>Modelo de confiança ultrapassado</li>
-<li>Alta exposição global</li>
+<li>Enhanced Mobile Broadband</li>
+<li>Massive IoT</li>
+<li>Low-latency or critical services</li>
 </ul>
 
-<p><strong>Entender o SS7 é entender a base dos ataques modernos em telecom.</strong></p>
+<p>
+The exact implementation and deployment of slicing is more complex than assigning one slice to
+one application, but the architectural idea is important:
+<strong>the network can provide differentiated logical services over shared infrastructure.</strong>
+</p>
 
-<footer>
-<p>Fim do Capítulo 6 – SS7 em Profundidade</p>
-</footer>
+<div class="impact">
+Network slicing turns the mobile core from a one-size-fits-all transport system into a programmable service platform.
+</div>
+
+<h2>PDU Sessions</h2>
+
+<p>
+The 5G Core introduces the concept of a <strong>PDU Session</strong>.
+</p>
+
+<p>
+A PDU session provides connectivity between the UE and a Data Network through the 5G Core.
+</p>
+
+<div class="diagram">
+UE
+ |
+ | PDU Session
+ |
+gNB
+ |
+ | N3
+ |
+UPF
+ |
+ | N6
+ |
+Data Network
+</div>
+
+<p>
+The PDU session is one of the most important concepts to understand when moving from EPC to 5GC.
+</p>
+
+<p>
+In LTE, engineers are accustomed to thinking in terms of PDN connections, EPS bearers, and GTP
+tunnels.
+</p>
+
+<p>
+In 5G, the terminology and state model evolve.
+</p>
+
+<p>
+A PDU session can support different PDU session types, including:
+</p>
+
+<ul>
+<li>IPv4</li>
+<li>IPv6</li>
+<li>IPv4v6</li>
+<li>Ethernet</li>
+<li>Unstructured</li>
+</ul>
+
+<p>
+The session provides the logical connectivity context within which QoS flows are established.
+</p>
+
+<h2>QoS Flows and 5QI</h2>
+
+<p>
+One of the major changes from LTE to 5G is the move from the EPS bearer-centric QoS model toward
+a model centered on <strong>QoS Flows</strong>.
+</p>
+
+<p>
+A PDU session can contain multiple QoS flows.
+</p>
+
+<div class="diagram">
+                 PDU Session
+                     |
+          +----------+----------+
+          |          |          |
+       QoS Flow   QoS Flow   QoS Flow
+          |          |          |
+        5QI 9      5QI X      5QI Y
+          |          |          |
+       Internet     Voice     Critical App
+</div>
+
+<p>
+The <strong>5QI</strong>, or 5G QoS Identifier, provides a standardized way of characterizing QoS
+behavior.
+</p>
+
+<p>
+Different traffic classes can therefore receive different treatment within the same PDU session.
+</p>
+
+<p>
+This is particularly important for services where latency, packet delay, reliability, or priority
+matter.
+</p>
+
+<blockquote>
+A single subscriber session does not mean a single quality of service.
+</blockquote>
+
+<h2>From EPS Bearers to QoS Flows</h2>
+
+<p>
+The conceptual transition can be visualized as:
+</p>
+
+<div class="diagram">
+4G
+
+PDN Connection
+|
++---- Default Bearer
+|
++---- Dedicated Bearer
+|
+QCI
+
+5G
+
+PDU Session
+|
++---- QoS Flow
+|
++---- QoS Flow
+|
++---- QoS Flow
+|
+5QI
+
+</div>
+
+<p>
+This does not mean that QoS became simple.
+</p>
+
+<p>
+Quite the opposite.
+</p>
+
+<p>
+The 5G architecture gives operators more flexibility to classify and control traffic.
+</p>
+
+<div class="impact">
+5G does not merely increase bandwidth. It increases the number of ways the network can understand and treat traffic.
+</div>
+
+<h2>The Control Plane and User Plane in 5GC</h2>
+
+<p>
+The separation between control and user plane becomes especially clear in the 5G architecture.
+</p>
+
+<div class="diagram">
+                    CONTROL PLANE
+
+UE
+|
+v
+gNB
+|
+| N2
+v
+AMF
+|
++---- AUSF
+|
++---- UDM
+|
++---- SMF
+|
++---- PCF
+|
++---- NRF
+|
++---- NSSF
+
+```
+                USER PLANE
+```
+
+UE
+|
+v
+gNB
+|
+| N3 / GTP-U
+v
+UPF
+|
+| N6
+v
+Data Network
+
+</div>
+
+<p>
+This separation allows control-plane functions and user-plane resources to scale independently.
+</p>
+
+<p>
+If subscriber signaling increases dramatically, the operator can scale control-plane functions.
+</p>
+
+<p>
+If traffic volume increases, additional user-plane capacity can be deployed.
+</p>
+
+<blockquote>
+Control-plane scale and user-plane scale are different problems — and 5G treats them that way.
+</blockquote>
+
+<h2>The Service-Based Architecture</h2>
+
+<p>
+The 5G Core uses a Service-Based Architecture, commonly abbreviated as
+<strong>SBA</strong>.
+</p>
+
+<p>
+Instead of thinking only in terms of point-to-point interfaces between network elements, the
+architecture exposes services that authorized network functions can consume.
+</p>
+
+<div class="diagram">
+             Service-Based Architecture
+
+```
+              +---------+
+              |   NRF   |
+              +---------+
+                   |
+    +--------------+--------------+
+    |              |              |
+  AMF             SMF            AUSF
+    |              |              |
+    |              |              |
+   UDM            PCF            NSSF
+    |
+    |
+  Services
+```
+
+</div>
+
+<p>
+This architectural model aligns naturally with modern distributed software systems.
+</p>
+
+<p>
+Network functions can be implemented as software components, scaled dynamically, and deployed
+across distributed infrastructure.
+</p>
+
+<p>
+But this flexibility introduces additional dependencies.
+</p>
+
+<p>
+A failure is no longer necessarily:
+</p>
+
+<div class="note">
+“Node X is down.”
+</div>
+
+<p>
+It may instead be:
+</p>
+
+<div class="note">
+“Function X is running, but it cannot discover function Y, authenticate to it, resolve its service endpoint, or reach the required backend service.”
+</div>
+
+<div class="impact">
+Cloud-native networking replaces some hardware failures with software, orchestration, discovery, and dependency failures.
+</div>
+
+<h2>NSA Versus SA: Engineering Perspective</h2>
+
+<p>
+The difference between NSA and SA can be summarized technically:
+</p>
+
+<div class="diagram">
+                 NSA                         SA
+
+```
+        LTE + 5G NR                   5G NR
+             |                           |
+          EPC Anchor                   5GC
+             |                           |
+    MME / SGW / PGW              AMF / SMF / UPF
+             |                           |
+         EPC Model                  SBA Model
+```
+
+</div>
+
+<p>
+NSA is primarily an evolutionary deployment.
+</p>
+
+<p>
+SA is a new architectural foundation.
+</p>
+
+<p>
+NSA can accelerate 5G radio deployment while leveraging existing EPC infrastructure.
+</p>
+
+<p>
+SA enables capabilities that depend much more naturally on the 5G Core, including:
+</p>
+
+<ul>
+<li>Native 5G service-based architecture</li>
+<li>Advanced QoS flows</li>
+<li>Network slicing</li>
+<li>Flexible UPF placement</li>
+<li>Edge computing integration</li>
+<li>Cloud-native network functions</li>
+</ul>
+
+<p>
+This does not mean NSA is obsolete or technically useless.
+</p>
+
+<p>
+It reflects a different point in the operator's migration strategy.
+</p>
+
+<h2>A Practical Subscriber View</h2>
+
+<p>
+Consider a subscriber connecting to a 5G SA network.
+</p>
+
+<p>
+The simplified sequence is:
+</p>
+
+<div class="flow">
+UE
+ |
+ | Registration
+ v
+gNB
+ |
+ | N2
+ v
+AMF
+ |
+ +---- Authentication ----> AUSF
+ |                           |
+ |                           v
+ |                          UDM
+ |
+ +---- Session Request ---> SMF
+                              |
+                              +---- Policy ---> PCF
+                              |
+                              +---- UPF Selection
+                              |
+                              v
+                             UPF
+                              |
+                              | N3
+                              |
+                             gNB
+                              |
+                              v
+                             UE
+</div>
+
+<p>
+Once the session is established, user traffic can flow through the selected UPF.
+</p>
+
+<p>
+The control plane establishes the rules.
+The user plane executes them.
+</p>
+
+<div class="impact">
+The control plane creates the path. The user plane becomes the path.
+</div>
+
+<h2>Where Troubleshooting Changes in 5G</h2>
+
+<p>
+The troubleshooting methodology learned in the EPC remains valuable.
+</p>
+
+<p>
+But the number of dependencies increases.
+</p>
+
+<p>
+In EPC, an engineer might investigate:
+</p>
+
+<div class="diagram">
+UE
+ |
+eNodeB
+ |
+MME
+ |
+SGW
+ |
+PGW
+ |
+Internet
+</div>
+
+<p>
+In 5GC, the same investigation may involve:
+</p>
+
+<div class="diagram">
+UE
+ |
+gNB
+ |
+AMF
+ |
+SMF
+ |
+AUSF
+ |
+UDM
+ |
+PCF
+ |
+NRF
+ |
+UPF
+ |
+Data Network
+</div>
+
+<p>
+Not every procedure traverses every function.
+</p>
+
+<p>
+That distinction is important.
+</p>
+
+<p>
+The engineer must understand which service is required for the specific procedure being
+investigated.
+</p>
+
+<blockquote>
+In 5G, troubleshooting means following dependencies as much as following packets.
+</blockquote>
+
+<h2>The New Failure Domains</h2>
+
+<p>
+A 5G Core failure can occur at several layers.
+</p>
+
+<div class="diagram">
+                    5G Failure Domains
+
+```
+                     |
+      +--------------+--------------+
+      |              |              |
+   Radio          Control         User Plane
+      |              |              |
+     gNB        AMF / SMF       UPF / N3
+                     |
+          +----------+----------+
+          |          |          |
+         SBA       Database    Policy
+          |          |          |
+         NRF       UDM        PCF
+```
+
+</div>
+
+<p>
+This creates a much larger troubleshooting matrix.
+</p>
+
+<p>
+For example:
+</p>
+
+<ul>
+<li>Registration can fail because of radio or AMF issues.</li>
+<li>Authentication can fail because of AUSF or UDM interactions.</li>
+<li>PDU session establishment can fail because of SMF, policy, or UPF selection.</li>
+<li>User traffic can fail even when registration and session establishment succeed.</li>
+<li>Service discovery problems can prevent otherwise healthy network functions from communicating.</li>
+<li>Policy problems can create traffic behavior that looks like a forwarding failure.</li>
+</ul>
+
+<div class="impact">
+A green dashboard does not prove that the service works. Distributed systems can be locally healthy and globally broken.
+</div>
+
+<h2>5G Is an Evolution of Concepts, Not the End of Them</h2>
+
+<p>
+Despite all the new terminology, many engineering principles remain familiar.
+</p>
+
+<p>
+There is still a subscriber.
+</p>
+
+<p>
+There is still authentication.
+</p>
+
+<p>
+There is still session state.
+</p>
+
+<p>
+There is still a control plane.
+</p>
+
+<p>
+There is still a user plane.
+</p>
+
+<p>
+There are still tunnels.
+</p>
+
+<p>
+There are still IP addresses.
+</p>
+
+<p>
+There are still routing decisions.
+</p>
+
+<p>
+There are still packets that can disappear.
+</p>
+
+<p>
+The architecture has changed, but the fundamental engineering problem has not:
+<strong>understand the expected behavior, observe what actually happened, and locate the divergence.</strong>
+</p>
+
+<blockquote>
+New architecture does not eliminate old engineering principles. It gives them more layers to operate across.
+</blockquote>
+
+<h2>Chapter Takeaways</h2>
+
+<p>
+5G NSA and SA represent two distinct architectural approaches to deploying 5G.
+</p>
+
+<p>
+<strong>NSA</strong> extends LTE using 5G NR while retaining the EPC as the anchor in common
+deployments.
+</p>
+
+<p>
+<strong>SA</strong> connects 5G NR directly to the native 5G Core.
+</p>
+
+<p>
+The 5GC is based on a service-based architecture built from specialized network functions.
+</p>
+
+<p>
+The <strong>AMF</strong> handles access and mobility management.
+</p>
+
+<p>
+The <strong>SMF</strong> manages PDU sessions and controls the user-plane path.
+</p>
+
+<p>
+The <strong>UPF</strong> forwards user traffic and can be deployed close to the edge.
+</p>
+
+<p>
+The <strong>UDM</strong> provides subscriber data management functions.
+</p>
+
+<p>
+The <strong>AUSF</strong> handles authentication-related functions.
+</p>
+
+<p>
+The <strong>PCF</strong> provides policy control.
+</p>
+
+<p>
+The <strong>NRF</strong> enables network-function registration and service discovery.
+</p>
+
+<p>
+The <strong>NSSF</strong> supports network slice selection.
+</p>
+
+<p>
+A <strong>PDU Session</strong> provides UE connectivity to a Data Network through the 5G Core.
+</p>
+
+<p>
+A PDU session can contain multiple <strong>QoS Flows</strong>, each associated with QoS treatment
+characterized using identifiers such as <strong>5QI</strong>.
+</p>
+
+<p>
+The most important conceptual transition is this:
+</p>
+
+<div class="diagram">
+                 4G EPC
+                    |
+             Network Elements
+                    |
+              Bearer Model
+                    |
+               Point-to-Point
+                    |
+                    v
+                 5G 5GC
+                    |
+             Network Functions
+                    |
+            Service-Based Model
+                    |
+             PDU Session / QoS
+                    |
+                    v
+             Cloud-Native Core
+</div>
+
+<div class="impact">
+5G Core is not simply a collection of new network elements. It is a new way of building the mobile network as a distributed software platform.
+</div>
+
+<p>
+And that architectural change prepares the ground for everything that follows:
+cloud-native deployment, Kubernetes, containers, service discovery, observability, distributed
+user planes, edge computing, automation, and eventually the operational challenges of running
+telecom infrastructure as software.
+</p>
+
+<blockquote>
+The radio may connect the device to 5G. The core determines what that 5G network can actually become.
+</blockquote>
+
+<p>
+The next step is therefore not simply learning more 5G interfaces.
+It is understanding what happens when the 5G Core itself becomes cloud-native.
+</p>
+
+<p>
+That is where telecom engineering meets Kubernetes, containers, networking plugins, DPDK,
+SR-IOV, CPU pinning, NUMA awareness, observability, and the realities of running a distributed
+mobile core on modern infrastructure.
+</p>
+
+<blockquote>
+The future of the mobile core is not only faster networking. It is programmable networking.
+</blockquote>
 
 </body>
 </html>
