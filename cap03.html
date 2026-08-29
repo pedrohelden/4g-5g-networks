@@ -1,314 +1,1244 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en-US">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Capítulo 3 – Kill Chain em Redes Móveis</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Chapter 2 - Cisco Routers and Network Troubleshooting</title>
+
 <style>
-  body {
-    background-color: #1e2a38;
-    color: #cbd5e1;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    line-height: 1.7;
-  }
-  h1, h2, h3 {
-    color: #60a5fa;
-    margin-bottom: 0.7em;
-  }
-  p, li {
-    max-width: 900px;
-  }
-  p {
-    margin-bottom: 1.4em;
-    font-size: 1.1em;
-  }
-  ul, ol {
-    max-width: 900px;
-    padding-left: 25px;
-    margin-bottom: 2em;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 900px;
-    margin: 1.5em 0 3em 0;
-    background: #293845;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #3e4f65;
-  }
-  th {
-    background-color: #3b82f6;
-    color: #fff;
-  }
-  code {
-    background: #2d3b4e;
-    padding: 2px 6px;
-    border-radius: 3px;
-    color: #a5d6ff;
-  }
+    body {
+        background-color: #1e2a38;
+        color: #cbd5e1;
+        margin: 40px;
+        line-height: 1.7;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    article.chapter {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    h1, h2, h3 {
+        color: #60a5fa;
+    }
+
+    h1 {
+        font-size: 2.2em;
+        margin-bottom: 25px;
+    }
+
+    h2 {
+        font-size: 1.7em;
+        margin-top: 45px;
+        border-bottom: 1px solid #3e4f65;
+        padding-bottom: 8px;
+    }
+
+    h3 {
+        font-size: 1.3em;
+        margin-top: 30px;
+    }
+
+    p, ul, ol {
+        max-width: 950px;
+    }
+
+    li {
+        margin-bottom: 7px;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 1000px;
+        margin: 25px 0;
+        background: #293845;
+    }
+
+    th, td {
+        border: 1px solid #3e4f65;
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    th {
+        background: #3b82f6;
+        color: white;
+    }
+
+    pre {
+        background: #2d3b4e;
+        padding: 15px;
+        overflow-x: auto;
+        border-radius: 4px;
+        max-width: 950px;
+    }
+
+    code {
+        font-family: Consolas, "Courier New", monospace;
+    }
+
+    blockquote {
+        border-left: 4px solid #60a5fa;
+        margin: 25px 0;
+        padding: 10px 20px;
+        background: #293845;
+        max-width: 900px;
+    }
+
+    .technical-figure {
+        margin: 35px auto;
+        max-width: 1000px;
+        text-align: center;
+    }
+
+    .technical-figure img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+    }
+
+    .technical-figure figcaption {
+        margin-top: 10px;
+        color: #94a3b8;
+        font-size: 0.95em;
+        font-style: italic;
+    }
+
+    .note {
+        background: #293845;
+        border-left: 4px solid #60a5fa;
+        padding: 15px 20px;
+        margin: 25px 0;
+        max-width: 900px;
+    }
+
+    .impact {
+        background: #293845;
+        border-left: 4px solid #f59e0b;
+        padding: 15px 20px;
+        margin: 25px 0;
+        max-width: 900px;
+    }
+
+    .insight {
+        background: #293845;
+        border-left: 4px solid #22c55e;
+        padding: 15px 20px;
+        margin: 25px 0;
+        max-width: 900px;
+    }
+
+    .troubleshooting {
+        background: #293845;
+        border-left: 4px solid #ef4444;
+        padding: 15px 20px;
+        margin: 25px 0;
+        max-width: 900px;
+    }
+
+    .command {
+        background: #293845;
+        border-left: 4px solid #a78bfa;
+        padding: 15px 20px;
+        margin: 25px 0;
+        max-width: 950px;
+    }
+
+    strong {
+        color: #e2e8f0;
+    }
 </style>
 </head>
 
 <body>
 
-<h1>Capítulo 3 – Como os ataques realmente acontecem (Kill Chain Telecom)</h1>
+<article class="chapter">
 
-<p>Nos capítulos anteriores, você aprendeu como as redes móveis funcionam e quais são os principais ataques. Agora vamos dar um passo além: entender <strong>como esses ataques são combinados na prática</strong>.</p>
+<header>
 
-<p>Na vida real, atacantes não usam apenas um método isolado. Eles seguem uma sequência lógica, explorando vulnerabilidades em cadeia. Essa sequência é chamada de <strong>Kill Chain</strong>.</p>
+<h1>4G LTE/EPC Architecture</h1>
 
----
-
-<h2>3.1 O que é uma Kill Chain?</h2>
-
-<p>Uma kill chain representa as etapas de um ataque, desde o reconhecimento até o impacto final.</p>
-
-<table>
-<tr><th>Etapa</th><th>Objetivo</th></tr>
-<tr><td>Reconhecimento</td><td>Identificar o alvo (ex: número de telefone)</td></tr>
-<tr><td>Enumeração</td><td>Coletar dados (IMSI, localização)</td></tr>
-<tr><td>Exploração</td><td>Manipular a rede</td></tr>
-<tr><td>Impacto</td><td>Interceptação, fraude ou DoS</td></tr>
-</table>
-
-<p>👉 O ponto mais importante: <strong>cada etapa prepara a próxima</strong>.</p>
-
----
-
-<h2>3.2 Anatomia de um ataque real (Interceptação de SMS)</h2>
-
-<h3>🎯 Objetivo: capturar código de autenticação (OTP)</h3>
-
-<h3>Etapa 1 – Reconhecimento</h3>
-
-<p>O atacante começa com um dado simples:</p>
-
-<ul>
-<li><code>MSISDN (número de telefone)</code></li>
-</ul>
-
-<p>Esse dado pode ser obtido facilmente (cadastros, vazamentos, etc).</p>
-
----
-
-<h3>Etapa 2 – Obtenção do IMSI</h3>
-
-<p>Protocolos permitem consultar a identidade real do assinante:</p>
-
-<ul>
-<li><code>SendIMSI</code></li>
-<li><code>SendIdentification</code></li>
-</ul>
-
-<p><strong>Resultado:</strong></p>
-<ul>
-<li>IMSI revelado</li>
-<li>Identidade única do SIM conhecida</li>
-</ul>
-
-<p>👉 O IMSI é mais sensível que o número — ele identifica o usuário dentro da rede.</p>
-
----
-
-<h3>Etapa 3 – Descoberta de localização</h3>
-
-<p>Agora o atacante precisa saber onde o usuário está na rede:</p>
-
-<ul>
-<li><code>AnyTimeInterrogation</code></li>
-<li><code>ProvideSubscriberInfo</code></li>
-</ul>
-
-<p><strong>Resultado:</strong></p>
-<ul>
-<li>MSC/VLR atual</li>
-<li>Região aproximada</li>
-</ul>
-
-<p>👉 Isso permite direcionar o ataque corretamente.</p>
-
----
-
-<h3>Etapa 4 – Manipulação de roteamento</h3>
-
-<p>Aqui acontece o ataque principal:</p>
-
-<ul>
-<li><code>SendRoutingInfo</code></li>
-<li><code>ProvideRoamingNumber</code></li>
-</ul>
-
-<p><strong>Resultado:</strong></p>
-<ul>
-<li>Chamadas/SMS redirecionados</li>
-<li>Tráfego passa por entidade controlada pelo atacante</li>
-</ul>
-
----
-
-<h3>Etapa 5 – Interceptação</h3>
-
-<p>Com o roteamento manipulado:</p>
-
-<ul>
-<li>SMS de banco são capturados</li>
-<li>Códigos OTP são roubados</li>
-<li>Contas podem ser comprometidas</li>
-</ul>
-
-<p><strong>💥 Impacto final:</strong> quebra de autenticação de dois fatores.</p>
-
----
-
-<h2>3.3 Fluxo técnico simplificado</h2>
-
-<p>Visualização da sequência:</p>
-
-<p>
-MSISDN → IMSI → Localização → Roteamento → Interceptação
+<p class="small">
+Understanding how LTE works means understanding where the subscriber is, where the session is,
+where the data is flowing, and which network element is responsible for each decision.
 </p>
 
-<p>👉 Cada etapa depende da anterior. Sem IMSI, não há localização. Sem localização, não há redirecionamento.</p>
+<blockquote>
+A mobile network is not a collection of boxes. It is a chain of decisions, identities, and tunnels.
+</blockquote>
 
----
+<p>
+In the previous chapters, we built the foundations required to understand IP networking and the
+general evolution of mobile networks. Now it is time to enter the architecture that made mobile
+broadband a reality at global scale: the <strong>4G LTE Evolved Packet System</strong>.
+</p>
 
-<h2>3.4 Outro cenário: fraude</h2>
+<p>
+LTE is often introduced through a list of network elements: UE, eNodeB, MME, SGW, PGW, HSS and
+PCRF. That list is useful, but it is not enough.
+</p>
 
-<h3>🎯 Objetivo: gerar custo indevido</h3>
+<p>
+Knowing what the acronyms mean does not mean that you understand the network.
+</p>
 
-<ol>
-<li>Uso de <code>CAMEL InitiateCallAttempt</code></li>
-<li>Ativação de serviços via <code>ActivateSS</code></li>
-<li>Manipulação de lógica de cobrança</li>
-</ol>
+<p>
+The real understanding begins when you can follow a subscriber from the moment the device appears
+on the radio network, through authentication and session establishment, until an IP packet reaches
+the Internet — and then follow the same packet back to the device.
+</p>
 
-<p><strong>Resultado:</strong></p>
+<div class="impact">
+The goal is not to memorize the EPC. The goal is to be able to look at a packet capture,
+a signaling trace, or an outage and reconstruct what the network is doing.
+</div>
+
+<h2>The LTE Network as an End-to-End System</h2>
+
+<p>
+The LTE architecture separates responsibilities that were historically more tightly coupled.
+Radio access, mobility management, subscriber data, policy, and packet forwarding become distinct
+functions.
+</p>
+
+<p>
+At the highest level, the architecture can be visualized like this:
+</p>
+
+<div class="diagram">
+                    LTE RADIO ACCESS
+                         
+              +---------------------+
+              |         UE          |
+              |   User Equipment    |
+              +----------+----------+
+                         |
+                         | LTE-Uu
+                         |
+              +----------v----------+
+              |       eNodeB        |
+              |   LTE Base Station  |
+              +-----+----------+----+
+                    |          |
+                  S1-MME     S1-U
+                    |          |
+                    v          v
+              +---------+  +---------+
+              |   MME   |  |   SGW   |
+              +----+----+  +----+----+
+                   |            |
+                 S6a          S5/S8
+                   |            |
+                   v            v
+              +---------+  +---------+
+              |   HSS   |  |   PGW   |
+              +---------+  +----+----+
+                                  |
+                                 Gi
+                                  |
+                                  v
+                           IP Networks /
+                             Internet
+</div>
+
+<p>
+This diagram immediately reveals one of the most important characteristics of EPC:
+<strong>control signaling and user traffic do not necessarily follow the same path.</strong>
+</p>
+
+<p>
+The MME can be heavily involved in establishing a subscriber's connectivity without ever carrying
+the subscriber's actual Internet traffic.
+</p>
+
+<p>
+Likewise, the SGW and PGW can carry enormous volumes of user-plane traffic while depending on
+control-plane signaling to create and maintain the tunnels through which that traffic flows.
+</p>
+
+<blockquote>
+The control plane decides what should happen. The user plane carries what was allowed to happen.
+</blockquote>
+
+<h2>The UE: Where the Subscriber Enters the Network</h2>
+
+<p>
+The <strong>User Equipment (UE)</strong> is the subscriber's device: a smartphone, router, modem,
+tablet, IoT device, or any other terminal capable of accessing the LTE network.
+</p>
+
+<p>
+From an engineering perspective, however, the UE is much more than a device with an IP address.
+It contains identities, security context, radio capabilities, subscription information, and the
+logic required to interact with the LTE system.
+</p>
+
+<p>
+The UE communicates with the radio access network through the <strong>LTE-Uu</strong> interface.
+This is the air interface between the device and the eNodeB.
+</p>
+
+<p>
+A common mistake when troubleshooting LTE is to think of the UE as simply generating IP packets.
+Before meaningful user traffic can flow, the network must establish connectivity, authenticate the
+subscriber, negotiate parameters, create bearers, and install forwarding state.
+</p>
+
+<div class="impact">
+An IP packet seen on the user plane is usually the final result of a much larger signaling process.
+</div>
+
+<p>
+This distinction becomes extremely important later when analyzing packet captures. Seeing GTP-U
+traffic means that a user-plane path exists. It does not necessarily tell you why that path was
+created, which policy authorized it, or whether the subscriber's signaling state is healthy.
+</p>
+
+<h2>The eNodeB: More Than a Radio Tower</h2>
+
+<p>
+The <strong>eNodeB</strong>, or evolved NodeB, is the LTE radio access node.
+It provides the radio connection between the UE and the EPC.
+</p>
+
+<p>
+In older mobile architectures, radio access and core functions were separated through additional
+network elements. LTE simplified the architecture by integrating much more functionality into the
+eNodeB.
+</p>
+
+<p>
+The eNodeB communicates with the EPC through two fundamentally different logical interfaces:
+</p>
+
+<div class="interface">
+<strong>S1-MME</strong> — Control-plane connection between the eNodeB and the MME.
+</div>
+
+<div class="interface">
+<strong>S1-U</strong> — User-plane connection between the eNodeB and the SGW.
+</div>
+
+<p>
+This separation is fundamental.
+</p>
+
+<p>
+The eNodeB can exchange signaling with the MME while simultaneously forwarding user traffic toward
+the SGW.
+</p>
+
+<p>
+The control connection uses <strong>S1AP</strong>, carried over <strong>SCTP</strong>.
+The user plane uses <strong>GTP-U</strong>, typically transported over UDP/IP.
+</p>
+
+<div class="diagram">
+UE
+ |
+ | LTE-Uu
+ |
+eNodeB
+ |\
+ | \
+ |  \
+ |   \
+S1-MME S1-U
+ |       |
+S1AP    GTP-U
+ |       |
+SCTP    UDP/IP
+ |       |
+MME     SGW
+</div>
+
+<p>
+This distinction is one of the first things an engineer should verify when troubleshooting.
+</p>
+
+<p>
+If S1AP signaling is failing, the problem is fundamentally different from a situation where S1AP
+is healthy but GTP-U packets are being dropped.
+</p>
+
+<h2>The MME: The Brain of LTE Mobility Management</h2>
+
+<p>
+The <strong>Mobility Management Entity (MME)</strong> is a control-plane function.
+It is one of the most important elements in the LTE architecture, but it is equally important to
+understand what it does <em>not</em> do.
+</p>
+
+<p>
+The MME does not carry normal subscriber Internet traffic.
+</p>
+
+<p>
+Instead, it manages signaling associated with mobility, authentication, session establishment,
+and control of the bearers used by the subscriber.
+</p>
+
+<p>
+Among its major responsibilities are:
+</p>
+
 <ul>
-<li>Chamadas indevidas</li>
-<li>Impacto financeiro na operadora</li>
+<li>NAS signaling termination</li>
+<li>Mobility management</li>
+<li>Authentication coordination</li>
+<li>Security procedures</li>
+<li>Tracking Area management</li>
+<li>Bearer management</li>
+<li>Selection and control of serving gateways</li>
+<li>Interaction with the HSS</li>
+<li>Interaction with the eNodeB through S1AP</li>
 </ul>
 
----
+<p>
+The MME communicates with the UE through NAS signaling, but that signaling is transported through
+the eNodeB using the S1AP connection toward the MME.
+</p>
 
-<h2>3.5 Ataques em 4G (Diameter)</h2>
+<p>
+This creates an important layering relationship:
+</p>
 
-<p>Mesmo com evolução, a lógica da kill chain continua:</p>
+<div class="diagram">
+UE
+ |
+ | NAS
+ |
+eNodeB
+ |
+ | S1AP
+ |
+MME
+</div>
 
-<table>
-<tr><th>Etapa</th><th>Exemplo</th></tr>
-<tr><td>Enumeração</td><td>Authentication Info Request (AIR)</td></tr>
-<tr><td>Manipulação</td><td>Update Location falso</td></tr>
-<tr><td>Impacto</td><td>Interceptação de sessão</td></tr>
-</table>
+<p>
+The eNodeB transports the NAS messages but does not become the endpoint responsible for the
+subscriber's NAS mobility procedures.
+</p>
 
-<p>👉 O protocolo muda, mas o ataque é o mesmo.</p>
+<blockquote>
+The eNodeB provides access. The MME decides how the subscriber is managed inside the core.
+</blockquote>
 
----
+<h2>The HSS: The Subscriber's Identity and Subscription Authority</h2>
 
-<h2>3.6 Ataques em 5G (SBA / APIs)</h2>
+<p>
+The <strong>Home Subscriber Server (HSS)</strong> stores and provides subscriber-related information
+required by the LTE core.
+</p>
 
-<p>No 5G, os ataques exploram APIs:</p>
+<p>
+The HSS is closely associated with authentication and subscription data.
+It can provide information such as the subscriber's identity, authentication vectors, and
+subscription-related parameters.
+</p>
 
-<ol>
-<li>Acesso indevido a API</li>
-<li>Consulta ao banco de dados do assinante</li>
-<li>Manipulação de sessão</li>
-</ol>
+<p>
+The MME communicates with the HSS through the <strong>S6a</strong> interface.
+S6a uses <strong>Diameter</strong>.
+</p>
 
-<p><strong>Impacto:</strong></p>
+<div class="diagram">
+              Diameter / S6a
+                   
+        +-------------------+
+        |                   |
+        |       HSS         |
+        |                   |
+        +---------+---------+
+                  |
+                  |
+                S6a
+                  |
+                  |
+        +---------v---------+
+        |                   |
+        |       MME         |
+        |                   |
+        +-------------------+
+</div>
+
+<p>
+This interaction becomes especially important during initial registration and authentication.
+</p>
+
+<p>
+When a subscriber attempts to access the LTE network, the MME cannot simply assume that the
+subscriber is valid. It needs to establish the subscriber's identity and obtain the information
+required to authenticate the device.
+</p>
+
+<p>
+That information is obtained through the core network's subscriber database architecture.
+</p>
+
+<div class="impact">
+Authentication is not an isolated event. It is the first proof that the network can trust the
+identity attempting to establish a session.
+</div>
+
+<h2>The SGW: The Anchor Between Radio and Core</h2>
+
+<p>
+The <strong>Serving Gateway (SGW)</strong> is primarily a user-plane element.
+It sits between the radio access network and the packet gateway.
+</p>
+
+<p>
+The eNodeB sends subscriber user traffic toward the SGW using <strong>S1-U</strong>.
+The SGW then communicates toward the PGW through <strong>S5</strong> or <strong>S8</strong>,
+depending on the architecture and roaming scenario.
+</p>
+
+<div class="diagram">
+UE
+ |
+ | LTE-Uu
+ |
+eNodeB
+ |
+ | S1-U / GTP-U
+ |
+SGW
+ |
+ | S5 / S8 / GTP-U
+ |
+PGW
+ |
+ | IP
+ |
+External Network
+</div>
+
+<p>
+The SGW also plays an important role as a mobility anchor.
+When a UE moves between eNodeBs within the same serving gateway context, the user-plane path can
+be updated without requiring the entire packet session to be rebuilt from scratch.
+</p>
+
+<p>
+This is one of the architectural decisions that makes mobility possible while preserving
+continuity of the packet session.
+</p>
+
+<blockquote>
+Mobility is not simply moving the radio connection. It is moving the path while preserving the session.
+</blockquote>
+
+<h2>The PGW: The Gateway to External Networks</h2>
+
+<p>
+The <strong>Packet Data Network Gateway (PGW)</strong> is the gateway between the EPC and external
+packet networks.
+</p>
+
+<p>
+This can mean the public Internet, a private corporate network, an operator service network,
+IMS-related connectivity, or another packet data network.
+</p>
+
+<p>
+The PGW is also responsible for important functions related to the subscriber's IP connectivity.
+</p>
+
+<p>
+Depending on the implementation and deployment, the PGW can participate in:
+</p>
+
 <ul>
-<li>Vazamento de dados</li>
-<li>Controle de sessões</li>
+<li>IP address allocation</li>
+<li>Packet forwarding</li>
+<li>Policy enforcement</li>
+<li>Charging-related functions</li>
+<li>Traffic filtering</li>
+<li>Connectivity toward external packet networks</li>
 </ul>
 
----
+<p>
+The PGW therefore represents an important boundary in the architecture.
+</p>
 
-<h2>3.7 Padrão universal dos ataques</h2>
+<p>
+Before the PGW, traffic is transported through the mobile packet core using telecom-specific
+tunneling mechanisms. Beyond the PGW, the traffic can behave much more like conventional IP traffic
+toward external networks.
+</p>
 
-<table>
-<tr><th>Fase</th><th>Objetivo</th></tr>
-<tr><td>Identidade</td><td>Descobrir IMSI</td></tr>
-<tr><td>Localização</td><td>Descobrir onde o usuário está</td></tr>
-<tr><td>Controle</td><td>Manipular roteamento</td></tr>
-<tr><td>Exploração</td><td>Interceptar ou fraudar</td></tr>
-</table>
+<div class="impact">
+The PGW is where the mobile subscriber's logical session becomes connectivity to the outside world.
+</div>
 
-<p><strong>👉 Esse padrão se repete em 2G, 3G, 4G e 5G.</strong></p>
+<h2>The PCRF: Policy Before Packets</h2>
 
----
+<p>
+The <strong>Policy and Charging Rules Function (PCRF)</strong> provides policy decisions that
+influence how subscriber traffic is treated.
+</p>
 
-<h2>3.8 Onde a operadora pode bloquear</h2>
+<p>
+The PCRF does not normally forward user packets.
+Instead, it provides policy information to the gateway infrastructure.
+</p>
 
-<h3>🔴 Entrada da rede</h3>
+<p>
+One of its most important interfaces is <strong>Gx</strong>, which connects the PCRF with the
+PGW.
+</p>
+
+<div class="diagram">
+              Policy decision
+                   
+        +-------------------+
+        |       PCRF        |
+        +---------+---------+
+                  |
+                  | Gx / Diameter
+                  |
+        +---------v---------+
+        |       PGW         |
+        +---------+---------+
+                  |
+                  |
+              User traffic
+</div>
+
+<p>
+This distinction illustrates a recurring principle in telecom architecture:
+the entity making a decision does not necessarily carry the traffic affected by that decision.
+</p>
+
+<p>
+The PCRF can influence parameters such as QoS and charging rules, while the PGW applies the
+resulting policy to the subscriber's session.
+</p>
+
+<blockquote>
+A packet does not need to know the policy. The network already knows what the packet is allowed to do.
+</blockquote>
+
+<h2>The Interfaces That Connect the Architecture</h2>
+
+<p>
+The EPC becomes much easier to understand when the interfaces are viewed as relationships rather
+than as a collection of acronyms.
+</p>
+
+<div class="interface">
+<strong>LTE-Uu</strong><br>
+UE ↔ eNodeB<br>
+The LTE radio interface.
+</div>
+
+<div class="interface">
+<strong>S1-MME</strong><br>
+eNodeB ↔ MME<br>
+Control plane using S1AP over SCTP.
+</div>
+
+<div class="interface">
+<strong>S1-U</strong><br>
+eNodeB ↔ SGW<br>
+User plane using GTP-U.
+</div>
+
+<div class="interface">
+<strong>S11</strong><br>
+MME ↔ SGW<br>
+Control-plane communication for bearer and session management using GTP-C.
+</div>
+
+<div class="interface">
+<strong>S5 / S8</strong><br>
+SGW ↔ PGW<br>
+GTP-based communication between serving and packet gateways. S8 is commonly associated with
+roaming scenarios.
+</div>
+
+<div class="interface">
+<strong>S6a</strong><br>
+MME ↔ HSS<br>
+Diameter-based subscriber and authentication signaling.
+</div>
+
+<div class="interface">
+<strong>Gx</strong><br>
+PCRF ↔ PGW<br>
+Diameter-based policy and charging control.
+</div>
+
+<p>
+The important point is not simply remembering these names.
+</p>
+
+<p>
+The engineer must understand what type of information crosses each interface and what happens
+when that interface fails.
+</p>
+
+<div class="impact">
+Every interface is a boundary. Every boundary is a possible failure domain.
+</div>
+
+<h2>Control Plane and User Plane</h2>
+
+<p>
+The separation between control plane and user plane is one of the most important concepts in
+mobile networking.
+</p>
+
+<p>
+The <strong>control plane</strong> establishes identity, mobility state, session state, bearers,
+policies, and forwarding information.
+</p>
+
+<p>
+The <strong>user plane</strong> carries the actual subscriber traffic.
+</p>
+
+<p>
+Consider a subscriber opening a web page.
+The HTTP request is user-plane traffic.
+The signaling required to authenticate the subscriber and establish the session is control-plane
+traffic.
+</p>
+
+<div class="diagram">
+                  CONTROL PLANE
+
+UE ---- NAS ----> MME ---- Diameter ----> HSS
+                    |
+                    |
+                 GTP-C
+                    |
+                    v
+                   SGW
+                    |
+                 GTP-C
+                    |
+                    v
+                   PGW
+                    |
+                 Policy
+                    ^
+                    |
+                  PCRF
+
+
+                  USER PLANE
+
+UE ========> eNodeB ========> SGW ========> PGW ========> Internet
+             GTP-U             GTP-U
+</div>
+
+<p>
+The user plane is therefore dependent on the control plane.
+</p>
+
+<p>
+A GTP-U tunnel does not simply appear by itself. It exists because signaling procedures established
+the state necessary to create and use that tunnel.
+</p>
+
+<blockquote>
+The user plane is the visible traffic. The control plane is the invisible machinery that makes that traffic possible.
+</blockquote>
+
+<h2>GTP: The Tunnel Beneath the Session</h2>
+
+<p>
+The <strong>GPRS Tunneling Protocol (GTP)</strong> is one of the defining technologies of the
+LTE packet core.
+</p>
+
+<p>
+For LTE engineering, two forms are especially important:
+<strong>GTP-C</strong> and <strong>GTP-U</strong>.
+</p>
+
+<h3>GTP-C</h3>
+
+<p>
+GTP-C is used for control signaling between EPC nodes.
+It is responsible for procedures associated with creating, modifying, and deleting tunnel and
+session state.
+</p>
+
+<p>
+For example, when a subscriber establishes a PDN connection, the core needs to coordinate the
+creation of the corresponding session across multiple network elements.
+</p>
+
+<p>
+GTP-C carries that control information.
+</p>
+
+<h3>GTP-U</h3>
+
+<p>
+GTP-U carries the actual subscriber payload.
+An IP packet generated by the UE can be encapsulated inside GTP-U and transported through the
+mobile core.
+</p>
+
+<div class="diagram">
+Original subscriber packet
+
++-----------------------------+
+|       IP Packet             |
+|  Source: UE IP              |
+|  Destination: Internet      |
++-----------------------------+
+
+              becomes
+
++-----------------------------------------------+
+| Outer IP                                      |
+| UDP                                           |
+| GTP-U                                         |
+| +-------------------------------------------+ |
+| | Original Subscriber IP Packet             | |
+| +-------------------------------------------+ |
++-----------------------------------------------+
+</div>
+
+<p>
+This is why packet captures taken on an S1-U or S5/S8 interface can look very different from a
+capture taken on the Internet-facing side of the PGW.
+</p>
+
+<p>
+The packet is not necessarily changed at the application level, but it is encapsulated inside a
+telecom-specific transport tunnel while crossing the mobile core.
+</p>
+
+<div class="impact">
+When troubleshooting LTE, always ask: am I looking at the original packet, or am I looking at the tunnel carrying the packet?
+</div>
+
+<h2>TEIDs: How the Core Knows Which Tunnel Belongs to Which Session</h2>
+
+<p>
+A critical field inside GTP is the <strong>TEID — Tunnel Endpoint Identifier</strong>.
+</p>
+
+<p>
+The TEID allows the receiving network element to associate a GTP packet with the appropriate
+tunnel and session context.
+</p>
+
+<p>
+This is essential because a gateway can simultaneously handle traffic from thousands or millions
+of subscribers.
+</p>
+
+<p>
+The outer IP addresses tell the network where the GTP packet is going.
+The TEID helps tell the receiving node which logical tunnel the encapsulated subscriber traffic
+belongs to.
+</p>
+
+<div class="diagram">
+                 SGW
+                  |
+       +----------+----------+
+       |          |          |
+     TEID A     TEID B     TEID C
+       |          |          |
+      UE-A       UE-B       UE-C
+</div>
+
+<p>
+This is one reason TEIDs become extremely valuable during packet analysis.
+</p>
+
+<p>
+If a packet capture shows a GTP-U stream, identifying the TEID and following it through the capture
+can reveal whether packets belonging to the same subscriber session are consistently forwarded.
+</p>
+
+<h2>How the Pieces Work Together</h2>
+
+<p>
+It is useful to stop thinking about each network element individually and reconstruct the complete
+logic of a subscriber session.
+</p>
+
+<p>
+Imagine a UE attaching to the LTE network for the first time.
+</p>
+
+<p>
+The UE establishes radio connectivity with the eNodeB.
+The eNodeB establishes or uses its S1 connection toward the MME.
+The MME receives NAS signaling.
+The MME contacts the HSS through S6a to obtain subscriber and authentication information.
+</p>
+
+<p>
+Once authentication and mobility procedures are successfully completed, the network establishes
+the necessary session and bearer state.
+</p>
+
+<p>
+The MME coordinates with the SGW using S11.
+The SGW and PGW establish the corresponding user-plane context.
+The PGW provides or manages the subscriber's connectivity toward the external packet network.
+Policy information can be obtained through the PCRF over Gx.
+</p>
+
+<p>
+Finally, the eNodeB receives the necessary information to forward subscriber traffic toward the
+appropriate SGW tunnel.
+</p>
+
+<div class="diagram">
+UE
+ |
+ |  Radio Access
+ v
+eNodeB
+ |
+ | S1AP / NAS
+ v
+MME
+ |
+ | S6a
+ v
+HSS
+
+MME
+ |
+ | S11 / GTP-C
+ v
+SGW
+ |
+ | S5/S8 / GTP-C + GTP-U
+ v
+PGW
+ |
+ | External IP
+ v
+Internet
+
+
+Policy path:
+
+PCRF
+ |
+ | Gx
+ v
+PGW
+</div>
+
+<p>
+The important realization is that this is not one procedure.
+It is a coordinated set of procedures creating distributed state across multiple network elements.
+</p>
+
+<blockquote>
+A mobile session exists because multiple nodes agree that it exists.
+</blockquote>
+
+<h2>The Same Subscriber, Seen From Different Network Elements</h2>
+
+<p>
+A powerful way to troubleshoot LTE is to ask what each node should know about the subscriber.
+</p>
+
+<p>
+The UE knows its radio and security state.
+</p>
+
+<p>
+The eNodeB knows the radio-side context and the mappings required to forward traffic toward the
+core.
+</p>
+
+<p>
+The MME knows the subscriber's mobility and control-plane state.
+</p>
+
+<p>
+The HSS knows the subscriber's identity and subscription information.
+</p>
+
+<p>
+The SGW knows the user-plane tunnel state toward the radio access network and the PGW.
+</p>
+
+<p>
+The PGW knows the external packet-data session and its associated user-plane state.
+</p>
+
+<p>
+The PCRF knows the policy that should apply to the subscriber's service.
+</p>
+
+<p>
+No single element necessarily contains the entire story.
+</p>
+
+<div class="impact">
+Troubleshooting becomes easier when you stop asking “which box is broken?” and start asking “which part of the subscriber's state is missing or inconsistent?”
+</div>
+
+<h2>Why a Subscriber Can Be Attached but Have No Internet</h2>
+
+<p>
+This is one of the most useful practical examples of the architecture.
+</p>
+
+<p>
+Suppose the UE successfully completes LTE registration and authentication.
+The MME is communicating with the HSS.
+The eNodeB is healthy.
+Yet the user cannot access the Internet.
+</p>
+
+<p>
+It would be a mistake to conclude that the entire LTE network is working simply because the UE
+is attached.
+</p>
+
+<p>
+The control plane can be partially successful while the user plane is broken.
+</p>
+
+<p>
+Possible causes include:
+</p>
+
 <ul>
-<li>Firewall de sinalização</li>
-<li>Bloqueio de mensagens externas</li>
+<li>Incorrect SGW or PGW selection</li>
+<li>Failed GTP-C session establishment</li>
+<li>Missing or incorrect bearer state</li>
+<li>Incorrect TEID mapping</li>
+<li>GTP-U packet loss</li>
+<li>Routing problems toward the external network</li>
+<li>Incorrect subscriber IP configuration</li>
+<li>Policy enforcement problems</li>
+<li>MTU or fragmentation problems</li>
+<li>Firewall or ACL issues</li>
 </ul>
 
-<h3>🟠 Validação lógica</h3>
+<p>
+The architecture immediately tells us where to look.
+</p>
+
+<p>
+If authentication works but user traffic does not, the investigation should move beyond simply
+checking the radio signal.
+</p>
+
+<blockquote>
+“Attached” does not mean “connected to the Internet.” It only means that part of the network has successfully completed its job.
+</blockquote>
+
+<h2>Failure Domains and Engineering Thinking</h2>
+
+<p>
+The EPC architecture naturally creates multiple failure domains.
+</p>
+
+<p>
+A problem on S6a can affect authentication without necessarily affecting an already-established
+user session.
+</p>
+
+<p>
+A problem on S1-MME can prevent signaling between the eNodeB and MME.
+</p>
+
+<p>
+A problem on S1-U can break subscriber traffic while control signaling remains operational.
+</p>
+
+<p>
+A problem on S11 can prevent session or bearer management.
+</p>
+
+<p>
+A problem on S5/S8 can break connectivity between the SGW and PGW.
+</p>
+
+<p>
+A problem on Gx can affect policy while basic signaling and radio connectivity may remain healthy.
+</p>
+
+<p>
+This is why interface-level thinking is so valuable.
+</p>
+
+<div class="diagram">
+Subscriber problem
+       |
+       +---- Radio?
+       |
+       +---- S1-MME?
+       |
+       +---- S6a?
+       |
+       +---- S11?
+       |
+       +---- S1-U?
+       |
+       +---- S5/S8?
+       |
+       +---- Gx / Policy?
+       |
+       +---- External IP network?
+</div>
+
+<p>
+The architecture becomes a troubleshooting map.
+</p>
+
+<h2>Reading the Network Through Packets</h2>
+
+<p>
+Once the EPC architecture is understood, packet captures become much more meaningful.
+</p>
+
+<p>
+Instead of seeing a collection of protocols, the engineer can associate each packet with a
+function.
+</p>
+
 <ul>
-<li>Consistência entre IMSI e origem</li>
-<li>Validação de roteamento</li>
+<li><strong>S1AP</strong> points toward eNodeB-to-MME control signaling.</li>
+<li><strong>NAS</strong> reveals UE mobility and session signaling.</li>
+<li><strong>Diameter</strong> can reveal subscriber and policy interactions.</li>
+<li><strong>GTP-C</strong> reveals session and bearer control.</li>
+<li><strong>GTP-U</strong> reveals subscriber user traffic inside the mobile core.</li>
+<li><strong>SCTP</strong> is a key transport for S1 control signaling.</li>
 </ul>
 
-<h3>🟡 Monitoramento</h3>
-<ul>
-<li>Detecção de padrões de ataque</li>
-<li>Análise de comportamento</li>
-</ul>
+<p>
+The packet capture is no longer just a technical artifact.
+It becomes a timeline of the network's decisions.
+</p>
 
----
+<div class="impact">
+A good telecom engineer does not merely read packets. They reconstruct the story those packets are telling.
+</div>
 
-<h2>3.9 Explicação didática</h2>
+<h2>The Mental Model to Keep</h2>
 
-<p>Imagine que a rede é um prédio:</p>
+<p>
+The LTE EPC can initially look complicated because it contains many interfaces and specialized
+network functions.
+</p>
 
-<ul>
-<li><strong>SS7:</strong> qualquer pessoa entra</li>
-<li><strong>4G:</strong> só conhecidos entram</li>
-<li><strong>5G:</strong> sistema moderno com portas digitais</li>
-</ul>
+<p>
+But the architecture becomes much simpler when reduced to a few fundamental questions.
+</p>
 
-<p>O atacante:</p>
+<p>
+<strong>Who is the subscriber?</strong><br>
+The HSS and associated identity and authentication procedures answer this question.
+</p>
 
-<ol>
-<li>entra</li>
-<li>observa</li>
-<li>descobre quem você é</li>
-<li>controla o sistema</li>
-</ol>
+<p>
+<strong>Where is the subscriber?</strong><br>
+The MME manages mobility-related state.
+</p>
 
----
+<p>
+<strong>How does the subscriber reach the packet network?</strong><br>
+The SGW and PGW establish and maintain the user-plane path.
+</p>
 
-<h2>3.10 Insight mais importante</h2>
+<p>
+<strong>What is the subscriber allowed to do?</strong><br>
+Policy functions such as the PCRF provide the rules that influence service behavior.
+</p>
 
-<p><strong>O risco real não está em um ataque isolado.</strong></p>
+<p>
+<strong>How does the traffic actually move?</strong><br>
+GTP-U transports subscriber traffic through the mobile core.
+</p>
 
-<p><strong>Está na combinação deles.</strong></p>
+<p>
+<strong>How does the network coordinate all of this?</strong><br>
+Control-plane protocols such as S1AP, NAS, Diameter, and GTP-C create and maintain the necessary
+state.
+</p>
 
-<p>👉 Segurança eficaz precisa bloquear a cadeia completa, não apenas eventos individuais.</p>
+<blockquote>
+The EPC is best understood as a distributed state machine wrapped around an IP data path.
+</blockquote>
 
----
+<div class="chapter-end">
 
-<h2>3.11 Conclusão</h2>
+<h2>Chapter Takeaways</h2>
 
-<p>As redes móveis são sistemas complexos, mas os ataques seguem uma lógica simples:</p>
+<p>
+The most important lesson from this chapter is not the list of EPC acronyms.
+It is the relationship between them.
+</p>
 
-<ul>
-<li>Descobrir</li>
-<li>Localizar</li>
-<li>Controlar</li>
-<li>Explorar</li>
-</ul>
+<p>
+The UE accesses the LTE network through the eNodeB.
+The eNodeB separates control and user traffic toward the EPC.
+The MME manages mobility and control-plane procedures.
+The HSS provides subscriber and authentication information.
+The SGW anchors and transports user-plane traffic.
+The PGW provides connectivity toward external packet networks.
+The PCRF supplies policy decisions.
+And GTP creates the tunnels that allow subscriber traffic to cross the core.
+</p>
 
-<p>Compreender essa sequência é essencial para defender a rede de forma eficiente.</p>
+<p>
+The most important interfaces form a map:
+</p>
 
-<footer>
-<p>Fim do Capítulo 3 – Kill Chain em Redes Móveis</p>
-</footer>
+<div class="diagram">
+UE       ↔ eNodeB       LTE-Uu
+
+eNodeB   ↔ MME          S1-MME / S1AP / SCTP
+
+eNodeB   ↔ SGW          S1-U / GTP-U
+
+MME      ↔ SGW          S11 / GTP-C
+
+SGW      ↔ PGW          S5 / S8 / GTP
+
+MME      ↔ HSS          S6a / Diameter
+
+PCRF     ↔ PGW          Gx / Diameter
+</div>
+
+<p>
+Once this map becomes intuitive, the EPC stops being a collection of acronyms.
+It becomes a system whose behavior can be predicted.
+</p>
+
+<p>
+And that is the real objective of architecture knowledge.
+</p>
+
+<div class="impact">
+When you understand the architecture, an outage stops looking random. It starts looking like a missing state, a broken interface, a failed decision, or a packet taking the wrong path.
+</div>
+
+<p>
+In the next chapter, we will move from architecture into behavior.
+Instead of asking what each component does, we will follow the actual signaling procedures that bring a subscriber into the network — step by step, message by message.
+</p>
+
+<blockquote>
+Architecture tells you where the components are. Call flows tell you what they are actually doing.
+</blockquote>
+
+</div>
 
 </body>
 </html>
