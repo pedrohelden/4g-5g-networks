@@ -1,307 +1,1343 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+
+<html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Capítulo 4 – Arquitetura de Defesa em Redes Móveis</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Chapter 4 — 4G Signaling and Call Flows</title>
+
 <style>
-  body {
+body {
     background-color: #1e2a38;
     color: #cbd5e1;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 40px;
-    line-height: 1.7;
-  }
-  h1, h2, h3 {
-    color: #60a5fa;
-    margin-bottom: 0.7em;
-  }
-  p, li {
-    max-width: 900px;
-  }
-  p {
-    margin-bottom: 1.4em;
-    font-size: 1.1em;
-  }
-  ul, ol {
-    max-width: 900px;
-    padding-left: 25px;
-    margin-bottom: 2em;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 900px;
-    margin: 1.5em 0 3em 0;
-    background: #293845;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #3e4f65;
-  }
-  th {
-    background-color: #3b82f6;
-    color: #fff;
-  }
+    margin: 40px auto;
+    max-width: 1100px;
+    padding: 0 30px;
+    line-height: 1.75;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
+}
+
+h1 {
+    color: #f8fafc;
+    font-size: 42px;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+h2 {
+    color: #93c5fd;
+    font-size: 28px;
+    margin-top: 55px;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+h3 {
+    color: #bfdbfe;
+    font-size: 21px;
+    margin-top: 35px;
+}
+
+p {
+    margin: 18px 0;
+}
+
+strong {
+    color: #f8fafc;
+}
+
+em {
+    color: #dbeafe;
+}
+
+blockquote {
+    border-left: 4px solid #60a5fa;
+    margin: 30px 0;
+    padding: 15px 25px;
+    background-color: #253548;
+    color: #e2e8f0;
+    font-size: 20px;
+    font-style: italic;
+}
+
+.note {
+    background-color: #253548;
+    border-left: 4px solid #38bdf8;
+    padding: 18px 24px;
+    margin: 30px 0;
+}
+
+.impact {
+    background-color: #26384a;
+    border-left: 5px solid #f59e0b;
+    padding: 20px 25px;
+    margin: 35px 0;
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.diagram {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    overflow-x: auto;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.5;
+}
+
+.flow {
+    background-color: #162231;
+    border: 1px solid #334155;
+    padding: 25px;
+    margin: 35px 0;
+    font-family: Consolas, "Courier New", monospace;
+    color: #dbeafe;
+    white-space: pre;
+    line-height: 1.65;
+}
+
+.interface {
+    background-color: #223247;
+    border-left: 4px solid #818cf8;
+    padding: 18px 24px;
+    margin: 25px 0;
+}
+
+ul {
+    margin-top: 10px;
+}
+
+li {
+    margin: 8px 0;
+}
+
+.chapter-end {
+    margin-top: 70px;
+    padding-top: 30px;
+    border-top: 1px solid #475569;
+}
+
+.small {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+code {
+    color: #bfdbfe;
+    background-color: #162231;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
 </style>
+
 </head>
 
 <body>
 
-<h1>Capítulo 4 – Arquitetura de Defesa em Redes Móveis</h1>
+<h1>4G Signaling and Call Flows</h1>
 
-<p>Depois de entender como os ataques funcionam (Capítulo 3), agora vamos responder a pergunta mais importante:</p>
-
-<p><strong>Como uma operadora realmente se protege?</strong></p>
-
-<p>Este capítulo mostra a arquitetura de defesa completa — do perímetro até o core — baseada em práticas reais do mercado.</p>
-
----
-
-<h2>4.1 O problema da defesa tradicional</h2>
-
-<p>Muitas redes ainda seguem um modelo antigo:</p>
-
-<ul>
-<li>Confiam em redes parceiras</li>
-<li>Bloqueiam apenas ataques conhecidos</li>
-<li>Não analisam comportamento</li>
-</ul>
-
-<p>👉 Isso falha porque ataques modernos são:</p>
-
-<ul>
-<li>Sequenciais (kill chain)</li>
-<li>Disfarçados como tráfego legítimo</li>
-<li>Distribuídos entre várias redes</li>
-</ul>
-
----
-
-<h2>4.2 Princípio moderno: Zero Trust Telecom</h2>
-
-<p>O modelo atual de segurança é baseado em:</p>
-
-<p><strong>“Nunca confiar, sempre verificar.”</strong></p>
-
-<table>
-<tr><th>Modelo antigo</th><th>Modelo moderno</th></tr>
-<tr><td>Confiança implícita</td><td>Validação contínua</td></tr>
-<tr><td>Bloqueio simples</td><td>Análise contextual</td></tr>
-<tr><td>Foco em perímetro</td><td>Defesa em camadas</td></tr>
-</table>
-
----
-
-<h2>4.3 Arquitetura de defesa em camadas</h2>
-
-<p>A proteção eficiente acontece em múltiplos níveis:</p>
-
-<p>
-[ Rede Externa ] → [ Firewall ] → [ Core Network ] → [ Monitoramento ]
+<p class="small">
+From radio access to authentication, bearer establishment, mobility, and voice services.
 </p>
 
-<p>Cada camada tem um papel específico.</p>
-
----
-
-<h2>4.4 Camada 1 – Proteção de perímetro</h2>
-
-<h3>Objetivo:</h3>
-<p>Bloquear mensagens maliciosas antes de entrarem na rede.</p>
-
-<h3>Controles:</h3>
-
-<ul>
-<li>Firewall SS7</li>
-<li>Firewall Diameter</li>
-<li>API Gateway (5G)</li>
-</ul>
-
-<h3>O que é filtrado:</h3>
-
-<ul>
-<li>Mensagens de redes desconhecidas</li>
-<li>Comandos perigosos (ex: SendRoutingInfo)</li>
-<li>Tráfego fora do padrão</li>
-</ul>
-
-<p><strong>👉 Primeira linha de defesa.</strong></p>
-
----
-
-<h2>4.5 Camada 2 – Validação de protocolo</h2>
-
-<h3>Objetivo:</h3>
-<p>Verificar se a mensagem faz sentido tecnicamente.</p>
-
-<h3>Exemplos:</h3>
-
-<ul>
-<li>IMSI pertence à rede de origem?</li>
-<li>O remetente pode enviar esse tipo de mensagem?</li>
-<li>O fluxo segue a sequência correta?</li>
-</ul>
-
-<table>
-<tr><th>Validação</th><th>Exemplo</th></tr>
-<tr><td>Origem</td><td>GT/Realm válido</td></tr>
-<tr><td>Consistência</td><td>IMSI vs MSISDN</td></tr>
-<tr><td>Sequência</td><td>Ordem correta de mensagens</td></tr>
-</table>
-
-<p><strong>👉 Bloqueia spoofing e manipulação lógica.</strong></p>
-
----
-
-<h2>4.6 Camada 3 – Proteção contra ataques específicos</h2>
-
-<p>Aqui entram regras direcionadas para ataques conhecidos:</p>
-
-<table>
-<tr><th>Ataque</th><th>Mitigação</th></tr>
-<tr><td>AnyTimeInterrogation</td><td>Bloquear origem externa</td></tr>
-<tr><td>SendRoutingInfo</td><td>Permitir apenas parceiros confiáveis</td></tr>
-<tr><td>SendIMSI</td><td>Bloqueio total externo</td></tr>
-<tr><td>ProvideRoamingNumber</td><td>Validar IMSI vs origem</td></tr>
-</table>
-
-<p><strong>👉 Defesa baseada em assinatura.</strong></p>
-
----
-
-<h2>4.7 Camada 4 – Monitoramento e detecção</h2>
-
-<h3>Objetivo:</h3>
-<p>Identificar ataques que passaram pelas outras camadas.</p>
-
-<h3>O que monitorar:</h3>
-
-<ul>
-<li>Padrões de tráfego</li>
-<li>Sequências suspeitas (kill chain)</li>
-<li>Volume anormal de mensagens</li>
-</ul>
-
-<h3>Exemplo:</h3>
+<blockquote>
+A mobile network does not simply connect a device. It negotiates, authenticates, establishes,
+maintains, moves, and eventually releases a subscriber's state.
+</blockquote>
 
 <p>
-SendIMSI → AnyTimeInterrogation → SendRoutingInfo
+In the previous chapter, we built the architectural map of the LTE Evolved Packet Core.
+We identified the UE, eNodeB, MME, HSS, SGW, PGW, and PCRF, and we learned how interfaces such as
+S1-MME, S1-U, S11, S5/S8, S6a, and Gx connect them.
 </p>
 
-<p>👉 Isso indica ataque em andamento.</p>
+<p>
+But architecture alone does not explain behavior.
+</p>
 
----
+<p>
+A diagram can tell us that the MME is connected to the HSS. It does not tell us <em>when</em> the
+MME contacts the HSS, <em>why</em> it does so, what information is exchanged, or what happens if
+one of those messages fails.
+</p>
 
-<h2>4.8 Camada 5 – Resposta e contenção</h2>
+<p>
+That is where signaling and call flows become essential.
+</p>
 
-<p>Quando um ataque é detectado:</p>
+<p>
+A call flow is effectively the timeline of a mobile network operation.
+It shows which node initiates an action, which node responds, which protocol carries the message,
+and what state changes as a result.
+</p>
+
+<div class="impact">
+If architecture tells you where everything is, signaling tells you why everything is there.
+</div>
+
+<h2>Thinking in Signaling States</h2>
+
+<p>
+One of the most important ideas in LTE troubleshooting is that a subscriber is not simply
+"connected" or "disconnected."
+</p>
+
+<p>
+The network maintains multiple layers of state.
+</p>
+
+<p>
+The UE has radio state.
+The MME maintains mobility and NAS state.
+The eNodeB maintains radio and access-side context.
+The SGW and PGW maintain bearer and tunnel state.
+The HSS maintains subscriber information.
+Policy functions maintain service rules.
+</p>
+
+<p>
+A failure can therefore occur after one part of the process succeeds but before another part has
+completed.
+</p>
+
+<p>
+For example, a UE may successfully establish radio connectivity but fail authentication.
+It may authenticate successfully but fail to establish a default bearer.
+It may establish the default bearer but later lose the user-plane path.
+</p>
+
+<blockquote>
+A successful procedure is not one successful message. It is a chain of states that must remain consistent.
+</blockquote>
+
+<h2>NAS, S1AP, SCTP, and GTP: The Signaling Stack</h2>
+
+<p>
+Before following the attach procedure, it is important to understand the protocols involved.
+LTE signaling is layered, and the same signaling event can involve several protocols at different
+levels.
+</p>
+
+<div class="diagram">
+                    UE
+                     |
+                     | NAS
+                     |
+                  eNodeB
+                     |
+                     | S1AP
+                     |
+                    MME
+                     |
+                     | GTP-C
+                     |
+                    SGW
+                     |
+                     | GTP-C
+                     |
+                    PGW
+</div>
+
+<p>
+<strong>NAS</strong>, or Non-Access Stratum signaling, is used between the UE and the core network
+for procedures such as mobility management and session management.
+</p>
+
+<p>
+<strong>S1AP</strong>, the S1 Application Protocol, operates between the eNodeB and MME.
+It transports signaling associated with the radio access and core-network relationship and can
+carry NAS messages between the UE and MME.
+</p>
+
+<p>
+<strong>SCTP</strong>, the Stream Control Transmission Protocol, provides the transport layer for
+S1AP.
+</p>
+
+<p>
+<strong>GTP-C</strong> is used inside the EPC for session and bearer control, particularly between
+the MME, SGW, and PGW.
+</p>
+
+<p>
+<strong>GTP-U</strong> is used for the actual subscriber user-plane traffic.
+</p>
+
+<div class="impact">
+When reading a packet capture, never look at the protocol in isolation. Ask which network function is using it and what state that message is trying to create or change.
+</div>
+
+<h2>The Attach Procedure</h2>
+
+<p>
+The LTE attach procedure is one of the most important call flows in the entire architecture.
+It is the process through which a UE registers with the EPC and establishes the context required
+for packet-data connectivity.
+</p>
+
+<p>
+A simplified view looks like this:
+</p>
+
+<div class="flow">
+UE                 eNodeB                 MME              HSS
+ |                    |                    |                |
+ |-- Attach Request ->|                    |                |
+ |                    |-- Initial UE Msg ->|                |
+ |                    |                    |-- Auth Req ---->|
+ |                    |                    |<-- Auth Info ----|
+ |                    |<-- Authentication ->|                |
+ |<-- Authentication -|                    |                |
+ |                    |                    |                |
+ |                    |                    |---- Session ----|
+ |                    |                    |     Setup       |
+ |                    |                    |                |
+ |                    |<-- Initial Context Setup ----------|
+ |<-------------------|                    |                |
+ |                    |                    |                |
+ |========== Default Bearer / User Plane ===================|
+</div>
+
+<p>
+The real procedure is considerably more detailed, but this simplified flow provides the correct
+mental model.
+</p>
+
+<p>
+The UE begins by requesting access.
+The eNodeB transports the request toward the MME.
+The MME identifies the subscriber context it needs, authenticates the UE, establishes security,
+coordinates session creation, and ultimately causes the necessary bearer and forwarding state to
+be installed.
+</p>
+
+<p>
+Only after these steps have succeeded does the subscriber have a complete path for normal packet
+traffic.
+</p>
+
+<h2>Attach Request: The Conversation Begins</h2>
+
+<p>
+The procedure begins with an <strong>Attach Request</strong> from the UE.
+</p>
+
+<p>
+The UE provides information that allows the network to identify the subscriber and understand the
+requested access procedure.
+</p>
+
+<p>
+The message is transported through the eNodeB using the S1AP framework toward the MME.
+</p>
+
+<div class="flow">
+UE
+ |
+ | NAS Attach Request
+ v
+eNodeB
+ |
+ | S1AP Initial UE Message
+ v
+MME
+</div>
+
+<p>
+This is an important distinction.
+The Attach Request is a NAS message.
+The S1AP Initial UE Message is the transport mechanism used between the eNodeB and MME to deliver
+the NAS message.
+</p>
+
+<blockquote>
+One message can belong to one signaling layer while being transported through another.
+Understanding that distinction is essential for packet analysis.
+</blockquote>
+
+<h2>Authentication: Establishing Trust</h2>
+
+<p>
+After receiving the attach request, the MME must determine whether the subscriber can be
+authenticated.
+</p>
+
+<p>
+The MME may contact the HSS through the <strong>S6a</strong> interface using Diameter.
+The HSS provides authentication-related information that allows the network to challenge the UE.
+</p>
+
+<div class="flow">
+UE                  MME                    HSS
+ |                    |                      |
+ |                    |-- Authentication --> |
+ |                    |    Information       |
+ |                    |<-- Authentication ---|
+ |                    |      Vectors         |
+ |                    |                      |
+ |<-- Authentication Request ---------------|
+ |                    |                      |
+ |-- Authentication Response -------------->|
+ |                    |                      |
+</div>
+
+<p>
+The exact authentication exchange contains several cryptographic values and identities, but the
+engineering principle is more important than memorizing every field.
+</p>
+
+<p>
+The network must prove that the UE possesses the credentials associated with the subscriber
+identity being used.
+</p>
+
+<p>
+Successful authentication is followed by security procedures that establish protected signaling
+between the UE and the network.
+</p>
+
+<div class="impact">
+Before the network allows a subscriber to establish meaningful service, it must establish who the subscriber is and whether that identity can be trusted.
+</div>
+
+<h2>Security Mode: Protecting the Signaling Relationship</h2>
+
+<p>
+Authentication establishes trust, but the signaling relationship also needs protection.
+</p>
+
+<p>
+The MME can initiate a <strong>Security Mode Command</strong>, allowing the UE and network to
+activate the negotiated NAS security algorithms.
+</p>
+
+<p>
+The UE responds with a <strong>Security Mode Complete</strong>.
+</p>
+
+<div class="flow">
+MME                                  UE
+ |                                    |
+ |-- Security Mode Command ---------->|
+ |                                    |
+ |<-- Security Mode Complete ---------|
+ |                                    |
+</div>
+
+<p>
+From this point onward, protected NAS signaling becomes part of the subscriber's control-plane
+relationship with the MME.
+</p>
+
+<p>
+This illustrates a broader telecom principle:
+security is not an optional layer added after connectivity.
+It is integrated into the process that creates connectivity.
+</p>
+
+<h2>Location and Mobility Context</h2>
+
+<p>
+The MME also needs to understand where the UE is operating within the LTE network.
+</p>
+
+<p>
+LTE divides geographical coverage into <strong>Tracking Areas</strong>.
+The UE maintains tracking-area-related information so the network can determine where the
+subscriber can be reached without requiring continuous precise location updates.
+</p>
+
+<p>
+This becomes especially important when the UE moves while remaining idle.
+</p>
+
+<p>
+The network does not need to know the exact cell of every idle UE at every moment.
+Instead, it can maintain a coarser mobility context based on tracking areas.
+</p>
+
+<blockquote>
+Mobility management is a balance between knowing where the subscriber is and avoiding unnecessary signaling.
+</blockquote>
+
+<h2>Creating the Default Bearer</h2>
+
+<p>
+After authentication and security procedures, the network establishes the packet-data session.
+</p>
+
+<p>
+The concept of the <strong>default EPS bearer</strong> is central here.
+</p>
+
+<p>
+The default bearer provides the initial logical path for IP connectivity between the UE and the
+PDN.
+</p>
+
+<p>
+The MME coordinates with the SGW using <strong>S11</strong>, while the SGW and PGW establish the
+corresponding packet-data context through the EPC.
+</p>
+
+<div class="flow">
+MME                  SGW                  PGW
+ |                    |                    |
+ |-- Create Session ->|                    |
+ |                    |-- Create Session ->|
+ |                    |                    |
+ |                    |<-- Session Response|
+ |<-- Session Response|                    |
+ |                    |                    |
+</div>
+
+<p>
+These are GTP-C signaling procedures.
+</p>
+
+<p>
+The messages create the control-plane state required for the user-plane tunnel.
+</p>
+
+<p>
+The PGW can allocate or associate an IP address with the subscriber's PDN session.
+The SGW maintains the corresponding tunnel context.
+The eNodeB receives the information required to establish the radio-side bearer and forwarding
+relationship.
+</p>
+
+<div class="impact">
+The bearer is not just a tunnel. It is a contract between multiple network elements describing how a subscriber's traffic should be handled.
+</div>
+
+<h2>From Bearer Establishment to Real IP Traffic</h2>
+
+<p>
+Once the default bearer is established, the subscriber finally has a usable path for packet
+traffic.
+</p>
+
+<div class="diagram">
+UE
+ |
+ | Radio bearer
+ v
+eNodeB
+ |
+ | S1-U / GTP-U
+ v
+SGW
+ |
+ | S5/S8 / GTP-U
+ v
+PGW
+ |
+ | IP
+ v
+External Network
+</div>
+
+<p>
+An application packet generated by the UE can now travel through this path.
+</p>
+
+<p>
+The subscriber's original IP packet is encapsulated in GTP-U as it crosses the mobile core.
+The outer transport addresses identify the next tunnel endpoint, while the TEID identifies the
+logical tunnel context.
+</p>
+
+<p>
+The control plane created the conditions under which this user-plane traffic can flow.
+</p>
+
+<blockquote>
+The first packet on the user plane is the consequence of many successful control-plane decisions.
+</blockquote>
+
+<h2>Default Bearer and Dedicated Bearer</h2>
+
+<p>
+LTE supports more than one bearer concept because not all traffic needs to receive identical
+treatment.
+</p>
+
+<p>
+The <strong>default bearer</strong> is established as part of the initial PDN connectivity.
+It provides baseline IP connectivity for the subscriber.
+</p>
+
+<p>
+A <strong>dedicated bearer</strong> can later be established to provide specific QoS treatment for
+a particular service or traffic flow.
+</p>
+
+<p>
+This becomes particularly relevant for services such as voice over LTE.
+</p>
+
+<div class="diagram">
+                Subscriber PDN Session
+
+```
+                 PGW
+                  |
+          +-------+-------+
+          |               |
+    Default Bearer   Dedicated Bearer
+          |               |
+    General traffic   Specific service
+          |               |
+          +-------+-------+
+                  |
+                 UE
+```
+
+</div>
+
+<p>
+The dedicated bearer does not replace the default bearer.
+It exists alongside it.
+</p>
+
+<p>
+This distinction is fundamental when analyzing QoS-related behavior.
+</p>
+
+<div class="impact">
+Different services can share the same subscriber session while receiving different treatment from the network.
+</div>
+
+<h2>Service Request: Waking the User Plane</h2>
+
+<p>
+The LTE network is designed to conserve radio and network resources.
+A UE does not need to maintain an active radio connection continuously simply because it has an
+existing packet-data session.
+</p>
+
+<p>
+When the UE has data to send or receive while in an idle state, it can trigger a
+<strong>Service Request</strong>.
+</p>
+
+<p>
+The purpose of the Service Request procedure is to transition the UE into a state where user-plane
+resources can be re-established.
+</p>
+
+<div class="flow">
+UE                 eNodeB                 MME
+ |                    |                    |
+ |-- Service Request->|                    |
+ |                    |-- Service Request->|
+ |                    |                    |
+ |                    |<-- Context Setup --|
+ |<-- Radio Resources-|                    |
+ |                    |                    |
+ |================ User Plane Restored ================|
+</div>
+
+<p>
+The core session may still exist while the radio-side resources are temporarily released.
+</p>
+
+<p>
+This distinction explains an otherwise confusing behavior:
+a subscriber can have an established IP session without continuously transmitting user-plane
+traffic over an active radio bearer.
+</p>
+
+<blockquote>
+Idle does not mean disconnected. It means the network has deliberately released resources while preserving enough state to resume service.
+</blockquote>
+
+<h2>Tracking Area Update</h2>
+
+<p>
+As a UE moves through the network, its mobility context may need to be updated.
+</p>
+
+<p>
+A <strong>Tracking Area Update (TAU)</strong> allows the network to update the UE's tracking-area
+information.
+</p>
+
+<p>
+The procedure becomes particularly relevant when the UE moves into an area outside its current
+registered tracking area list.
+</p>
+
+<div class="flow">
+UE                         eNodeB                  MME
+ |                           |                      |
+ |-- Tracking Area Update -> |                      |
+ |                           |-- TAU Request ------>|
+ |                           |                      |
+ |                           |<-- TAU Accept -------|
+ |<-- TAU Accept ------------|                      |
+ |                           |                      |
+</div>
+
+<p>
+The exact flow can involve additional procedures depending on the mobility scenario, including
+security, context transfer, and interactions with other MMEs.
+</p>
+
+<p>
+The important idea is that mobility creates signaling even when the subscriber is not actively
+using an application.
+</p>
+
+<div class="impact">
+A mobile network must manage movement even when there is no user traffic to manage.
+</div>
+
+<h2>Handover: When Mobility Becomes a Live Traffic Problem</h2>
+
+<p>
+Tracking Area Update should not be confused with handover.
+</p>
+
+<p>
+A handover is concerned with moving an active radio connection from one cell or eNodeB to another
+while maintaining service continuity.
+</p>
+
+<p>
+The exact procedure depends on the handover type and network architecture, but the fundamental
+challenge remains the same:
+</p>
+
+<p>
+<strong>How do we move the radio connection without destroying the user's active session?</strong>
+</p>
+
+<p>
+The network must coordinate radio resources, forwarding paths, tunnel endpoints, and subscriber
+context.
+</p>
+
+<blockquote>
+Mobility becomes difficult when the network must move a live session without letting the application notice that the path changed.
+</blockquote>
+
+<h2>Detach: Ending the Relationship</h2>
+
+<p>
+Eventually, the UE may leave the network, power off, switch connectivity, or explicitly request
+detachment.
+</p>
+
+<p>
+The <strong>Detach Procedure</strong> releases the relevant subscriber context.
+</p>
+
+<div class="flow">
+UE                         eNodeB                  MME
+ |                           |                      |
+ |------ Detach Request ---->|                      |
+ |                           |------ Detach ------->|
+ |                           |                      |
+ |                           |                      |
+ |                           |<----- Release -------|
+ |<------- Release ----------|                      |
+</div>
+
+<p>
+The MME coordinates the necessary cleanup of the subscriber's control-plane state.
+The EPC can release bearer and session resources according to the detach scenario.
+</p>
+
+<p>
+The network is therefore not only responsible for creating state.
+It must also know how to remove it safely.
+</p>
+
+<div class="impact">
+Every session has a beginning, a maintained state, and an ending. A network that creates state well but releases it badly will eventually exhaust itself.
+</div>
+
+<h2>Understanding GTP Signaling in the Call Flow</h2>
+
+<p>
+GTP-C deserves special attention because it connects the mobility-control world with the packet
+gateway world.
+</p>
+
+<p>
+During session establishment, GTP-C procedures communicate information about the subscriber's
+session and bearer context.
+</p>
+
+<p>
+The MME can instruct the SGW to create or modify session state.
+The SGW can communicate with the PGW to create or modify the corresponding PDN connectivity.
+</p>
+
+<p>
+The resulting state allows GTP-U tunnels to carry subscriber traffic.
+</p>
+
+<div class="diagram">
+Control Plane:
+
+MME
+|
+| GTP-C
+v
+SGW
+|
+| GTP-C
+v
+PGW
+
+User Plane:
+
+eNodeB
+|
+| GTP-U
+v
+SGW
+|
+| GTP-U
+v
+PGW
+
+</div>
+
+<p>
+This separation is one of the most important things to recognize in a packet capture.
+</p>
+
+<p>
+A GTP-C failure may prevent a bearer from being established.
+A GTP-U failure may cause an established bearer to carry no useful traffic.
+</p>
+
+<blockquote>
+GTP-C creates the road. GTP-U carries the vehicles.
+</blockquote>
+
+<h2>Reading an Attach Failure</h2>
+
+<p>
+A practical engineer should be able to look at an incomplete attach and determine where the
+procedure stopped.
+</p>
+
+<p>
+Consider several examples.
+</p>
+
+<h3>The UE never reaches the MME</h3>
+
+<p>
+If the UE sends an access request but the MME never receives the corresponding signaling, the
+investigation should focus on the radio side, eNodeB behavior, S1AP connectivity, or transport
+connectivity toward the MME.
+</p>
+
+<h3>The MME receives the request but authentication fails</h3>
+
+<p>
+Now the problem is likely farther into the control plane.
+S6a connectivity, Diameter exchanges, subscriber data, authentication vectors, identities, or
+security procedures become relevant.
+</p>
+
+<h3>Authentication succeeds but the bearer is not created</h3>
+
+<p>
+The investigation should move toward session management and GTP-C.
+The MME, SGW, PGW, APN configuration, and policy interactions become important.
+</p>
+
+<h3>The bearer exists but there is no user traffic</h3>
+
+<p>
+Now the user plane becomes the primary suspect.
+S1-U, S5/S8, TEIDs, GTP-U forwarding, routing, MTU, firewall policies, and external connectivity
+should be investigated.
+</p>
+
+<div class="impact">
+The location of the failure in the call flow dramatically reduces the number of places you need to investigate.
+</div>
+
+<h2>From Signaling to Packet Capture</h2>
+
+<p>
+Call flows become particularly powerful when combined with packet analysis.
+</p>
+
+<p>
+Suppose a capture shows:
+</p>
+
+<div class="diagram">
+S1AP
+  |
+  +-- Initial UE Message
+  |
+  +-- Downlink NAS Transport
+  |
+  +-- Uplink NAS Transport
+  |
+  +-- Initial Context Setup
+  |
+  +-- UE Context Release
+</div>
+
+<p>
+The engineer should immediately ask:
+</p>
 
 <ul>
-<li>Bloquear origem imediatamente</li>
-<li>Isolar elementos da rede</li>
-<li>Aplicar regras dinâmicas</li>
+<li>Which NAS messages were transported?</li>
+<li>Did authentication succeed?</li>
+<li>Was security activated?</li>
+<li>Was the default bearer established?</li>
+<li>Did GTP-C create the session?</li>
+<li>Were GTP-U packets observed afterward?</li>
+<li>Were the expected TEIDs present?</li>
+<li>Did the eNodeB receive the correct user-plane parameters?</li>
 </ul>
 
-<p><strong>👉 Tempo de resposta é crítico.</strong></p>
+<p>
+This transforms packet capture analysis from packet-by-packet inspection into reconstruction of
+network behavior.
+</p>
 
----
+<blockquote>
+The best packet capture analysis is not about finding a strange packet. It is about finding the first event that breaks the expected sequence.
+</blockquote>
 
-<h2>4.9 Defesa em 4G (Diameter)</h2>
+<h2>VoLTE and IMS: Extending LTE Beyond Data</h2>
 
-<p>Principais pontos de proteção:</p>
+<p>
+LTE was designed primarily as a packet-based mobile architecture.
+Traditional circuit-switched voice was not simply carried through the EPC in the same way as legacy
+2G or 3G voice.
+</p>
+
+<p>
+To provide voice services over LTE, operators adopted <strong>IMS — IP Multimedia Subsystem</strong>.
+</p>
+
+<p>
+VoLTE therefore adds another signaling ecosystem on top of the LTE packet-data architecture.
+</p>
+
+<div class="diagram">
+                 LTE / EPC
+
+UE
+|
+| LTE-Uu
+v
+eNodeB
+|
+| S1
+v
+EPC
+|
+| IP Connectivity
+v
+IMS
+|
++---- P-CSCF
+|
++---- I-CSCF
+|
++---- S-CSCF
+|
++---- Application / Service Functions
+
+</div>
+
+<p>
+At a high level, LTE provides the IP connectivity while IMS provides the service architecture
+required for IP-based voice and multimedia services.
+</p>
+
+<p>
+SIP becomes a central signaling protocol for IMS.
+</p>
+
+<p>
+A VoLTE call therefore involves multiple layers of signaling:
+</p>
 
 <ul>
-<li>Validação de Realm</li>
-<li>Controle de mensagens AIR/ULA</li>
-<li>Proteção contra Diameter Storm</li>
+<li>LTE access and mobility procedures</li>
+<li>EPS bearer establishment</li>
+<li>IMS registration</li>
+<li>SIP signaling</li>
+<li>Dedicated QoS treatment for voice media</li>
+<li>RTP media transport</li>
 </ul>
 
-<table>
-<tr><th>Ataque</th><th>Mitigação</th></tr>
-<tr><td>Update Location falso</td><td>Validação de origem</td></tr>
-<tr><td>CCR Manipulation</td><td>Controle de charging</td></tr>
-<tr><td>Flood</td><td>Rate limiting</td></tr>
-</table>
+<p>
+This is why troubleshooting VoLTE requires engineers to understand both the mobile packet core and
+the IMS service layer.
+</p>
 
----
+<h2>The IMS Registration Concept</h2>
 
-<h2>4.10 Defesa em 5G (SBA)</h2>
+<p>
+Before the UE can normally use IMS services, it must establish connectivity to the IMS domain and
+register its identity.
+</p>
 
-<p>No 5G, a segurança é baseada em APIs:</p>
+<p>
+The UE obtains IP connectivity through the LTE packet core and then communicates with the IMS
+infrastructure using SIP.
+</p>
 
-<ul>
-<li>Autenticação (OAuth2)</li>
-<li>Criptografia (TLS)</li>
-<li>Controle de acesso (API Gateway)</li>
-</ul>
+<div class="flow">
+UE                 EPC                    IMS
+ |                   |                      |
+ |-- IP Connectivity>|                      |
+ |                   |                      |
+ |----------------------------------------->|
+ |              SIP REGISTER                |
+ |                   |                      |
+ |<-----------------------------------------|
+ |              SIP Response                |
+ |                   |                      |
+ |=========== IMS Registration Complete ===|
+</div>
 
-<table>
-<tr><th>Risco</th><th>Proteção</th></tr>
-<tr><td>Acesso indevido</td><td>Autenticação forte</td></tr>
-<tr><td>Exposição de dados</td><td>Controle de autorização</td></tr>
-<tr><td>API Flood</td><td>Rate limiting</td></tr>
-</table>
+<p>
+The exact IMS registration process involves authentication and multiple SIP messages, but the
+architectural lesson is straightforward:
+</p>
 
----
+<p>
+LTE provides the packet transport.
+IMS provides the service logic.
+</p>
 
-<h2>4.11 Correlação com Kill Chain</h2>
+<div class="impact">
+VoLTE is not “voice inside LTE” as a single protocol. It is an IP service built on top of a mobile packet architecture.
+</div>
 
-<p>Uma defesa eficiente bloqueia cada etapa do ataque:</p>
+<h2>Dedicated Bearers and Voice QoS</h2>
 
-<table>
-<tr><th>Etapa</th><th>Defesa</th></tr>
-<tr><td>Identidade</td><td>Bloqueio de SendIMSI</td></tr>
-<tr><td>Localização</td><td>Filtro de ATI</td></tr>
-<tr><td>Controle</td><td>Validação de roteamento</td></tr>
-<tr><td>Exploração</td><td>Monitoramento e resposta</td></tr>
-</table>
+<p>
+Voice traffic has requirements that differ from ordinary best-effort Internet traffic.
+Latency, jitter, packet loss, and predictable treatment matter significantly.
+</p>
 
-<p><strong>👉 O objetivo é quebrar a cadeia.</strong></p>
+<p>
+The LTE architecture can establish dedicated bearers associated with specific service flows.
+</p>
 
----
+<div class="diagram">
+Default Bearer
+ |
+ +---- General IP connectivity
+ |
+ |
+ +---- Dedicated Bearer
+        |
+        +---- Voice service
+        |
+        +---- Specific QoS treatment
+</div>
 
-<h2>4.12 Explicação didática</h2>
+<p>
+This allows the network to distinguish voice traffic from ordinary data traffic.
+</p>
 
-<p>Pense na rede como um prédio moderno com segurança:</p>
+<p>
+The precise QoS parameters depend on the service and operator implementation, but the engineering
+principle is universal:
+</p>
 
-<ul>
-<li><strong>Portaria:</strong> firewall</li>
-<li><strong>Crachá:</strong> autenticação</li>
-<li><strong>Câmeras:</strong> monitoramento</li>
-<li><strong>Segurança interna:</strong> validação lógica</li>
-</ul>
+<blockquote>
+When every packet is treated equally, real-time services eventually reveal the limits of best-effort networking.
+</blockquote>
 
-<p>Se uma dessas falhar, o invasor entra.</p>
+<h2>Following a VoLTE Call</h2>
 
----
+<p>
+A simplified VoLTE call can be viewed as several nested procedures.
+</p>
 
-<h2>4.13 Principais erros das operadoras</h2>
+<div class="diagram">
+                    MOBILE ACCESS
 
-<ul>
-<li>Confiar em parceiros internacionais</li>
-<li>Focar só em firewall</li>
-<li>Não monitorar comportamento</li>
-<li>Regras muito permissivas</li>
-</ul>
+UE
+|
+| LTE signaling
+v
+eNodeB
+|
+| EPC signaling
+v
+MME / SGW / PGW
+|
+| IP connectivity
+v
+IMS
+|
+| SIP
+v
+Call Control
+|
+| RTP
+v
+Voice Media
 
----
+</div>
 
-<h2>4.14 Conclusão</h2>
+<p>
+The call therefore has both a signaling path and a media path.
+</p>
 
-<p>Segurança em redes móveis exige:</p>
+<p>
+SIP signaling establishes and controls the call.
+RTP carries the actual voice media.
+LTE/EPC provides the underlying IP transport and QoS mechanisms.
+</p>
 
-<ul>
-<li>Defesa em camadas</li>
-<li>Validação constante</li>
-<li>Monitoramento ativo</li>
-</ul>
+<div class="impact">
+For voice troubleshooting, ask two separate questions: “Can the call be established?” and “Can the media flow correctly?”
+</div>
 
-<p><strong>👉 Não basta bloquear ataques — é preciso interromper a kill chain.</strong></p>
+<p>
+A call can successfully establish while one-way audio or no-audio problems remain.
+That immediately suggests that SIP signaling and RTP media must be investigated separately.
+</p>
 
-<footer>
-<p>Fim do Capítulo 4 – Arquitetura de Defesa</p>
-</footer>
+<h2>The Engineer's Call Flow Method</h2>
+
+<p>
+When approaching any LTE signaling problem, a useful method is to reconstruct the expected sequence.
+</p>
+
+<p>
+Start with the subscriber.
+</p>
+
+<p>
+Ask what state the UE should be in.
+</p>
+
+<p>
+Identify the next expected signaling message.
+</p>
+
+<p>
+Identify the node responsible for generating it.
+</p>
+
+<p>
+Identify the interface and protocol that should carry it.
+</p>
+
+<p>
+Then determine whether the message was actually observed.
+</p>
+
+<div class="diagram">
+Expected event
+      |
+      v
+Expected node
+      |
+      v
+Expected interface
+      |
+      v
+Expected protocol
+      |
+      v
+Message observed?
+     / \
+   YES  NO
+    |    |
+    |    +---- Investigate previous boundary
+    |
+    v
+What state changed?
+    |
+    v
+What should happen next?
+</div>
+
+<p>
+This methodology works because telecom signaling is deterministic enough to establish an expected
+sequence while still being complex enough that failures can occur at many different points.
+</p>
+
+<blockquote>
+Troubleshooting is often the search for the first missing message.
+</blockquote>
+
+<h2>The Bigger Picture</h2>
+
+<p>
+The attach procedure, authentication, bearer establishment, Service Request, Tracking Area Update,
+Detach, and VoLTE signaling may initially look like unrelated procedures.
+</p>
+
+<p>
+They are not.
+</p>
+
+<p>
+They are different manifestations of the same underlying principle:
+<strong>the mobile network continuously creates, modifies, and removes distributed subscriber state.</strong>
+</p>
+
+<p>
+The UE moves.
+The network authenticates it.
+The MME tracks it.
+The EPC creates tunnels for it.
+The policy system determines how its traffic should be treated.
+The radio network allocates resources.
+IMS can establish services on top of the resulting IP connectivity.
+</p>
+
+<p>
+Every action changes the state of multiple components.
+</p>
+
+<div class="impact">
+A mobile network is alive in its signaling. User traffic is only the visible consequence.
+</div>
+
+<div class="chapter-end">
+
+<h2>Chapter Takeaways</h2>
+
+<p>
+The LTE signaling architecture becomes much easier to understand once every procedure is viewed as
+a state transition.
+</p>
+
+<p>
+The <strong>Attach Procedure</strong> establishes the subscriber's initial relationship with the
+LTE core.
+</p>
+
+<p>
+<strong>Authentication</strong> establishes trust between the subscriber and the network.
+</p>
+
+<p>
+<strong>Security Mode</strong> activates protected NAS signaling.
+</p>
+
+<p>
+The <strong>Default Bearer</strong> establishes baseline packet-data connectivity.
+</p>
+
+<p>
+A <strong>Dedicated Bearer</strong> can provide specialized treatment for particular services.
+</p>
+
+<p>
+The <strong>Service Request</strong> allows a UE with an existing session to restore active
+resources when needed.
+</p>
+
+<p>
+The <strong>Tracking Area Update</strong> maintains the UE's mobility context.
+</p>
+
+<p>
+The <strong>Detach Procedure</strong> releases subscriber state and network resources.
+</p>
+
+<p>
+<strong>NAS</strong> carries mobility and session-related signaling between the UE and core.
+<strong>S1AP</strong> provides the eNodeB-to-MME signaling framework.
+<strong>SCTP</strong> transports S1AP.
+<strong>GTP-C</strong> creates and manages EPC session and bearer state.
+<strong>GTP-U</strong> transports subscriber traffic.
+</p>
+
+<p>
+And with <strong>IMS</strong>, LTE becomes more than a packet-data access network.
+It becomes the foundation for IP-based communication services such as VoLTE.
+</p>
+
+<div class="diagram">
+              SIGNALING MENTAL MODEL
+
+```
+         UE State
+            |
+            v
+      Radio Connectivity
+            |
+            v
+      NAS Signaling
+            |
+            v
+      Authentication
+            |
+            v
+      Security Context
+            |
+            v
+      Session Creation
+            |
+            v
+      Default Bearer
+            |
+            v
+      User Plane
+            |
+            v
+      Mobility / Service
+            |
+            v
+    Dedicated Services / IMS
+            |
+            v
+         Release
+```
+
+</div>
+
+<p>
+Once this sequence becomes intuitive, LTE traces stop looking like random messages.
+They become a conversation with a predictable structure.
+</p>
+
+<blockquote>
+Do not memorize the call flow. Learn to predict the next message.
+</blockquote>
+
+<p>
+That is the point at which signaling knowledge becomes engineering knowledge.
+</p>
+
+<p>
+In the next chapter, we will take this understanding into the most practical part of LTE
+engineering: <strong>troubleshooting the EPC and user plane</strong>.
+We will move from expected behavior to failed behavior and learn how to determine where packets,
+tunnels, bearers, and sessions stop working.
+</p>
+
+<blockquote>
+The architecture shows where the problem can be. The call flow shows when the problem begins.
+</blockquote>
+
+</div>
 
 </body>
 </html>
