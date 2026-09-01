@@ -235,14 +235,24 @@ and physical domains.
 A simplified representation is:
 </p>
 
-<img
-    src="imgs/c01/cap01img01.jpg"
-    alt="A mobile network can be understood as a distributed communication system"
-    style="display:block; width:100%; max-width:1000px; height:auto; margin:35px auto 10px auto; border:1px solid #334155;"
->
-<p style="text-align:center; color:#94a3b8; font-size:15px; margin-top:5px;">
-    Figure 1.1 A mobile network can be understood as a distributed communication system
-</p>
+<pre>
+UE
+ |
+ | Radio
+ v
+RAN
+ |
+ | IP Transport
+ v
+Mobile Core
+ |
+ | IP / GTP
+ v
+Data Network
+ |
+ v
+Application
+</pre>
 
 <p>
 Every arrow in this diagram represents more than physical connectivity.
@@ -332,21 +342,9 @@ The subscriber may perceive this as one operation, but the network
 processes several independent transactions.
 </p>
 
-<img
-    src="imgs/c01/cap01img02.jpg"
-    alt="The mobile network processes several independent transactions"
-    style="display:block; width:100%; max-width:1000px; height:auto; margin:35px auto 10px auto; border:1px solid #334155;"
->
-<p style="text-align:center; color:#94a3b8; font-size:15px; margin-top:5px;">
-    Figure 1.2 The mobile network processes several independent transactions
-</p>
-    
-<p>
-At every stage, a different failure can occur.
-</p>
 
 <p>
-The ability to decompose a user action into these individual transactions
+At every stage, a different failure can occur. The ability to decompose a user action into these individual transactions
 is one of the most valuable skills in network troubleshooting.
 </p>
 
@@ -358,6 +356,26 @@ increased capacity, introduced new services, and progressively increased
 the importance of packet networking and software-based infrastructure.
 </p>
 
+<pre>
+2G
+ |
+ | Circuit + Packet
+ v
+3G
+ |
+ | Increasing Packet Orientation
+ v
+4G LTE
+ |
+ | All-IP / EPC
+ v
+5G
+ |
+ | SBA / Cloud-Native
+ v
+5G Core
+</pre>
+    
 <p>
 Although the architecture changed significantly from 2G to 5G, several
 fundamental requirements remained constant:
@@ -625,15 +643,15 @@ than individual messages.
 </p>
 
 <pre>
-Application
-     |
-     v
-+------------+
-|    TCP     |
-+------------+
-     |
-     v
-     IP
++----------------------+
+|     Application      |
++----------------------+
+|         TCP          |
++----------------------+
+|         IP           |
++----------------------+
+|      Ethernet        |
++----------------------+
 </pre>
 
 <p>
@@ -668,15 +686,15 @@ congestion control.
 </p>
 
 <pre>
-Application
-     |
-     v
-+------------+
-|    UDP     |
-+------------+
-     |
-     v
-     IP
++----------------------+
+|     Application      |
++----------------------+
+|         UDP          |
++----------------------+
+|         IP           |
++----------------------+
+|      Ethernet        |
++----------------------+
 </pre>
 
 <p>
@@ -707,21 +725,16 @@ For example, GTP-U is carried over UDP/IP:
 
 <pre>
 User Plane
-    |
-    v
-+-----------+
-|   GTP-U   |
-+-----------+
-    |
-    v
-+-----------+
-|    UDP    |
-+-----------+
-    |
-    v
-+-----------+
-|    IP     |
-+-----------+
+
++----------------------+
+|        GTP-U         |
++----------------------+
+|        SCTP          |
++----------------------+
+|         IP           |
++----------------------+
+|      Ethernet        |
++----------------------+
 </pre>
 
 
@@ -766,28 +779,6 @@ Examples in mobile networks include:
 <li><strong>NGAP over SCTP</strong> in 5G</li>
 <li><strong>XnAP over SCTP</strong> in 5G</li>
 </ul>
-
-<pre>
-Telecom Signaling
-       |
-       v
-+-------------+
-|    S1AP     |
-|    NGAP     |
-|    X2AP     |
-|    XnAP     |
-+-------------+
-       |
-       v
-+-------------+
-|    SCTP     |
-+-------------+
-       |
-       v
-+-------------+
-|     IP      |
-+-------------+
-</pre>
 
 <p>
 A useful rule for engineers is:
@@ -980,29 +971,6 @@ The combination of these five values allows engineers and network devices to
 distinguish one IP flow from another.
 </p>
 
-<p>
-For TCP traffic, a typical flow may look like:
-</p>
-
-<pre>
-192.168.1.10:51542
-        |
-        | TCP
-        v
-192.168.1.20:443
-</pre>
-
-<p>
-For GTP-U:
-</p>
-
-<pre>
-10.10.10.1:2152
-        |
-        | UDP
-        v
-10.20.20.1:2152
-</pre>
 
 <p>
 The 5-tuple is commonly used by:
@@ -1061,13 +1029,13 @@ The association is established using the SCTP four-step handshake:
 
 <pre>
 Endpoint A                    Endpoint B
-    |                              |
-    |----------- INIT ------------>|
-    |<-------- INIT ACK ------------|
-    |-------- COOKIE ECHO --------->|
-    |<------- COOKIE ACK -----------|
-    |                              |
-    |===== SCTP Association =======|
+    |                               |
+    |------------ INIT ------------>|
+    |<--------- INIT ACK -----------|
+    |--------- COOKIE ECHO -------->|
+    |<-------- COOKIE ACK ----------|
+    |                               |
+    |====== SCTP Association =======|
 </pre>
 
 <p>
@@ -1101,24 +1069,8 @@ IP addresses associated with the same SCTP association.
 </p>
 
 <p>
-For example, an eNodeB and an MME may each have two IP addresses:
+For example, an eNodeB and an MME may each have two IP addresses.
 </p>
-
-<pre>
-             MME
-       +----------------+
-       | 10.20.20.1     |
-       | 10.20.21.1     |
-       +-------+--------+
-               |
-        SCTP Association
-               |
-       +-------+--------+
-       | 10.10.10.1     |
-       | 10.10.11.1     |
-       +----------------+
-             eNodeB
-</pre>
 
 <p>
 This provides path redundancy.
@@ -1229,15 +1181,9 @@ Consider two messages:
 
 <pre>
 Stream 0:
-
-MESSAGE A --------X
-                   |
-                   | Lost
-                   v
-
+MESSAGE A --------X Lost
 
 Stream 1:
-
 MESSAGE B --------------------> Received
 </pre>
 
@@ -1279,12 +1225,12 @@ paths.
 <pre>
               SCTP Association
 
-Endpoint A                         Endpoint B
+  Endpoint A                        Endpoint B
 +-------------+                   +-------------+
 | 10.10.10.1  |===================| 10.20.20.1  |
 | 10.10.11.1  |===================| 10.20.21.1  |
 +-------------+                   +-------------+
-       Multiple IP addresses / paths
+           Multiple IP addresses / Paths
 </pre>
 
 <p>
@@ -1304,70 +1250,70 @@ be summarized using the following examples.
 <h4>4G S1-MME Control Plane</h4>
 
 <pre>
-+----------------------+
-|        S1AP          |
-+----------------------+
-|        SCTP          |
-+----------------------+
-|         IP           |
-+----------------------+
-|      Ethernet        |
-+----------------------+
+        +----------------------+
+        |        S1AP          |
+        +----------------------+
+        |        SCTP          |
+        +----------------------+
+        |         IP           |
+        +----------------------+
+        |      Ethernet        |
+        +----------------------+
 
 eNodeB -------------------------- MME
-             SCTP
+                  SCTP
 </pre>
 
 <h4>4G/5G User Plane</h4>
 
 <pre>
-+----------------------+
-|      User Traffic    |
-+----------------------+
-|       GTP-U         |
-+----------------------+
-|        UDP           |
-+----------------------+
-|         IP           |
-+----------------------+
-|      Ethernet        |
-+----------------------+
+              +----------------------+
+              |      User Traffic    |
+              +----------------------+
+              |       GTP-U         |
+              +----------------------+
+              |        UDP           |
+              +----------------------+
+              |         IP           |
+              +----------------------+
+              |      Ethernet        |
+              +----------------------+
 
-eNodeB / gNB -------------------- UPF / SGW
-                GTP-U / UDP
+eNodeB / gNB ------------------------- UPF / SGW
+                    GTP-U / UDP
 </pre>
 
 <h4>5G N2 Control Plane</h4>
 
 <pre>
-+----------------------+
-|        NGAP          |
-+----------------------+
-|        SCTP          |
-+----------------------+
-|         IP           |
-+----------------------+
-|      Ethernet        |
-+----------------------+
+     +----------------------+
+     |        NGAP          |
+     +----------------------+
+     |        SCTP          |
+     +----------------------+
+     |         IP           |
+     +----------------------+
+     |      Ethernet        |
+     +----------------------+
 
-gNB ------------------------------ AMF
-             SCTP
+gNB -------------------------- AMF
+              SCTP
 </pre>
 
 <h4>5G N4 Interface</h4>
 
 <pre>
-+----------------------+
-|        PFCP          |
-+----------------------+
-|        UDP           |
-+----------------------+
-|         IP           |
-+----------------------+
-|      Ethernet        |
-+----------------------+
+     +----------------------+
+     |        PFCP          |
+     +----------------------+
+     |        UDP           |
+     +----------------------+
+     |         IP           |
+     +----------------------+
+     |      Ethernet        |
+     +----------------------+
 
-SMF ------------------------------ UPF
+SMF --------------------------- UPF
              PFCP / UDP
 </pre>
 
@@ -1519,20 +1465,19 @@ connectivity.
 A typical transport architecture may resemble:
 </p>
 
-<pre><code>Radio Site
-    |
-    | Ethernet
-    v
-Access Network
-    |
-    v
-Aggregation
-    |
-    v
-IP/MPLS Transport
-    |
-    v
-Core / Data Center</code></pre>
+<pre><code>
++----------------------+
+|      Radio Site      |
++----------------------+
+|    Access Network    |
++----------------------+ 
+| Ethernet/Aggregation |
++----------------------+ 
+|   IP/MPLS Transport  |
++----------------------+
+|  Core / Data Center  | 
++----------------------+
+</code></pre>
 
 <p>
 Transport infrastructure is particularly important because a single
@@ -1632,37 +1577,27 @@ operator's own infrastructure whenever the evidence requires it.
 Combining the major domains gives a more realistic high-level view:
 </p>
 
-<pre><code>+--------+
-|   UE   |
-+---+----+
-    |
-    | Radio
-    v
-+--------+
-|  RAN   |
-+---+----+
-    |
-    | Transport
-    v
-+-------------+
-| IP Network  |
-+------+------+
-       |
-       v
-+-------------+
-| Mobile Core |
-+------+------+
-       |
-       | IP / GTP / Routing
-       v
-+------------------+
-| Data Network     |
-+--------+---------+
-         |
-         v
-+------------------+
-| Internet / App   |
-+------------------+</code></pre>
+<pre><code>
++----------------------+
+|          UE          |  
++----------------------+
+|      Radio Site      |
++----------------------+
+|    Access Network    |
++----------------------+ 
+| Ethernet/Aggregation |
++----------------------+ 
+|   IP/MPLS Transport  |
++----------------------+
+|      Mobile Core     | 
++----------------------+
+|  IP / GTP / Routing  |
++----------------------+
+|     Data Network     |
++----------------------+
+|    Internet / App    |
++----------------------+
+</code></pre>
 
 <p>
 The important point is that this diagram represents a single service
@@ -1682,37 +1617,40 @@ location.
 
 <h3>4G LTE Architecture</h3>
 
-<pre><code>                    +----------------+
-                    |      HSS       |
-                    +--------+-------+
-                             |
-                         Diameter
-                             |
-+------+       S1        +---+---+
-|  UE  | &lt;-------------&gt; |  MME  |
-+--+---+                  +---+---+
-   |                          |
-   | LTE                      | S11
-   v                          v
-+------+      S1-U        +---+---+
-|eNodeB|------------------|  SGW  |
-+------+                  +---+---+
-                              |
-                              | S5/S8
-                              v
-                         +----+----+
-                         |   PGW   |
-                         +----+----+
-                              |
-                              | SGi
-                              v
-                       External Network</code></pre>
-
 <p>
 The simplified LTE architecture demonstrates an important architectural
-separation.
+separation between control plane and user plane.
 </p>
 
+<pre>
+             CONTROL PLANE
+    
++--------+                    +--------+
+| eNodeB | ===== S1-MME ===== |  MME   |
++--------+      S1AP/SCTP     +--------+
+                                  |
+                                  | S6a
+                                  | Diameter
+                                  v
+                              +--------+
+                              |  HSS   |
+                              +--------+
+</pre>
+
+<pre>
+             USER PLANE
+    
++--------+                    +--------+
+| eNodeB | ===== S1-U ======= |  SGW   |
++--------+      GTP-U         +--------+
+                                  |
+                                  | S5
+                                  |
+                                  v
+                              +--------+
+                              |  PGW   |
+                              +--------+
+</pre>
 <p>
 The MME is primarily associated with control-plane signaling. It does not
 carry the subscriber's normal Internet payload.
@@ -1737,7 +1675,8 @@ efficient approach.
 
 <h3>5G Standalone Architecture</h3>
 
-<pre><code>                         +-------+
+<pre><code>                         
+                         +-------+
                          |  UDM  |
                          +---+---+
                              |
@@ -1751,7 +1690,7 @@ efficient approach.
                              |
                              |
 +------+       +---------+   |   +---------+
-|  UE  | &lt;---&gt; |   gNB   |---+---|   AMF   |
+|  UE  |       |   gNB   |---+---|   AMF   |
 +------+   NR  +----+----+       +----+----+
                     |                  |
                     | N3               | N11
@@ -1763,7 +1702,8 @@ efficient approach.
                       |
                       | N6
                       v
-                Data Network</code></pre>
+                Data Network
+</code></pre>
 
 <p>
 In 5G Standalone, the gNB connects directly to the 5G Core.
@@ -1784,19 +1724,11 @@ logic and packet forwarding even more explicit.
 A useful simplified relationship is:
 </p>
 
-<pre><code>AMF
- |
- | Access / Mobility
- |
-SMF
- |
- | Session Control
- |
-UPF
- |
- | Packet Forwarding
- v
-Data Network</code></pre>
+<pre><code>
++--------+                    +--------+                  +--------+                     +--------+
+|   AMF  |  ===== S5/s8 ===== |  SMF   | ===== PFCP ===== |   UPF  | ======== IP ======= |  PDN   |
++--------+  Access / Mobility +--------+  Session Control +--------+  Packet Forwarding  +--------+
+</code></pre>
 
 <p>
 This separation is fundamental to understanding modern 5G Core
@@ -1937,19 +1869,19 @@ In LTE and 5G, GTP-U is commonly used to encapsulate subscriber packets
 across the mobile transport network.
 </p>
 
-<pre><code>Subscriber IP Packet
-        |
-        v
-      GTP-U
-        |
-        v
-       UDP
-        |
-        v
-        IP
-        |
-        v
-     Ethernet</code></pre>
+<pre><code>
++----------------------+
+| Subscriber IP Packet |
++----------------------+
+|        GTP-U         |
++----------------------+
+|         UDP          |
++----------------------+
+|         IP           |
++----------------------+
+|      Ethernet        |
++----------------------+
+</code></pre>
 
 <p>
 The outer packet belongs to the mobile transport network, while the
@@ -2029,15 +1961,17 @@ unable to establish service.
 For example:
 </p>
 
-<pre><code>Ethernet       SUCCESS
-    |
-IP routing     SUCCESS
-    |
-SCTP           SUCCESS
-    |
-S1AP signaling FAILURE
-    |
-Subscriber     NO SERVICE</code></pre>
+<pre><code>
+  Ethernet      SUCCESS
+     |
+ IP routing     SUCCESS
+     |
+    SCTP        SUCCESS
+     |
+S1AP signaling  FAILURE
+     |
+ Subscriber     NO SERVICE
+</code></pre>
 
 <p>
 In this situation, checking physical links repeatedly is unlikely to find
@@ -2096,15 +2030,19 @@ telecommunications-specific protocols and tunneling mechanisms.
 A simplified IP network can be represented as:
 </p>
 
-<pre><code>Application
-    |
-Transport
-    |
-IP
-    |
-Ethernet
-    |
-Physical Network</code></pre>
+<pre><code>
++----------------------+
+|     Application      |
++----------------------+
+|      Transport       |
++----------------------+
+|          IP          |
++----------------------+
+|       Ethernet       |
++----------------------+
+|    Physical Network  |
++----------------------+
+</code></pre>
 
 <p>
 Mobile networking adds additional logical layers on top of this
@@ -2116,19 +2054,23 @@ A subscriber packet may therefore pass through several forms of
 encapsulation before reaching its destination.
 </p>
 
-<pre><code>Subscriber Application
-        |
-Subscriber IP
-        |
-      GTP-U
-        |
-       UDP
-        |
-Outer IP
-        |
-    Ethernet
-        |
-Physical / Transport Network</code></pre>
+<pre><code>
++------------------------+
+| Subscriber Application |
++------------------------+
+|     Subscriber IP      |
++------------------------+
+|         GTP-U          |
++------------------------+
+|          UDP           |
++------------------------+
+|        Outer IP        |
++------------------------+
+|        Ethernet        |
++------------------------+
+|    Physical Network    |
++------------------------+
+</code></pre>
 
 <p>
 This creates an important difference between the packet's
@@ -2153,8 +2095,8 @@ server at 8.8.8.8.
 The subscriber packet may conceptually look like:
 </p>
 
-<pre><code>Inner Packet
-
+<pre><code>
+    Inner Packet
 Source:      10.20.30.40
 Destination: 8.8.8.8
         |
@@ -2162,8 +2104,7 @@ Destination: 8.8.8.8
       GTP-U
         |
         v
-Outer Packet
-
+   Outer Packet
 Source:      gNB / UPF transport IP
 Destination: UPF / gNB transport IP</code></pre>
 
@@ -2191,23 +2132,23 @@ A useful troubleshooting strategy is to move through the layers in a
 structured way.
 </p>
 
-<pre><code>Physical
-   |
-Ethernet
-   |
-VLAN
-   |
-IP
-   |
-Routing
-   |
-Transport
-   |
-Telecom Signaling / Tunnel
-   |
-Subscriber Traffic
-   |
-Application</code></pre>
+<pre><code>
++--------------------------+
+|         Physical         |
++--------------------------+
+|      Ethernet / VLAN     |
++--------------------------+
+|        IP / Routing      |
++--------------------------+
+|         Transport        |
++--------------------------+
+| Telecom Signaling / GTP  |
++--------------------------+
+|    Subscriber Traffic    |
++--------------------------+
+|        Application       |
++--------------------------+
+</code></pre>
 
 <p>
 The engineer should not necessarily inspect every layer in every
@@ -2304,12 +2245,13 @@ additional header consumes part of the available packet size.
 This creates a common failure pattern:
 </p>
 
-<pre><code>Small packets       ---> SUCCESS
-
-Large packets       ---> FAILURE
+<pre><code>
+Small packets ---> SUCCESS
+Large packets ---> FAILURE
 
 Cause may be:
-MTU / fragmentation / filtering</code></pre>
+MTU / Fragmentation / Filtering
+</code></pre>
 
 <p>
 MTU problems can be especially difficult because basic connectivity tests
@@ -2377,21 +2319,23 @@ A useful engineering model is to visualize mobile connectivity as a
 stack of dependencies.
 </p>
 
-<pre><code>Application
-    |
-Service / DNS
-    |
-TCP / UDP
-    |
-IP
-    |
-GTP / Telecom Tunneling
-    |
-Ethernet / VLAN
-    |
-Physical / Optical / Radio Transport
-    |
-Hardware / Virtual Infrastructure</code></pre>
+<pre><code>
++--------------------------------------+
+|              Application             |
++--------------------------------------+
+|             Service / DNS            |
++--------------------------------------+
+|            TCP / UDP / SCTP          |
++--------------------------------------+
+|                  IP                  |
++--------------------------------------+
+|        GTP / Telecom Tunneling       |
++--------------------------------------+
+| Physical / Optical / Radio Transport |
++--------------------------------------+
+| Hardware / Virtual Infrastructure   |
++--------------------------------------+
+</code></pre>
 
 <p>
 Higher layers depend on the correct operation of lower layers.
@@ -2430,23 +2374,11 @@ observation point.
 For example, in a simplified LTE path:
 </p>
 
-<pre><code>UE
- |
- | Radio
- v
-eNodeB
- |
- | S1-U
- v
-SGW
- |
- | S5/S8
- v
-PGW
- |
- | SGi
- v
-External Network</code></pre>
+<pre><code>
++--------+             +--------+            +--------+              +---------+           +---------+
+|   UE   | == Radio == | eNodeB | == S1-U == |   SGW   | == S5/S8 == |   PGW   | == SGi == |   PDN   | 
++--------+             +--------+            +--------+              +---------+           +---------+       
+</code></pre>
 
 <p>
 Every arrow represents a boundary where traffic can be observed,
@@ -2481,33 +2413,18 @@ Bidirectional communication normally requires both forward and return
 routing.
 </p>
 
-<pre><code>Forward Path
-
-UE
- |
- v
-RAN
- |
- v
-UPF / Gateway
- |
- v
-Internet
- |
- v
-
-Return Path
-
-Internet
- |
- v
-UPF / Gateway
- |
- v
-RAN
- |
- v
-UE</code></pre>
+<pre><code>
+  Forward Path           Return Path
++---------------+     +---------------+
+|       UE      |     |    Internet   |
++---------------+     +---------------+
+|      RAN      |     | UPF / Gateway |
++---------------+     +---------------+
+| UPF / Gateway |     |      RAN      |
++---------------+     +---------------+
+|    Internet   |     |       UE      |
++---------------+     +---------------+
+</code></pre>
 
 <p>
 A common failure mode is asymmetric routing, in which the packet reaches
@@ -2552,7 +2469,8 @@ destination IP address against its forwarding information.
 Consider a simplified routing table:
 </p>
 
-<pre><code>Destination        Next Hop
+<pre><code>
+Destination        Next Hop
 --------------------------------
 0.0.0.0/0          10.10.10.1
 10.20.0.0/16       10.10.10.2
@@ -2587,22 +2505,12 @@ address pools.
 A simplified architecture might look like:
 </p>
 
-<pre><code>Subscriber Pool
-10.100.0.0/16
-       |
-       v
-+-------------+
-|     UPF     |
-+------+------+
-       |
-       | Route
-       v
-+-------------+
-| Edge Router |
-+------+------+
-       |
-       v
-Internet</code></pre>
+<pre><code>
++-----------------+    +-----+             +-------------+          +----------+
+| Subscriber Pool | == | UPF | == Route == | Edge Router | == IP == | Internet |
+|  10.100.0.0/16  |    +-----+             +-------------+          +----------+  
++-----------------+                     
+</code></pre>
 
 <p>
 If the external network does not know how to return traffic toward the
@@ -2630,18 +2538,19 @@ In mobile networks, large subscriber populations may share public IPv4
 addresses through Carrier-Grade NAT (CGNAT).
 </p>
 
-<pre><code>Subscriber
-10.100.10.25
-      |
-      v
-    UPF
-      |
-      v
-   CGNAT
-      |
-      | Public IPv4
-      v
-   Internet</code></pre>
+<pre><code>
++---------------------------+
+| Subscriber (10.100.10.25) |
++---------------------------+
+|            UPF            |
++---------------------------+
+|           CGNAT           |
++---------------------------+
+|        Public IPv4        |
++---------------------------+
+|         Internet          |
++---------------------------+    
+</code></pre>
 
 <p>
 NAT introduces another stateful component into the packet path.
@@ -2716,32 +2625,21 @@ header consumes packet space.
 Consider a simplified packet:
 </p>
 
-<pre><code>Original IP Packet
-        |
-        v
+<pre><code>
++----------------------+
+|  Original IP Packet  |
 +----------------------+
 | Subscriber IP Packet |
 +----------------------+
-        |
-        v
+|         GTP-U        |
 +----------------------+
-|        GTP-U         |
-+----------------------+
-        |
-        v
-+----------------------+
-|         UDP          |
-+----------------------+
-        |
-        v
+|          UDP         |
 +----------------------+
 |          IP          |
 +----------------------+
-        |
-        v
-+----------------------+
 |       Ethernet       |
-+----------------------+</code></pre>
++----------------------+
+</code></pre>
 
 <p>
 The original subscriber packet may have been generated assuming a
@@ -2784,19 +2682,15 @@ recovery introduces additional latency and reduces effective throughput.
 For example:
 </p>
 
-<pre><code>Packet 1  ---> received
+<pre><code>
+Packet 1  ---> received
 Packet 2  ---> received
 Packet 3  ---> LOST
 Packet 4  ---> received
 Packet 5  ---> received
 
-TCP detects missing data
-        |
-        v
-Retransmission
-        |
-        v
-Additional delay</code></pre>
+TCP detects missing data, starts retransmission adding additional delay.
+</code></pre>
 
 <p>
 Therefore, a network can appear operational while still delivering poor
@@ -3043,25 +2937,15 @@ remote troubleshooting, large captures, and integration with scripts.
 A practical workflow can be:
 </p>
 
-<pre><code>Capture
-   |
-   v
+<pre><code>
+Capture
 Filter
-   |
-   v
 Identify protocol
-   |
-   v
 Identify session
-   |
-   v
 Correlate identifiers
-   |
-   v
 Compare interfaces
-   |
-   v
-Validate hypothesis</code></pre>
+Validate hypothesis
+</code></pre>
 
 <p>
 The tool itself does not replace engineering knowledge. Packet captures
@@ -3112,7 +2996,8 @@ For example, a large number of downstream alarms may all be consequences
 of a single transport failure.
 </p>
 
-<pre><code>Core Router Failure
+<pre><code>
+    Core Router Failure
         |
         +---- RAN alarms
         |
@@ -3122,7 +3007,8 @@ of a single transport failure.
         |
         +---- Subscriber complaints
         |
-        +---- Application failures</code></pre>
+        +---- Application failures
+</code></pre>
 
 <p>
 If each alarm is investigated independently, engineers may incorrectly
@@ -3191,7 +3077,8 @@ centralized core function.
 A practical classification can be:
 </p>
 
-<pre><code>Single Subscriber
+<pre><code>
+Single Subscriber
        |
 Single Cell
        |
@@ -3309,7 +3196,8 @@ software-based network functions.
 A simplified evolution can be represented as:
 </p>
 
-<pre><code>Dedicated Hardware
+<pre><code>
+Dedicated Hardware
        |
        v
 Virtualized Network Function
@@ -3318,7 +3206,8 @@ Virtualized Network Function
 Cloud-Native Network Function
        |
        v
-Distributed Cloud Infrastructure</code></pre>
+Distributed Cloud Infrastructure
+</code></pre>
 
 <p>
 This evolution changes the skill set required from network engineers.
@@ -3340,27 +3229,31 @@ host operating system kernel.
 A simplified representation is:
 </p>
 
-<pre><code>Physical Server
-       |
-   Hypervisor
-       |
+<pre><code>
+    Physical Server
+           |
+      Hypervisor
+           |
 +------+------+------+
 | VM 1 | VM 2 | VM 3 |
-+------+------+------+</code></pre>
++------+------+------+
+</code></pre>
 
 <p>
 Containerized environments instead resemble:
 </p>
 
-<pre><code>Physical / Virtual Server
-          |
-       Linux OS
-          |
+<pre><code>
+   Physical / Virtual Server
+            |
+          Linux OS
+             |
      Container Runtime
-          |
+             |
    +------+------+------+
    | C1   | C2   | C3   |
-   +------+------+------+</code></pre>
+   +------+------+------+
+</code></pre>
 
 <p>
 5G Core network functions may be deployed using these approaches
@@ -3416,7 +3309,8 @@ architectures.
 A simplified representation is:
 </p>
 
-<pre><code>        +-------+
+<pre><code>        
+        +-------+
         |  AMF  |
         +---+---+
             |
@@ -3430,7 +3324,8 @@ A simplified representation is:
             v
         +-------+
         |  PCF  |
-        +-------+</code></pre>
+        +-------+
+</code></pre>
 
 <p>
 This approach increases software flexibility but also introduces
@@ -3451,17 +3346,19 @@ software engineering concepts.
 An engineer troubleshooting a 5G Core therefore may need to investigate:
 </p>
 
-<pre><code>Application Service
+<pre><code>
+Application Service
        |
-HTTP/2
+    HTTP/2
        |
-TCP
+      TCP
        |
-IP
+      IP
        |
-Ethernet
+   Ethernet
        |
-Cloud / Transport Network</code></pre>
+Cloud / Transport Network
+</code></pre>
 
 <p>
 A service failure can therefore originate from either the telecom
@@ -3482,23 +3379,21 @@ command-driven.
 A weak troubleshooting process often looks like:
 </p>
 
-<pre><code>Run command
-   |
+<pre><code>
+Run command
 Run another command
-   |
 Check another device
-   |
 Look at logs
-   |
 Capture packets
-   |
-Guess</code></pre>
+Guess
+</code></pre>
 
 <p>
 A stronger process is:
 </p>
 
-<pre><code>Observed Symptom
+<pre><code>
+Observed Symptom
        |
        v
 Initial Hypothesis
@@ -3517,7 +3412,8 @@ Compare With Expectation
        +---- Hypothesis Rejected
                     |
                     v
-              New Hypothesis</code></pre>
+              New Hypothesis
+</code></pre>
 
 <p>
 This approach reduces unnecessary investigation and makes troubleshooting
@@ -3535,7 +3431,8 @@ Not all evidence has the same value.
 A useful hierarchy is:
 </p>
 
-<pre><code>Observed Packet
+<pre><code>
+Observed Packet
       |
       v
 Protocol Transaction
@@ -3553,7 +3450,8 @@ Alarms
 User Reports
       |
       v
-Assumptions</code></pre>
+Assumptions
+</code></pre>
 
 <p>
 This does not mean that user reports or alarms are unimportant. They are
@@ -3572,28 +3470,30 @@ The most difficult incidents often cross several engineering domains.
 For example:
 </p>
 
-<pre><code>Cloud Infrastructure
+<pre><code>
+Cloud Infrastructure
         |
         v
 Virtual Network
         |
         v
-5G Core
+    5G Core
         |
         v
-GTP-U
+      GTP-U
         |
         v
-IP Routing
+    IP Routing
         |
         v
-Firewall
+    Firewall
         |
         v
-Internet
+    Internet
         |
         v
-Application</code></pre>
+   Application
+</code></pre>
 
 <p>
 A network engineer investigating only one domain may fail to identify the
@@ -3617,13 +3517,15 @@ Time is another important dimension of troubleshooting.
 Consider the following timeline:
 </p>
 
-<pre><code>09:00  Normal operation
+<pre><code>
+09:00  Normal operation
 09:15  Router configuration changed
 09:17  Packet loss begins
 09:20  Subscriber complaints increase
 09:25  Application failures detected
 09:30  Configuration rollback
-09:32  Packet loss disappears</code></pre>
+09:32  Packet loss disappears
+</code></pre>
 
 <p>
 The timeline provides strong evidence that the configuration change may
@@ -3654,12 +3556,14 @@ The initial conclusion should not be "5G is broken."
 The evidence already indicates that several functions are operational.
 </p>
 
-<pre><code>5G Cell Detection        SUCCESS
+<pre><code>
+5G Cell Detection        SUCCESS
 Registration             SUCCESS
 Authentication           SUCCESS
 PDU Session              SUCCESS
 IP Assignment            SUCCESS
-Internet Access          FAILURE</code></pre>
+Internet Access          FAILURE
+</code></pre>
 
 <p>
 The investigation should therefore prioritize:
@@ -3749,7 +3653,8 @@ toward the external network, but no response returns.
 The investigation should move beyond the UPF.
 </p>
 
-<pre><code>UE
+<pre><code>
+UE
  |
  v
 gNB
@@ -3860,7 +3765,8 @@ must also be considered.
 When troubleshooting, move between:
 </p>
 
-<pre><code>Physical
+<pre><code>
+Physical
    |
 Layer 2
    |
@@ -3874,7 +3780,8 @@ Tunnel
    |
 Subscriber IP
    |
-Application</code></pre>
+Application
+</code></pre>
 
 <p>
 A failure at one layer can manifest as a symptom at another.
@@ -3958,31 +3865,33 @@ The engineer should be able to start with a subscriber symptom and work
 backward through the architecture:
 </p>
 
-<pre><code>Subscriber Symptom
+<pre><code>
+Subscriber Symptom
         |
         v
-Application
+   Application
         |
         v
 IP Connectivity
         |
         v
-User Plane
+    User Plane
         |
         v
-Session State
+  Session State
         |
         v
-Control Plane
+   Control Plane
         |
         v
-Transport Network
+ Transport Network
         |
         v
-RAN
+       RAN
         |
         v
-Physical Infrastructure</code></pre>
+Physical Infrastructure
+</code></pre>
 
 <p>
 At each stage, the engineer asks the same fundamental question:
