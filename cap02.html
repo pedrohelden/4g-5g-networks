@@ -182,8 +182,8 @@ For a network engineer, therefore, learning router configuration is only one par
 </p>
 
 <div class="insight">
-<strong>Senior Engineer Insight:</strong>
-A strong network engineer does not troubleshoot by randomly trying commands until something changes. The engineer builds a hypothesis, collects evidence, eliminates possible causes, and only then changes the configuration.
+<strong>Insight:</strong>
+It is not a good idead to troubleshoot by randomly trying commands until something changes. The engineer builds a hypothesis, collects evidence, eliminates possible causes, and only then changes the configuration.
 </div>
 
 <h2>Chapter Objectives</h2>
@@ -222,26 +222,25 @@ The router must learn which networks exist, determine which paths are available,
 <div class="technical-figure">
 
 <pre>
-                    NETWORK A
-                  10.10.10.0/24
-                        |
-                        |
-                  +-----------+
-                  |   ROUTER  |
-                  |     R1    |
-                  +-----------+
-                        |
-                        |
-                    NETWORK B
-                  10.20.20.0/24
++----------------------+ 
+|      NETWORK A       |
+|    10.10.10.0/24     |
++----------------------+
+           |
++----------------------+
+|       ROUTER R1      |
++----------------------+
+           |
++----------------------+
+|      NETWORK B       |
+|    10.20.20.0/24     |
++----------------------+
 
-Packet destination:
-10.20.20.25
-
+Packet destination: 10.20.20.25
 R1 determines:
-    Destination prefix -> 10.20.20.0/24
-    Next hop           -> appropriate path
-    Outgoing interface -> appropriate interface
+    Destination prefix  -> 10.20.20.0/24
+    Next hop            -> appropriate path
+    Outgoing interface  -> appropriate interface
 </pre>
 
 <figcaption>Fundamental router forwarding concept</figcaption>
