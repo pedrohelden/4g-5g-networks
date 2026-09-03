@@ -236,22 +236,25 @@ A simplified representation is:
 </p>
 
 <pre>
-UE
- |
- | Radio
- v
-RAN
- |
- | IP Transport
- v
-Mobile Core
- |
- | IP / GTP
- v
-Data Network
- |
- v
-Application
++----------------------+
+|          UE          |
++----------------------+
+|      Radio Access    |
++----------------------+
+|    Access Network    |
++----------------------+
+|  Ethernet / Aggreg.  |
++----------------------+
+|  IP / MPLS Transport |
++----------------------+
+|      Mobile Core     |
++----------------------+
+|  IP / GTP / Routing  |
++----------------------+
+|     Data Network     |
++----------------------+
+|    Internet / App    |
++----------------------+
 </pre>
 
 <p>
@@ -357,23 +360,26 @@ the importance of packet networking and software-based infrastructure.
 </p>
 
 <pre>
-2G
- |
- | Circuit + Packet
- v
-3G
- |
- | Increasing Packet Orientation
- v
-4G LTE
- |
- | All-IP / EPC
- v
-5G
- |
- | SBA / Cloud-Native
- v
-5G Core
++----------------------+
+|          2G          |
++          --          +
+|   Circuit + Packet   |
++----------------------+
+|          3G          |
++          --          +
+|  Increasing Packet   |
+|     Orientation      |
++----------------------+
+|        4G LTE        |
++          --          +
+|      All-IP / EPC    |
++----------------------+
+|          5G          |
++          --          +
+|  SBA / Cloud-Native  |
++          --          +
+|       5G Core        |
++----------------------+
 </pre>
     
 <p>
@@ -616,9 +622,9 @@ three-way handshake:
 <pre>
 Client                    Server
   |                         |
-  |-------- SYN ----------->|
+  |---------- SYN --------->|
   |<------- SYN/ACK --------|
-  |-------- ACK ----------->|
+  |---------- ACK --------->|
   |                         |
   |====== TCP Session ======|
 </pre>
@@ -1014,13 +1020,13 @@ two SCTP endpoints.
 </p>
 
 <pre>
-Endpoint A
-     |
-     |
-     |      SCTP Association
-     |
-     v
-Endpoint B
++----------------------+
+|      Endpoint A      |
++----------------------+
+           | SCTP Association
++----------------------+
+|      Endpoint B      |
++----------------------+
 </pre>
 
 <p>
@@ -1050,14 +1056,15 @@ then transported through that association.
 </p>
 
 <pre>
-eNodeB
-   |
-   | S1AP
-   |
-   | SCTP Association
-   |
-   v
-MME
++----------------------+
+|        eNodeB        |
++----------------------+
+           | S1AP
+           | SCTP Association
+           v
++----------------------+
+|         MME          |
++----------------------+
 </pre>
 
 
@@ -1081,11 +1088,13 @@ One path can be considered the primary path:
 </p>
 
 <pre>
-eNodeB 10.10.10.1
-       |
-       | Primary Path
-       |
-MME 10.20.20.1
++----------------------+
+| eNodeB  10.10.10.1   |
++----------------------+
+           | Primary Path
++----------------------+
+| MME     10.20.20.1   |
++----------------------+
 </pre>
 
 <p>
@@ -1093,11 +1102,13 @@ while another path can be available as an alternate path:
 </p>
 
 <pre>
-eNodeB 10.10.11.1
-       |
-       | Alternate Path
-       |
-MME 10.20.21.1
++----------------------+
+| eNodeB  10.10.11.1  |
++----------------------+
+           | Alternate Path
++----------------------+
+| MME     10.20.21.1  |
++----------------------+
 </pre>
 
 <p>
@@ -1122,23 +1133,7 @@ resilience and failover capability.
 
 <p>
 <strong>Multi-streaming</strong> allows a single SCTP association to contain
-multiple independent logical streams.
-</p>
-
-<pre>
-SCTP Association
-       |
-       +---- Stream 0
-       |
-       +---- Stream 1
-       |
-       +---- Stream 2
-       |
-       +---- Stream 3
-</pre>
-
-<p>
-Each stream can carry messages independently.
+multiple independent logical streams. Each stream can carry messages independently.
 </p>
 
 <p>
@@ -1162,11 +1157,8 @@ With SCTP:
 SCTP Association
      |
      +---- Stream 0
-     |
      +---- Stream 1
-     |
      +---- Stream 2
-     |
      +---- Stream 3
 </pre>
 
@@ -1180,11 +1172,8 @@ Consider two messages:
 </p>
 
 <pre>
-Stream 0:
-MESSAGE A --------X Lost
-
-Stream 1:
-MESSAGE B --------------------> Received
+Stream 0: MESSAGE A --------X Lost
+Stream 1: MESSAGE B --------------------> Received
 </pre>
 
 <p>
@@ -1223,7 +1212,7 @@ paths.
 </p>
 
 <pre>
-              SCTP Association
+                SCTP Association
 
   Endpoint A                        Endpoint B
 +-------------+                   +-------------+
@@ -1625,31 +1614,29 @@ separation between control plane and user plane.
 <pre>
              CONTROL PLANE
     
-+--------+                    +--------+
-| eNodeB | ===== S1-MME ===== |  MME   |
-+--------+      S1AP/SCTP     +--------+
-                                  |
-                                  | S6a
-                                  | Diameter
-                                  v
-                              +--------+
-                              |  HSS   |
-                              +--------+
++--------+                    +-----+
+| eNodeB | ===== S1-MME ===== | MME |
++--------+      S1AP/SCTP     +-----+
+                                 | S6a
+                                 | Diameter
+                                 v
+                              +-----+
+                              | HSS |
+                              +-----+
 </pre>
 
 <pre>
              USER PLANE
     
-+--------+                    +--------+
-| eNodeB | ===== S1-U ======= |  SGW   |
-+--------+      GTP-U         +--------+
-                                  |
-                                  | S5
-                                  |
-                                  v
-                              +--------+
-                              |  PGW   |
-                              +--------+
++--------+                    +-----+
+| eNodeB | ===== S1-U ======= | SGW |
++--------+      GTP-U         +-----+
+                                 | S5
+                                 | GTP-U
+                                 v
+                              +-----+
+                              | PGW |
+                              +-----+
 </pre>
 <p>
 The MME is primarily associated with control-plane signaling. It does not
@@ -1688,18 +1675,14 @@ efficient approach.
                          |  NRF  |
                          +---+---+
                              |
-                             |
-+------+       +---------+   |   +---------+
-|  UE  |       |   gNB   |---+---|   AMF   |
-+------+   NR  +----+----+       +----+----+
-                    |                  |
+ +------+      +---------+   |   +---------+
+ |  UE  |      |   gNB   |---+---|   AMF   |
+ +------+  NR  +----+----+       +----+----+
                     | N3               | N11
-                    |                  |
                     v                  v
               +----------------+   +-------+
               |      UPF       |   |  SMF  |
               +-------+--------+   +-------+
-                      |
                       | N6
                       v
                 Data Network
@@ -1725,9 +1708,9 @@ A useful simplified relationship is:
 </p>
 
 <pre><code>
-+--------+                    +--------+                  +--------+                     +--------+
-|   AMF  |  ===== S5/s8 ===== |  SMF   | ===== PFCP ===== |   UPF  | ======== IP ======= |  PDN   |
-+--------+  Access / Mobility +--------+  Session Control +--------+  Packet Forwarding  +--------+
++-----+                    +-----+                  +-----+                     +-----+
+| AMF |  ===== S5/s8 ===== | SMF | ===== PFCP ===== | UPF | ======== IP ======= | PDN |
++-----+  Access / Mobility +-----+  Session Control +-----+  Packet Forwarding  +-----+
 </code></pre>
 
 <p>
@@ -2791,23 +2774,27 @@ user-plane forwarding state remains incorrect or incomplete.
 For example, in 5G:
 </p>
 
-<pre><code>UE
- |
- | Registration
- v
-AMF
- |
- | PDU Session Establishment
- v
-SMF
- |
- | PFCP
- v
-UPF
- |
- | GTP-U
- v
-Data Network</code></pre>
+<pre><code>
++----------------------+
+|          UE          |
++----------------------+
+           | Registration
++----------------------+
+|         AMF          |
++----------------------+
+           | PDU Session Establishment
++----------------------+
+|         SMF          |
++----------------------+
+           | PFCP
++----------------------+
+|         UPF          |
++----------------------+
+           | GTP-U
++----------------------+
+|     Data Network     |
++----------------------+
+</code></pre>
 
 <p>
 Each stage creates or modifies state.
@@ -2860,16 +2847,20 @@ plane analysis.
 A GTP tunnel can be represented conceptually as:
 </p>
 
-<pre><code>Endpoint A                         Endpoint B
-
-10.10.1.10                         10.10.2.10
-     |                                  |
-     | GTP-U                            |
-     | TEID 0x12345678                  |
-     +--------------------------------->|
-                                        |
-                                  Subscriber
-                                  Packet</code></pre>
+<pre><code>
++----------------------+       +----------------------+
+|     Endpoint A       |       |     Endpoint B       |
+|      10.10.1.10      |       |      10.10.2.10      |
++----------------------+       +----------------------+
+           |  GTP-U                      |
+           | TEID 0x12345678             |
+           +---------------------------->|
+                                         |
+                                  +-------------+
+                                  |  Subscriber |
+                                  |   Packet    |
+                                  +-------------+
+</code></pre>
 
 <p>
 The outer IP addresses identify the transport endpoints, while the TEID
@@ -2938,13 +2929,21 @@ A practical workflow can be:
 </p>
 
 <pre><code>
-Capture
-Filter
-Identify protocol
-Identify session
-Correlate identifiers
-Compare interfaces
-Validate hypothesis
++----------------------+
+|       Capture        |
++----------------------+
+|       Filter         |
++----------------------+
+|   Identify Protocol  |
++----------------------+
+|   Identify Session   |
++----------------------+
+| Correlate Identifiers|
++----------------------+
+| Compare Interfaces   |
++----------------------+
+| Validate Hypothesis  |
++----------------------+
 </code></pre>
 
 <p>
@@ -2997,17 +2996,14 @@ of a single transport failure.
 </p>
 
 <pre><code>
-    Core Router Failure
-        |
-        +---- RAN alarms
-        |
-        +---- SCTP alarms
-        |
-        +---- Session failures
-        |
-        +---- Subscriber complaints
-        |
-        +---- Application failures
++----------------------+
+|  Core Router Failure |
++----------------------+
+           +---- RAN Alarms
+           +---- SCTP Alarms
+           +---- Session Failures
+           +---- Subscriber Complaints
+           +---- Application Failures
 </code></pre>
 
 <p>
@@ -3197,16 +3193,24 @@ A simplified evolution can be represented as:
 </p>
 
 <pre><code>
-Dedicated Hardware
-       |
-       v
-Virtualized Network Function
-       |
-       v
-Cloud-Native Network Function
-       |
-       v
-Distributed Cloud Infrastructure
++----------------------+
+|   Dedicated Hardware |
++----------------------+
+           v
++----------------------+
+| Virtualized Network  |
+|      Function        |
++----------------------+
+           v
++----------------------+
+|  Cloud-Native Network|
+|      Function        |
++----------------------+
+           v
++----------------------+
+| Distributed Cloud    |
+|    Infrastructure    |
++----------------------+
 </code></pre>
 
 <p>
@@ -3230,13 +3234,17 @@ A simplified representation is:
 </p>
 
 <pre><code>
-    Physical Server
++----------------------+
+|   Physical Server    |
++----------------------+
            |
-      Hypervisor
++----------------------+
+|      Hypervisor      |
++----------------------+
            |
-+------+------+------+
-| VM 1 | VM 2 | VM 3 |
-+------+------+------+
++----------------------+
+|   VM 1 | VM 2 | VM 3  |
++----------------------+
 </code></pre>
 
 <p>
@@ -3244,15 +3252,22 @@ Containerized environments instead resemble:
 </p>
 
 <pre><code>
-   Physical / Virtual Server
-            |
-          Linux OS
-             |
-     Container Runtime
-             |
-   +------+------+------+
-   | C1   | C2   | C3   |
-   +------+------+------+
++----------------------+
+|  Physical / Virtual  |
+|       Server         |
++----------------------+
+           |
++----------------------+
+|       Linux OS       |
++----------------------+
+           |
++----------------------+
+|   Container Runtime  |
++----------------------+
+           |
+ +------+------+------+
+ |  C1  |  C2  |  C3  |
+ +------+------+------+
 </code></pre>
 
 <p>
@@ -3313,15 +3328,11 @@ A simplified representation is:
         +-------+
         |  AMF  |
         +---+---+
-            |
             | Service
-            v
         +-------+
         |  SMF  |
         +---+---+
-            |
             | Service
-            v
         +-------+
         |  PCF  |
         +-------+
@@ -3347,17 +3358,22 @@ An engineer troubleshooting a 5G Core therefore may need to investigate:
 </p>
 
 <pre><code>
-Application Service
-       |
-    HTTP/2
-       |
-      TCP
-       |
-      IP
-       |
-   Ethernet
-       |
-Cloud / Transport Network
++----------------------+
+| Application Service  |
++----------------------+
+           | HTTP/2
++----------------------+
+|         TCP          |
++----------------------+
+           | IP
++----------------------+
+|      Ethernet        |
++----------------------+
+           |
++----------------------+
+|   Cloud / Transport  |
+|       Network        |
++----------------------+
 </code></pre>
 
 <p>
@@ -3376,16 +3392,23 @@ command-driven.
 </p>
 
 <p>
-A weak troubleshooting process often looks like:
+A weak troubleshooting process often is composed of desconnected actions:
 </p>
 
 <pre><code>
-Run command
-Run another command
-Check another device
-Look at logs
-Capture packets
-Guess
++----------------------+
+|     Run Command      |
++----------------------+
+| Run Another Command  |
++----------------------+
+| Check Another Device |
++----------------------+
+|     Look at Logs     |
++----------------------+
+|   Capture Packets    |
++----------------------+
+|        Guess         |
++----------------------+
 </code></pre>
 
 <p>
@@ -3393,26 +3416,33 @@ A stronger process is:
 </p>
 
 <pre><code>
-Observed Symptom
-       |
-       v
-Initial Hypothesis
-       |
-       v
-Expected Evidence
-       |
-       v
-Collect Evidence
-       |
-       v
-Compare With Expectation
-       |
-       +---- Hypothesis Supported
-       |
-       +---- Hypothesis Rejected
-                    |
-                    v
-              New Hypothesis
++----------------------+
+|   Observed Symptom   |
++----------------------+
+           v
++----------------------+
+|  Initial Hypothesis  |
++----------------------+
+           v
++----------------------+
+|  Expected Evidence   |
++----------------------+
+           v
++----------------------+
+|   Collect Evidence   |
++----------------------+
+           v
++----------------------+
+| Compare With         |
+|     Expectation      |
++----------------------+
+           |
+           +----> Hypothesis Supported
+           +----> Hypothesis Rejected
+                           v
+                 +------------------+
+                 | New Hypothesis   |
+                 +------------------+
 </code></pre>
 
 <p>
@@ -3432,25 +3462,34 @@ A useful hierarchy is:
 </p>
 
 <pre><code>
-Observed Packet
-      |
-      v
-Protocol Transaction
-      |
-      v
-Device / Function State
-      |
-      v
-Counters and Metrics
-      |
-      v
-Alarms
-      |
-      v
-User Reports
-      |
-      v
-Assumptions
++----------------------+
+|   Observed Packet    |
++----------------------+
+           v
++----------------------+
+| Protocol Transaction |
++----------------------+
+           v
++----------------------+
+|  Device / Function   |
+|        State         |
++----------------------+
+           v
++----------------------+
+| Counters and Metrics |
++----------------------+
+           v
++----------------------+
+|       Alarms         |
++----------------------+
+           v
++----------------------+
+|    User Reports      |
++----------------------+
+           v
++----------------------+
+|     Assumptions      |
++----------------------+
 </code></pre>
 
 <p>
@@ -3471,28 +3510,39 @@ For example:
 </p>
 
 <pre><code>
-Cloud Infrastructure
-        |
-        v
-Virtual Network
-        |
-        v
-    5G Core
-        |
-        v
-      GTP-U
-        |
-        v
-    IP Routing
-        |
-        v
-    Firewall
-        |
-        v
-    Internet
-        |
-        v
-   Application
++----------------------+
+|  Cloud Infrastructure|
++----------------------+
+           |
++----------------------+
+|   Virtual Network    |
++----------------------+
+           |
++----------------------+
+|       5G Core        |
++----------------------+
+           |
+           v
++----------------------+
+|       GTP-U          |
++----------------------+
+           |
++----------------------+
+|     IP Routing       |
++----------------------+
+           |
++----------------------+
+|      Firewall        |
++----------------------+
+           |
+           v
++----------------------+
+|      Internet        |
++----------------------+
+           |
++----------------------+
+|     Application      |
++----------------------+
 </code></pre>
 
 <p>
@@ -3654,21 +3704,26 @@ The investigation should move beyond the UPF.
 </p>
 
 <pre><code>
-UE
- |
- v
-gNB
- |
- v
-UPF
- |
- | Packet confirmed
- v
-External Router
- |
- ?
- v
-Internet</code></pre>
++----------------------+
+|          UE          |
++----------------------+
+           |
++----------------------+
+|         gNB          |
++----------------------+
+           |
++----------------------+
+|         UPF          |
++----------------------+
+           | Packet confirmed
++----------------------+
+|    External Router   |
++----------------------+
+           | ?
++----------------------+
+|       Internet       |
++----------------------+
+</code></pre>
 
 <p>
 Possible causes include:
@@ -3766,21 +3821,37 @@ When troubleshooting, move between:
 </p>
 
 <pre><code>
-Physical
-   |
-Layer 2
-   |
-Layer 3
-   |
-Transport
-   |
-Telecom Signaling
-   |
-Tunnel
-   |
-Subscriber IP
-   |
-Application
++----------------------+
+|       Physical       |
++----------------------+
+           |
++----------------------+
+|       Layer 2        |
++----------------------+
+           |
++----------------------+
+|       Layer 3        |
++----------------------+
+           |
++----------------------+
+|      Transport       |
++----------------------+
+           |
++----------------------+
+|  Telecom Signaling   |
++----------------------+
+           |
++----------------------+
+|        Tunnel        |
++----------------------+
+           |
++----------------------+
+|    Subscriber IP     |
++----------------------+
+           |
++----------------------+
+|     Application      |
++----------------------+
 </code></pre>
 
 <p>
@@ -3866,31 +3937,42 @@ backward through the architecture:
 </p>
 
 <pre><code>
-Subscriber Symptom
-        |
-        v
-   Application
-        |
-        v
-IP Connectivity
-        |
-        v
-    User Plane
-        |
-        v
-  Session State
-        |
-        v
-   Control Plane
-        |
-        v
- Transport Network
-        |
-        v
-       RAN
-        |
-        v
-Physical Infrastructure
++-------------------------+
+|   Subscriber Symptom    |
++-------------------------+
+             v
++-------------------------+
+|       Application       |
++-------------------------+
+             v
++-------------------------+
+|     IP Connectivity     |
++-------------------------+
+             v
++-------------------------+
+|        User Plane       |
++-------------------------+
+             v
++-------------------------+
+|      Session State      |
++-------------------------+
+             |
+             v
++-------------------------+
+|      Control Plane      |
++-------------------------+
+             v
++-------------------------+
+|    Transport Network    |
++-------------------------+
+             v
++-------------------------+
+|           RAN           |
++-------------------------+
+             v
++-------------------------+
+| Physical Infrastructure |
++-------------------------+
 </code></pre>
 
 <p>
