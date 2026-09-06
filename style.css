@@ -6,6 +6,50 @@ body {
   display: flex;
 }
 
+/* DIAGRAMAS */
+
+.diagram {
+  margin: 30px auto;
+  padding: 25px;
+
+  background: #293845;
+  border: 1px solid #3e4f65;
+  border-radius: 10px;
+
+  max-width: 900px;
+}
+
+.diagram-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.diagram-node {
+  padding: 10px 20px;
+
+  background: #1e2a38;
+  border: 1px solid #60a5fa;
+  border-radius: 8px;
+
+  color: #e2e8f0;
+  font-weight: 600;
+  text-align: center;
+}
+
+.diagram-line {
+  width: 45px;
+  height: 2px;
+  background: #60a5fa;
+}
+
+.diagram-label {
+  color: #93c5fd;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
 /* SIDEBAR */
 .sidebar {
   width: 320px;
