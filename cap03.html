@@ -217,41 +217,43 @@ functions.
 At the highest level, the architecture can be visualized like this:
 </p>
 
-<div class="diagram">
-                    LTE RADIO ACCESS
-                         
-              +---------------------+
-              |         UE          |
-              |   User Equipment    |
-              +----------+----------+
-                         |
-                         | LTE-Uu
-                         |
-              +----------v----------+
-              |       eNodeB        |
-              |   LTE Base Station  |
-              +-----+----------+----+
-                    |          |
-                  S1-MME     S1-U
-                    |          |
-                    v          v
-              +---------+  +---------+
-              |   MME   |  |   SGW   |
-              +----+----+  +----+----+
-                   |            |
-                 S6a          S5/S8
-                   |            |
-                   v            v
-              +---------+  +---------+
-              |   HSS   |  |   PGW   |
-              +---------+  +----+----+
-                                  |
-                                 Gi
-                                  |
-                                  v
-                           IP Networks /
-                             Internet
-</div>
+<pre><code>
++----------------------+
+|         UE           |
+|    User Equipment    |
++----------+-----------+
+           |
+         LTE-Uu
+           |
+           v
++----------------------+
+|       eNodeB         |
+|    LTE Base Station  |
++----------+-----------+
+           |
+       +---+---+
+       |       |
+    S1-MME    S1-U
+       |       |
+       v       v
++---------+ +---------+
+|   MME   | |   SGW   |
++----+----+ +----+----+
+     |           |
+    S6a         S5/S8
+     |           |
+     v           v
++---------+ +---------+
+|   HSS   | |   PGW   |
++---------+ +----+----+
+                  |
+                  | Gi
+                  v
+          +----------------+
+          | IP Networks /  |
+          |    Internet    |
+          +----------------+
+</code></pre>
 
 <p>
 This diagram immediately reveals one of the most important characteristics of EPC:
@@ -346,22 +348,31 @@ The user plane uses <strong>GTP-U</strong>, typically transported over UDP/IP.
 </p>
 
 <div class="diagram">
-UE
- |
- | LTE-Uu
- |
-eNodeB
- |\
- | \
- |  \
- |   \
-S1-MME S1-U
- |       |
-S1AP    GTP-U
- |       |
-SCTP    UDP/IP
- |       |
-MME     SGW
+<pre><code>
++----------------------+
+|          UE          |
++----------------------+
+           |
+         LTE-Uu
+           |
+           v
++----------------------+
+|        eNodeB        |
++----------+-----------+
+           |
+       +---+---+
+       |       |
+    S1-MME    S1-U
+       |       |
+      S1AP    GTP-U
+       |       |
+      SCTP   UDP/IP
+       |       |
+       v       v
++---------+ +---------+
+|   MME   | |   SGW   |
++---------+ +---------+
+</code></pre>
 </div>
 
 <p>
@@ -416,15 +427,25 @@ This creates an important layering relationship:
 </p>
 
 <div class="diagram">
-UE
- |
- | NAS
- |
-eNodeB
- |
- | S1AP
- |
-MME
+<pre><code>
++----------------------+
+|          UE          |
++----------------------+
+           |
+           | NAS
+           |
+           v
++----------------------+
+|        eNodeB        |
++----------------------+
+           |
+           | S1AP
+           |
+           v
++----------------------+
+|         MME          |
++----------------------+
+</code></pre>
 </div>
 
 <p>
@@ -455,23 +476,18 @@ S6a uses <strong>Diameter</strong>.
 </p>
 
 <div class="diagram">
-              Diameter / S6a
-                   
-        +-------------------+
-        |                   |
-        |       HSS         |
-        |                   |
-        +---------+---------+
-                  |
-                  |
-                S6a
-                  |
-                  |
-        +---------v---------+
-        |                   |
-        |       MME         |
-        |                   |
-        +-------------------+
+<pre><code>
++----------------------+
+|         HSS          |
++----------------------+
+           |
+           | Diameter / S6a
+           |
+           v
++----------------------+
+|         MME          |
++----------------------+
+</code></pre>
 </div>
 
 <p>
@@ -507,23 +523,38 @@ depending on the architecture and roaming scenario.
 </p>
 
 <div class="diagram">
-UE
- |
- | LTE-Uu
- |
-eNodeB
- |
- | S1-U / GTP-U
- |
-SGW
- |
- | S5 / S8 / GTP-U
- |
-PGW
- |
- | IP
- |
-External Network
+<pre><code>
++----------------------+
+|          UE          |
++----------------------+
+           |
+         LTE-Uu
+           |
+           v
++----------------------+
+|        eNodeB        |
++----------------------+
+           |
+       S1-U / GTP-U
+           |
+           v
++----------------------+
+|         SGW          |
++----------------------+
+           |
+       S5 / S8 / GTP-U
+           |
+           v
++----------------------+
+|         PGW          |
++----------------------+
+           |
+           | IP
+           v
++----------------------+
+|   External Network   |
++----------------------+
+</code></pre>
 </div>
 
 <p>
@@ -602,20 +633,21 @@ PGW.
 </p>
 
 <div class="diagram">
-              Policy decision
-                   
-        +-------------------+
-        |       PCRF        |
-        +---------+---------+
-                  |
-                  | Gx / Diameter
-                  |
-        +---------v---------+
-        |       PGW         |
-        +---------+---------+
-                  |
-                  |
-              User traffic
+<pre><code>
++----------------------+
+|         PCRF         |
+|    Policy Decision   |
++----------------------+
+           |
+           | Gx / Diameter
+           v
++----------------------+
+|         PGW          |
++----------------------+
+           |
+           | User Traffic
+           v
+</code></pre>
 </div>
 
 <p>
@@ -719,31 +751,46 @@ traffic.
 </p>
 
 <div class="diagram">
-                  CONTROL PLANE
+<pre><code>
++----------------------+
+|     CONTROL PLANE    |
++----------------------+
 
-UE ---- NAS ----> MME ---- Diameter ----> HSS
-                    |
-                    |
-                 GTP-C
-                    |
-                    v
-                   SGW
-                    |
-                 GTP-C
-                    |
-                    v
-                   PGW
-                    |
-                 Policy
-                    ^
-                    |
-                  PCRF
++------+     +------+     +------+
+|  UE  |---->| MME  |---->| HSS  |
++------+ NAS +------+     +------+
+               |  Diameter
+               |
+             GTP-C
+               |
+               v
+            +------+
+            | SGW  |
+            +------+
+               |
+             GTP-C
+               |
+               v
+            +------+
+            | PGW  |
+            +------+
+               |
+             Policy
+               ^
+               |
+            +------+
+            | PCRF |
+            +------+
 
++----------------------+
+|      USER PLANE      |
++----------------------+
 
-                  USER PLANE
-
-UE ========> eNodeB ========> SGW ========> PGW ========> Internet
-             GTP-U             GTP-U
++------+     +--------+     +------+     +------+     +----------+
+|  UE  |====>| eNodeB |====>| SGW  |====>| PGW  |====>| Internet |
++------+     +--------+     +------+     +------+     +----------+
+                GTP-U          GTP-U
+</code></pre>
 </div>
 
 <p>
@@ -797,26 +844,34 @@ mobile core.
 </p>
 
 <div class="diagram">
-Original subscriber packet
+<pre><code>
++----------------------+
+| Original Subscriber  |
+|       Packet         |
++----------------------+
+           |
+           v
++----------------------+
+|      IP Packet       |
+| Source: UE IP        |
+| Destination: Internet|
++----------------------+
 
-+-----------------------------+
-|       IP Packet             |
-|  Source: UE IP              |
-|  Destination: Internet      |
-+-----------------------------+
+           becomes
 
-              becomes
-
-+-----------------------------------------------+
-| Outer IP                                      |
-| UDP                                           |
-| GTP-U                                         |
-| +-------------------------------------------+ |
-| | Original Subscriber IP Packet             | |
-| +-------------------------------------------+ |
-+-----------------------------------------------+
++----------------------+
+|       Outer IP       |
++----------------------+
+|         UDP          |
++----------------------+
+|        GTP-U         |
++----------------------+
+| Original Subscriber  |
+|      IP Packet       |
++----------------------+
+</code></pre>
 </div>
-
+    
 <p>
 This is why packet captures taken on an S1-U or S5/S8 interface can look very different from a
 capture taken on the Internet-facing side of the PGW.
@@ -854,13 +909,19 @@ belongs to.
 </p>
 
 <div class="diagram">
-                 SGW
-                  |
-       +----------+----------+
-       |          |          |
-     TEID A     TEID B     TEID C
-       |          |          |
-      UE-A       UE-B       UE-C
+<pre><code>
++----------------------+
+|         SGW          |
++----------+-----------+
+           |
+     +-----+-----+-----+
+     |           |     |
+   TEID A      TEID B  TEID C
+     |           |     |
+   +---+       +---+  +---+
+   |UE-A|      |UE-B| |UE-C|
+   +---+       +---+  +---+
+</code></pre>
 </div>
 
 <p>
@@ -908,42 +969,69 @@ appropriate SGW tunnel.
 </p>
 
 <div class="diagram">
-UE
- |
- |  Radio Access
- v
-eNodeB
- |
- | S1AP / NAS
- v
-MME
- |
- | S6a
- v
-HSS
-
-MME
- |
- | S11 / GTP-C
- v
-SGW
- |
- | S5/S8 / GTP-C + GTP-U
- v
-PGW
- |
- | External IP
- v
-Internet
+<pre><code>
++----------------------+
+|          UE          |
++----------------------+
+           |
+      Radio Access
+           |
+           v
++----------------------+
+|        eNodeB        |
++----------------------+
+           |
+       S1AP / NAS
+           |
+           v
++----------------------+
+|         MME          |
++----------------------+
+           |
+          S6a
+           |
+           v
++----------------------+
+|         HSS          |
++----------------------+
 
 
-Policy path:
++----------------------+
+|         MME          |
++----------------------+
+           |
+       S11 / GTP-C
+           |
+           v
++----------------------+
+|         SGW          |
++----------------------+
+           |
+  S5/S8 / GTP-C + GTP-U
+           |
+           v
++----------------------+
+|         PGW          |
++----------------------+
+           |
+      External IP
+           |
+           v
++----------------------+
+|       Internet       |
++----------------------+
 
-PCRF
- |
- | Gx
- v
-PGW
+
++----------------------+
+|         PCRF         |
++----------------------+
+           |
+           | Gx
+           v
++----------------------+
+|         PGW          |
++----------------------+
+</code></pre>
 </div>
 
 <p>
@@ -1086,23 +1174,27 @@ This is why interface-level thinking is so valuable.
 </p>
 
 <div class="diagram">
-Subscriber problem
-       |
-       +---- Radio?
-       |
-       +---- S1-MME?
-       |
-       +---- S6a?
-       |
-       +---- S11?
-       |
-       +---- S1-U?
-       |
-       +---- S5/S8?
-       |
-       +---- Gx / Policy?
-       |
-       +---- External IP network?
+<pre><code>
++----------------------+
+|  Subscriber Problem  |
++----------------------+
+           |
+           +---- Radio?
+           |
+           +---- S1-MME?
+           |
+           +---- S6a?
+           |
+           +---- S11?
+           |
+           +---- S1-U?
+           |
+           +---- S5/S8?
+           |
+           +---- Gx / Policy?
+           |
+           +---- External IP Network?
+</code></pre>
 </div>
 
 <p>
@@ -1209,19 +1301,13 @@ The most important interfaces form a map:
 </p>
 
 <div class="diagram">
-UE       ↔ eNodeB       LTE-Uu
-
-eNodeB   ↔ MME          S1-MME / S1AP / SCTP
-
-eNodeB   ↔ SGW          S1-U / GTP-U
-
-MME      ↔ SGW          S11 / GTP-C
-
-SGW      ↔ PGW          S5 / S8 / GTP
-
-MME      ↔ HSS          S6a / Diameter
-
-PCRF     ↔ PGW          Gx / Diameter
+  UE     ↔  eNodeB    LTE-Uu
+eNodeB   ↔    MME     S1-MME / S1AP / SCTP
+eNodeB   ↔    SGW     S1-U / GTP-U
+  MME    ↔    SGW     S11 / GTP-C
+  SGW    ↔    PGW     S5 / S8 / GTP
+  MME    ↔    HSS     S6a / Diameter
+ PCRF    ↔    PGW     Gx / Diameter
 </div>
 
 <p>
