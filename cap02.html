@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Chapter 2: Cisco Routers and Network Troubleshooting</title>
+<title>Chapter 2: Linux and Cisco Troubleshooting</title>
 <style>
 body {
     background-color: #1e2a38;
@@ -163,11 +163,1762 @@ strong {
 
 <header>
 
-<h1>Chapter 2: Cisco Routers and Network Troubleshooting</h1>
+<h1>Linux and Cisco Troubleshooting</h1>
+        <p class="chapter-subtitle">
+            Command-Line Tools, System Administration and Network Diagnostics
+        </p>
+
+<section id="chapter-02" class="chapter">
+
+<!-- =========================================================
+     CHAPTER 02
+     LINUX FUNDAMENTALS AND NETWORK TROUBLESHOOTING
+     ========================================================= -->
+
+    <section class="chapter-section" id="linux-introduction">
+
+        <h2>Linux Introduction</h2>
+
+        <p>
+            Linux is one of the most important operating systems in modern
+            network infrastructure. It is widely used to host applications,
+            network functions, databases, monitoring systems, virtualized
+            workloads, containers and cloud platforms.
+        </p>
+
+        <p>
+            For anyone working with modern communication networks, understanding
+            Linux is therefore not only about knowing how to execute commands.
+            It is about understanding how the operating system exposes
+            interfaces, processes, sockets, routes, services and logs that can
+            be used to investigate the behavior of a system.
+        </p>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                A network problem is not always a network problem.
+                A failed connection may be caused by a missing route, a stopped
+                service, a closed socket, a firewall rule, DNS resolution,
+                resource exhaustion or an application failure.
+            </p>
+            <p>
+                Linux provides tools that allow these possibilities to be
+                investigated layer by layer.
+            </p>
+        </div>
+
+        <p>
+            This chapter introduces the Linux command line with an emphasis on
+            practical system and network investigation.
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         THE LINUX COMMAND LINE
+         ===================================================== -->
+
+    <section class="chapter-section" id="command-line">
+
+        <h2>The Linux Command Line</h2>
+
+        <p>
+            The Linux command line provides direct access to the operating
+            system through a shell. The most common shell is Bash
+            (Bourne Again Shell).
+        </p>
+
+        <p>
+            A command generally follows this structure:
+        </p>
+
+        <pre><code>command [options] [arguments]</code></pre>
+
+        <p>
+            For example:
+        </p>
+
+        <pre><code>ip addr show eth0</code></pre>
+
+        <p>
+            In this example:
+        </p>
+
+        <ul>
+            <li><code>ip</code> is the command.</li>
+            <li><code>addr</code> selects the address-related functionality.</li>
+            <li><code>show</code> requests information to be displayed.</li>
+            <li><code>eth0</code> identifies the interface.</li>
+        </ul>
+
+        <h3>Options and Arguments</h3>
+
+        <p>
+            Options modify how a command behaves. Arguments specify the object
+            on which the command operates.
+        </p>
+
+        <pre><code>ping -c 4 192.168.1.1</code></pre>
+
+        <p>
+            Here, <code>-c 4</code> tells <code>ping</code> to send four
+            packets, while <code>192.168.1.1</code> is the destination.
+        </p>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                Do not memorize commands as isolated strings. Learn their
+                structure. Most Linux commands follow predictable patterns,
+                and understanding options makes it possible to adapt them to
+                situations you have never encountered before.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         HELP AND DOCUMENTATION
+         ===================================================== -->
+
+    <section class="chapter-section" id="linux-help">
+
+        <h2>Finding Help</h2>
+
+        <p>
+            Linux provides extensive built-in documentation. Before searching
+            externally, it is often useful to inspect the command itself.
+        </p>
+
+        <h3>man</h3>
+
+        <p>
+            The <code>man</code> command displays the manual page for a
+            command.
+        </p>
+
+        <pre><code>man ip
+man ping
+man systemctl</code></pre>
+
+        <p>
+            Useful navigation keys inside a manual page include:
+        </p>
+
+        <ul>
+            <li><code>Space</code> — next page</li>
+            <li><code>b</code> — previous page</li>
+            <li><code>/text</code> — search for text</li>
+            <li><code>n</code> — next search result</li>
+            <li><code>q</code> — quit</li>
+        </ul>
+
+        <h3>--help</h3>
+
+        <p>
+            Many commands provide a shorter syntax reference using
+            <code>--help</code>.
+        </p>
+
+        <pre><code>ip --help
+ping --help
+ss --help</code></pre>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                The difference between <code>man</code> and
+                <code>--help</code> is useful to remember:
+                <code>--help</code> usually gives a quick syntax reference,
+                while <code>man</code> provides detailed documentation.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FILESYSTEM
+         ===================================================== -->
+
+    <section class="chapter-section" id="filesystem">
+
+        <h2>Linux Filesystem</h2>
+
+        <p>
+            Linux organizes resources through a hierarchical filesystem.
+            Important directories include:
+        </p>
+
+        <ul>
+            <li><code>/etc</code> — system and application configuration</li>
+            <li><code>/var</code> — variable data such as logs</li>
+            <li><code>/var/log</code> — system and application logs</li>
+            <li><code>/home</code> — user home directories</li>
+            <li><code>/tmp</code> — temporary files</li>
+            <li><code>/usr</code> — applications and libraries</li>
+            <li><code>/opt</code> — optional software</li>
+            <li><code>/proc</code> — process and kernel information</li>
+            <li><code>/sys</code> — kernel and hardware information</li>
+            <li><code>/dev</code> — device interfaces</li>
+        </ul>
+
+        <h3>pwd</h3>
+
+        <p>
+            Displays the current working directory.
+        </p>
+
+        <pre><code>pwd</code></pre>
+
+        <h3>ls</h3>
+
+        <p>
+            Lists files and directories.
+        </p>
+
+        <pre><code>ls
+ls -l
+ls -a
+ls -lh
+ls -lah</code></pre>
+
+        <p>
+            Common options:
+        </p>
+
+        <ul>
+            <li><code>-l</code> — detailed listing</li>
+            <li><code>-a</code> — include hidden files</li>
+            <li><code>-h</code> — human-readable sizes</li>
+            <li><code>-R</code> — recursive listing</li>
+        </ul>
+
+        <h3>cd</h3>
+
+        <p>
+            Changes the current directory.
+        </p>
+
+        <pre><code>cd /etc
+cd /var/log
+cd ..
+cd ~
+cd -</code></pre>
+
+        <h3>cp</h3>
+
+        <p>
+            Copies files or directories.
+        </p>
+
+        <pre><code>cp source.txt destination.txt
+cp -r directory1 directory2
+cp -p file1 file2</code></pre>
+
+        <ul>
+            <li><code>-r</code> — recursive copy</li>
+            <li><code>-p</code> — preserve permissions and timestamps</li>
+            <li><code>-i</code> — ask before overwriting</li>
+        </ul>
+
+        <h3>mv</h3>
+
+        <p>
+            Moves or renames files.
+        </p>
+
+        <pre><code>mv old.conf new.conf
+mv file.txt /tmp/</code></pre>
+
+        <h3>rm</h3>
+
+        <p>
+            Removes files or directories.
+        </p>
+
+        <pre><code>rm file.txt
+rm -r directory
+rm -i file.txt</code></pre>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                Linux normally does not provide a recycle bin when files are
+                removed from the command line. Commands such as
+                <code>rm -rf</code> can therefore be destructive.
+                Always verify the path before executing recursive deletion.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FILE CONTENT AND SEARCH
+         ===================================================== -->
+
+    <section class="chapter-section" id="file-search">
+
+        <h2>Reading and Searching Files</h2>
+
+        <h3>cat</h3>
+
+        <p>
+            Displays the contents of a file.
+        </p>
+
+        <pre><code>cat /etc/hosts
+cat configuration.conf</code></pre>
+
+        <h3>less</h3>
+
+        <p>
+            Displays large files interactively.
+        </p>
+
+        <pre><code>less /var/log/syslog</code></pre>
+
+        <p>
+            Unlike <code>cat</code>, <code>less</code> does not require the
+            entire file to be displayed at once.
+        </p>
+
+        <h3>head</h3>
+
+        <p>
+            Displays the beginning of a file.
+        </p>
+
+        <pre><code>head file.txt
+head -n 20 file.txt</code></pre>
+
+        <h3>tail</h3>
+
+        <p>
+            Displays the end of a file.
+        </p>
+
+        <pre><code>tail file.txt
+tail -n 50 file.txt
+tail -f /var/log/syslog</code></pre>
+
+        <p>
+            The <code>-f</code> option follows a file as new content is added.
+            This is particularly useful for monitoring logs in real time.
+        </p>
+
+        <h3>grep</h3>
+
+        <p>
+            Searches text using patterns.
+        </p>
+
+        <pre><code>grep "error" application.log
+grep -i "error" application.log
+grep -n "error" application.log
+grep -r "error" /var/log/
+grep -v "success" application.log</code></pre>
+
+        <ul>
+            <li><code>-i</code> — case-insensitive search</li>
+            <li><code>-n</code> — display line numbers</li>
+            <li><code>-r</code> — recursive search</li>
+            <li><code>-v</code> — invert the match</li>
+            <li><code>-E</code> — extended regular expressions</li>
+        </ul>
+
+        <h3>find</h3>
+
+        <p>
+            Searches for files and directories.
+        </p>
+
+        <pre><code>find /var/log -name "*.log"
+find /etc -type f -name "*.conf"
+find /var -type f -size +100M</code></pre>
+
+        <p>
+            Common parameters include:
+        </p>
+
+        <ul>
+            <li><code>-name</code> — match filename</li>
+            <li><code>-type f</code> — regular files</li>
+            <li><code>-type d</code> — directories</li>
+            <li><code>-size</code> — search by file size</li>
+            <li><code>-mtime</code> — search by modification time</li>
+            <li><code>-user</code> — search by owner</li>
+        </ul>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                Log analysis is often a filtering problem. Instead of reading
+                thousands of lines, reduce the dataset:
+            </p>
+
+            <pre><code>grep -i "error" application.log | tail -n 20</code></pre>
+
+            <p>
+                This searches for errors and then displays only the last
+                twenty matching entries.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         USERS AND PERMISSIONS
+         ===================================================== -->
+
+    <section class="chapter-section" id="permissions">
+
+        <h2>Users, Groups and Permissions</h2>
+
+        <p>
+            Linux uses users and groups to control access to files and
+            resources.
+        </p>
+
+        <h3>whoami</h3>
+
+        <pre><code>whoami</code></pre>
+
+        <p>
+            Displays the current user.
+        </p>
+
+        <h3>id</h3>
+
+        <pre><code>id
+id username</code></pre>
+
+        <p>
+            Displays user and group identifiers.
+        </p>
+
+        <h3>chmod</h3>
+
+        <p>
+            Changes file permissions.
+        </p>
+
+        <pre><code>chmod 644 file.txt
+chmod 755 script.sh
+chmod +x script.sh</code></pre>
+
+        <p>
+            Typical permission values:
+        </p>
+
+        <ul>
+            <li><code>4</code> — read</li>
+            <li><code>2</code> — write</li>
+            <li><code>1</code> — execute</li>
+        </ul>
+
+        <p>
+            Therefore:
+        </p>
+
+        <pre><code>755 = rwx r-x r-x
+644 = rw- r-- r--</code></pre>
+
+        <h3>chown</h3>
+
+        <p>
+            Changes file ownership.
+        </p>
+
+        <pre><code>chown user file.txt
+chown user:group file.txt
+chown -R user:group /directory</code></pre>
+
+        <ul>
+            <li><code>-R</code> — recursively change ownership</li>
+        </ul>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                Permission problems can look like application failures.
+                If a process cannot read a configuration file, write a log,
+                bind to a socket or access a directory, the underlying
+                application may appear to be malfunctioning even though the
+                network itself is working correctly.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PROCESSES
+         ===================================================== -->
+
+    <section class="chapter-section" id="processes">
+
+        <h2>Processes</h2>
+
+        <p>
+            Every running application is represented by one or more processes.
+            Understanding processes is essential when troubleshooting services
+            that consume excessive resources or unexpectedly terminate.
+        </p>
+
+        <h3>ps</h3>
+
+        <pre><code>ps
+ps aux
+ps -ef
+ps aux | grep nginx</code></pre>
+
+        <p>
+            Common options:
+        </p>
+
+        <ul>
+            <li><code>a</code> — processes for all users with terminals</li>
+            <li><code>u</code> — user-oriented format</li>
+            <li><code>x</code> — include processes without terminals</li>
+            <li><code>-e</code> — all processes</li>
+            <li><code>-f</code> — full-format listing</li>
+        </ul>
+
+        <h3>top</h3>
+
+        <pre><code>top</code></pre>
+
+        <p>
+            Provides a real-time view of CPU, memory and process activity.
+        </p>
+
+        <h3>kill</h3>
+
+        <p>
+            Sends a signal to a process.
+        </p>
+
+        <pre><code>kill PID
+kill -TERM PID
+kill -KILL PID</code></pre>
+
+        <p>
+            Important signals include:
+        </p>
+
+        <ul>
+            <li><code>SIGTERM</code> — request graceful termination</li>
+            <li><code>SIGKILL</code> — force termination</li>
+            <li><code>SIGHUP</code> — commonly used to reload configuration</li>
+        </ul>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                Prefer a graceful signal such as <code>SIGTERM</code> before
+                using <code>SIGKILL</code>. A process terminated with
+                <code>SIGKILL</code> cannot perform normal cleanup.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SERVICES
+         ===================================================== -->
+
+    <section class="chapter-section" id="services">
+
+        <h2>Services and systemd</h2>
+
+        <p>
+            Modern Linux distributions commonly use <code>systemd</code> to
+            manage services and system initialization.
+        </p>
+
+        <h3>systemctl</h3>
+
+        <p>
+            The <code>systemctl</code> command controls and inspects systemd
+            units.
+        </p>
+
+        <pre><code>systemctl status nginx
+systemctl start nginx
+systemctl stop nginx
+systemctl restart nginx
+systemctl reload nginx</code></pre>
+
+        <p>
+            Other useful operations include:
+        </p>
+
+        <pre><code>systemctl enable nginx
+systemctl disable nginx
+systemctl is-active nginx
+systemctl is-enabled nginx
+systemctl list-units --type=service</code></pre>
+
+        <ul>
+            <li><code>status</code> — display service state and recent information</li>
+            <li><code>start</code> — start a service</li>
+            <li><code>stop</code> — stop a service</li>
+            <li><code>restart</code> — stop and start a service</li>
+            <li><code>reload</code> — request configuration reload</li>
+            <li><code>enable</code> — start automatically during boot</li>
+            <li><code>disable</code> — prevent automatic startup</li>
+        </ul>
+
+        <h3>journalctl</h3>
+
+        <p>
+            Reads logs collected by the systemd journal.
+        </p>
+
+        <pre><code>journalctl
+journalctl -u nginx
+journalctl -u nginx -f
+journalctl -b
+journalctl --since "1 hour ago"
+journalctl -p err</code></pre>
+
+        <ul>
+            <li><code>-u</code> — filter by service/unit</li>
+            <li><code>-f</code> — follow new entries</li>
+            <li><code>-b</code> — logs from the current boot</li>
+            <li><code>--since</code> — start time</li>
+            <li><code>--until</code> — end time</li>
+            <li><code>-p</code> — filter by priority</li>
+        </ul>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                When a service fails, do not immediately restart it.
+                First inspect:
+            </p>
+
+            <pre><code>systemctl status service
+journalctl -u service --since "10 minutes ago"</code></pre>
+
+            <p>
+                The failure message often provides more information than the
+                restart itself.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         NETWORK INTERFACES
+         ===================================================== -->
+
+    <section class="chapter-section" id="network-interfaces">
+
+        <h2>Network Interfaces</h2>
+
+        <h3>ip</h3>
+
+        <p>
+            The <code>ip</code> command is the primary modern Linux utility
+            for inspecting and configuring network interfaces, addresses,
+            routes and neighbors.
+        </p>
+
+        <h3>Display Interfaces</h3>
+
+        <pre><code>ip link
+ip link show
+ip link show eth0</code></pre>
+
+        <p>
+            <code>ip link</code> displays Layer 2 interface information,
+            including interface state and MAC address.
+        </p>
+
+        <h3>Display IP Addresses</h3>
+
+        <pre><code>ip addr
+ip addr show
+ip addr show eth0</code></pre>
+
+        <p>
+            This displays IPv4 and IPv6 addresses assigned to interfaces.
+        </p>
+
+        <h3>Enable or Disable an Interface</h3>
+
+        <pre><code>ip link set eth0 up
+ip link set eth0 down</code></pre>
+
+        <h3>Add an IP Address</h3>
+
+        <pre><code>ip addr add 192.168.10.10/24 dev eth0</code></pre>
+
+        <h3>Remove an IP Address</h3>
+
+        <pre><code>ip addr del 192.168.10.10/24 dev eth0</code></pre>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                When investigating connectivity, start with the interface:
+            </p>
+
+            <pre><code>ip link
+ip addr</code></pre>
+
+            <p>
+                Before troubleshooting routing or applications, verify that
+                the interface exists, is operational and has the expected
+                address.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ROUTING
+         ===================================================== -->
+
+    <section class="chapter-section" id="routing">
+
+        <h2>Routing</h2>
+
+        <p>
+            Linux maintains a routing table that determines where packets are
+            sent.
+        </p>
+
+        <h3>ip route</h3>
+
+        <pre><code>ip route
+ip route show</code></pre>
+
+        <p>
+            Displays the routing table.
+        </p>
+
+        <h3>Add a Route</h3>
+
+        <pre><code>ip route add 10.10.20.0/24 via 192.168.1.1</code></pre>
+
+        <h3>Delete a Route</h3>
+
+        <pre><code>ip route del 10.10.20.0/24</code></pre>
+
+        <h3>Default Route</h3>
+
+        <pre><code>ip route add default via 192.168.1.1</code></pre>
+
+        <h3>Determine the Route Used</h3>
+
+        <pre><code>ip route get 10.10.20.50</code></pre>
+
+        <p>
+            This is particularly useful because it shows how Linux would
+            actually route traffic toward a destination.
+        </p>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                <code>ip route get</code> is often more useful than simply
+                reading the routing table. It answers a practical question:
+                <strong>"What will Linux do with a packet destined for this IP?"</strong>
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SOCKETS AND PORTS
+         ===================================================== -->
+
+    <section class="chapter-section" id="sockets">
+
+        <h2>Sockets and Listening Ports</h2>
+
+        <p>
+            Applications communicate through sockets. A socket is associated
+            with an IP address, transport protocol and port.
+        </p>
+
+        <h3>ss</h3>
+
+        <p>
+            The <code>ss</code> command displays socket statistics and is the
+            preferred modern replacement for many uses of <code>netstat</code>.
+        </p>
+
+        <pre><code>ss
+ss -t
+ss -u
+ss -l
+ss -n
+ss -p
+ss -tulnp</code></pre>
+
+        <ul>
+            <li><code>-t</code> — TCP sockets</li>
+            <li><code>-u</code> — UDP sockets</li>
+            <li><code>-l</code> — listening sockets</li>
+            <li><code>-n</code> — do not resolve names</li>
+            <li><code>-p</code> — show process information</li>
+            <li><code>-a</code> — all sockets</li>
+        </ul>
+
+        <p>
+            A particularly useful combination is:
+        </p>
+
+        <pre><code>ss -tulnp</code></pre>
+
+        <p>
+            This shows TCP and UDP listening sockets, numeric addresses and
+            associated processes.
+        </p>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                If an application is supposed to listen on a port but
+                <code>ss</code> shows nothing, investigating routing or packet
+                captures may be premature. The application may simply not be
+                running or may have failed to bind to the expected socket.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CONNECTIVITY TESTING
+         ===================================================== -->
+
+    <section class="chapter-section" id="connectivity">
+
+        <h2>Connectivity Testing</h2>
+
+        <h3>ping</h3>
+
+        <p>
+            Tests IP reachability using ICMP Echo messages.
+        </p>
+
+        <pre><code>ping 192.168.1.1
+ping -c 4 192.168.1.1
+ping -i 0.2 192.168.1.1
+ping -W 2 192.168.1.1</code></pre>
+
+        <ul>
+            <li><code>-c</code> — number of packets</li>
+            <li><code>-i</code> — interval between packets</li>
+            <li><code>-W</code> — timeout for a response</li>
+            <li><code>-s</code> — packet payload size</li>
+            <li><code>-I</code> — select source interface or address</li>
+        </ul>
+
+        <h3>traceroute</h3>
+
+        <p>
+            Shows the path toward a destination by manipulating packet TTL
+            values.
+        </p>
+
+        <pre><code>traceroute 8.8.8.8
+traceroute -n 8.8.8.8
+traceroute -I 8.8.8.8</code></pre>
+
+        <ul>
+            <li><code>-n</code> — disable DNS resolution</li>
+            <li><code>-I</code> — use ICMP Echo</li>
+            <li><code>-T</code> — use TCP probes</li>
+            <li><code>-U</code> — use UDP probes</li>
+            <li><code>-p</code> — destination port</li>
+        </ul>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                A failed <code>ping</code> does not automatically mean that
+                the destination is unreachable. ICMP may be filtered while
+                TCP or UDP traffic continues to work.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DNS
+         ===================================================== -->
+
+    <section class="chapter-section" id="dns">
+
+        <h2>DNS Troubleshooting</h2>
+
+        <h3>dig</h3>
+
+        <p>
+            <code>dig</code> provides detailed DNS queries and responses.
+        </p>
+
+        <pre><code>dig example.com
+dig A example.com
+dig AAAA example.com
+dig MX example.com
+dig @8.8.8.8 example.com</code></pre>
+
+        <p>
+            The <code>@</code> syntax specifies the DNS server to query.
+        </p>
+
+        <h3>nslookup</h3>
+
+        <pre><code>nslookup example.com
+nslookup example.com 8.8.8.8</code></pre>
+
+        <p>
+            It provides a simpler interface for DNS queries.
+        </p>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                When an application works with an IP address but fails when
+                using a hostname, investigate DNS before investigating the
+                application itself.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         TCPDUMP
+         ===================================================== -->
+
+    <section class="chapter-section" id="tcpdump">
+
+        <h2>Packet Capture with tcpdump</h2>
+
+        <p>
+            <code>tcpdump</code> captures and displays packets directly from
+            network interfaces.
+        </p>
+
+        <p>
+            It is one of the most valuable command-line tools for network
+            troubleshooting.
+        </p>
+
+        <h3>Basic Capture</h3>
+
+        <pre><code>tcpdump -i eth0</code></pre>
+
+        <h3>Do Not Resolve Hostnames</h3>
+
+        <pre><code>tcpdump -n -i eth0</code></pre>
+
+        <h3>Capture a Specific Host</h3>
+
+        <pre><code>tcpdump -i eth0 host 192.168.1.10</code></pre>
+
+        <h3>Capture a Specific Port</h3>
+
+        <pre><code>tcpdump -i eth0 port 80</code></pre>
+
+        <h3>Capture TCP Traffic</h3>
+
+        <pre><code>tcpdump -i eth0 tcp</code></pre>
+
+        <h3>Capture UDP Traffic</h3>
+
+        <pre><code>tcpdump -i eth0 udp</code></pre>
+
+        <h3>Capture a Specific UDP Port</h3>
+
+        <pre><code>tcpdump -i eth0 udp port 2152</code></pre>
+
+        <h3>Capture SCTP</h3>
+
+        <pre><code>tcpdump -i eth0 sctp</code></pre>
+
+        <h3>Write Capture to a File</h3>
+
+        <pre><code>tcpdump -i eth0 -w capture.pcap</code></pre>
+
+        <h3>Read a Capture</h3>
+
+        <pre><code>tcpdump -r capture.pcap</code></pre>
+
+        <p>
+            Common options:
+        </p>
+
+        <ul>
+            <li><code>-i</code> — interface</li>
+            <li><code>-n</code> — do not resolve hostnames</li>
+            <li><code>-nn</code> — do not resolve hostnames or ports</li>
+            <li><code>-v</code> — verbose output</li>
+            <li><code>-vv</code> — more verbose output</li>
+            <li><code>-c</code> — stop after a specified number of packets</li>
+            <li><code>-w</code> — write packets to a capture file</li>
+            <li><code>-r</code> — read packets from a capture file</li>
+        </ul>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                Packet capture is particularly powerful because it separates
+                application assumptions from observable network behavior.
+            </p>
+
+            <p>
+                If an application says that it sent a packet, a capture can
+                determine whether that packet actually appeared on the
+                interface.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CURL
+         ===================================================== -->
+
+    <section class="chapter-section" id="curl">
+
+        <h2>Testing Applications with curl</h2>
+
+        <p>
+            <code>curl</code> is commonly used to test HTTP, HTTPS and other
+            application-layer protocols.
+        </p>
+
+        <pre><code>curl https://example.com</code></pre>
+
+        <h3>Display Headers</h3>
+
+        <pre><code>curl -I https://example.com</code></pre>
+
+        <h3>Verbose Mode</h3>
+
+        <pre><code>curl -v https://example.com</code></pre>
+
+        <h3>Specify a Port</h3>
+
+        <pre><code>curl http://192.168.1.10:8080</code></pre>
+
+        <h3>Set a Timeout</h3>
+
+        <pre><code>curl --connect-timeout 5 https://example.com
+curl --max-time 10 https://example.com</code></pre>
+
+        <ul>
+            <li><code>-I</code> — HEAD request</li>
+            <li><code>-v</code> — verbose connection details</li>
+            <li><code>-k</code> — ignore TLS certificate validation</li>
+            <li><code>-X</code> — specify HTTP method</li>
+            <li><code>-H</code> — add HTTP header</li>
+            <li><code>-d</code> — send request data</li>
+            <li><code>--connect-timeout</code> — connection timeout</li>
+            <li><code>--max-time</code> — maximum operation time</li>
+        </ul>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                <code>curl -v</code> can help separate several layers of a
+                problem: DNS resolution, TCP connection establishment, TLS
+                negotiation and application response.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RESOURCE UTILIZATION
+         ===================================================== -->
+
+    <section class="chapter-section" id="resources">
+
+        <h2>CPU, Memory and Disk</h2>
+
+        <h3>free</h3>
+
+        <pre><code>free
+free -h</code></pre>
+
+        <p>
+            Displays memory and swap utilization.
+        </p>
+
+        <h3>df</h3>
+
+        <pre><code>df -h
+df -h /var</code></pre>
+
+        <p>
+            Displays filesystem disk usage.
+        </p>
+
+        <h3>du</h3>
+
+        <pre><code>du -sh /var/log
+du -sh /var/log/*</code></pre>
+
+        <p>
+            Shows disk usage by files and directories.
+        </p>
+
+        <h3>uptime</h3>
+
+        <pre><code>uptime</code></pre>
+
+        <p>
+            Displays system uptime and load averages.
+        </p>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                A full filesystem can cause apparently unrelated failures.
+                Applications may fail to create logs, databases may stop
+                writing data and services may refuse to start.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         TIME AND CLOCK
+         ===================================================== -->
+
+    <section class="chapter-section" id="time">
+
+        <h2>Time and Clock Synchronization</h2>
+
+        <h3>date</h3>
+
+        <pre><code>date
+date -u</code></pre>
+
+        <p>
+            Displays local or UTC time.
+        </p>
+
+        <h3>timedatectl</h3>
+
+        <pre><code>timedatectl
+timedatectl status</code></pre>
+
+        <p>
+            Displays system clock, timezone and synchronization information.
+        </p>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                Accurate time is critical when correlating events across
+                systems. When analyzing distributed logs or packet captures,
+                incorrect clock synchronization can make events appear to
+                occur in the wrong order.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SSH
+         ===================================================== -->
+
+    <section class="chapter-section" id="ssh">
+
+        <h2>Remote Access with SSH</h2>
+
+        <p>
+            Secure Shell (SSH) provides encrypted remote access to Linux
+            systems.
+        </p>
+
+        <pre><code>ssh user@192.168.1.10</code></pre>
+
+        <h3>Specify a Port</h3>
+
+        <pre><code>ssh -p 2222 user@192.168.1.10</code></pre>
+
+        <h3>Specify an Identity Key</h3>
+
+        <pre><code>ssh -i ~/.ssh/id_rsa user@192.168.1.10</code></pre>
+
+        <ul>
+            <li><code>-p</code> — remote SSH port</li>
+            <li><code>-i</code> — identity/private key file</li>
+            <li><code>-v</code> — verbose troubleshooting output</li>
+        </ul>
+
+        <h3>Copy Files with scp</h3>
+
+        <pre><code>scp file.txt user@192.168.1.10:/tmp/
+scp user@192.168.1.10:/tmp/file.txt .</code></pre>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                SSH itself is a useful troubleshooting test. If an IP address
+                is reachable but SSH cannot connect, inspect the listening
+                socket, firewall rules, routing and SSH service state.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PIPES AND REDIRECTION
+         ===================================================== -->
+
+    <section class="chapter-section" id="pipes">
+
+        <h2>Pipes, Redirection and Command Composition</h2>
+
+        <p>
+            One of the most powerful features of the Linux command line is the
+            ability to combine small utilities.
+        </p>
+
+        <h3>Pipe</h3>
+
+        <pre><code>ps aux | grep nginx</code></pre>
+
+        <p>
+            The output of one command becomes the input of another.
+        </p>
+
+        <h3>Output Redirection</h3>
+
+        <pre><code>command &gt; output.txt
+command &gt;&gt; output.txt</code></pre>
+
+        <p>
+            <code>&gt;</code> overwrites the file, while
+            <code>&gt;&gt;</code> appends to it.
+        </p>
+
+        <h3>Input Redirection</h3>
+
+        <pre><code>command &lt; input.txt</code></pre>
+
+        <h3>Combine Commands</h3>
+
+        <pre><code>grep -i "error" application.log | tail -n 20</code></pre>
+
+        <h3>Count Results</h3>
+
+        <pre><code>grep -i "error" application.log | wc -l</code></pre>
+
+        <h3>Sort Results</h3>
+
+        <pre><code>cat addresses.txt | sort</code></pre>
+
+        <h3>Unique Results</h3>
+
+        <pre><code>cat addresses.txt | sort | uniq</code></pre>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                Linux utilities are designed to do relatively small jobs well.
+                Their real power appears when they are combined into a
+                troubleshooting workflow.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         A PRACTICAL TROUBLESHOOTING WORKFLOW
+         ===================================================== -->
+
+    <section class="chapter-section" id="workflow">
+
+        <h2>A Practical Linux Troubleshooting Workflow</h2>
+
+        <p>
+            When a service or network function is not behaving as expected,
+            avoid jumping randomly between commands. Use a structured
+            investigation.
+        </p>
+
+        <h3>Step 1 — Check the System</h3>
+
+        <pre><code>hostname
+uptime
+free -h
+df -h</code></pre>
+
+        <h3>Step 2 — Check the Interface</h3>
+
+        <pre><code>ip link
+ip addr</code></pre>
+
+        <h3>Step 3 — Check Routing</h3>
+
+        <pre><code>ip route
+ip route get &lt;destination&gt;</code></pre>
+
+        <h3>Step 4 — Check DNS</h3>
+
+        <pre><code>dig &lt;hostname&gt;</code></pre>
+
+        <h3>Step 5 — Check Listening Sockets</h3>
+
+        <pre><code>ss -tulnp</code></pre>
+
+        <h3>Step 6 — Check the Process</h3>
+
+        <pre><code>ps aux | grep &lt;process&gt;
+top</code></pre>
+
+        <h3>Step 7 — Check the Service</h3>
+
+        <pre><code>systemctl status &lt;service&gt;</code></pre>
+
+        <h3>Step 8 — Check Logs</h3>
+
+        <pre><code>journalctl -u &lt;service&gt; --since "15 minutes ago"</code></pre>
+
+        <h3>Step 9 — Test Connectivity</h3>
+
+        <pre><code>ping &lt;destination&gt;
+traceroute &lt;destination&gt;</code></pre>
+
+        <h3>Step 10 — Capture Packets</h3>
+
+        <pre><code>tcpdump -ni &lt;interface&gt; host &lt;destination&gt;</code></pre>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                Troubleshooting becomes significantly easier when moving from
+                lower-level dependencies toward higher-level behavior:
+            </p>
+
+            <pre><code>System
+  ↓
+Interface
+  ↓
+IP Address
+  ↓
+Routing
+  ↓
+DNS
+  ↓
+Socket
+  ↓
+Process
+  ↓
+Service
+  ↓
+Application
+  ↓
+Packet Capture</code></pre>
+
+            <p>
+                This is not a rigid rule. It is a mental framework for avoiding
+                unnecessary assumptions.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PRACTICAL SCENARIO
+         ===================================================== -->
+
+    <section class="chapter-section" id="scenario">
+
+        <h2>Practical Scenario: An Unreachable Service</h2>
+
+        <p>
+            Assume an application should be reachable at:
+        </p>
+
+        <pre><code>192.168.20.50:8080</code></pre>
+
+        <p>
+            A structured investigation could begin with:
+        </p>
+
+        <pre><code>ping 192.168.20.50</code></pre>
+
+        <p>
+            If the host responds, check the route:
+        </p>
+
+        <pre><code>ip route get 192.168.20.50</code></pre>
+
+        <p>
+            Then verify whether the application is listening:
+        </p>
+
+        <pre><code>ss -lntp | grep :8080</code></pre>
+
+        <p>
+            If nothing is listening, inspect the process:
+        </p>
+
+        <pre><code>ps aux | grep application</code></pre>
+
+        <p>
+            Then inspect the service:
+        </p>
+
+        <pre><code>systemctl status application</code></pre>
+
+        <p>
+            And finally inspect recent logs:
+        </p>
+
+        <pre><code>journalctl -u application --since "10 minutes ago"</code></pre>
+
+        <p>
+            If the service appears healthy, capture the traffic:
+        </p>
+
+        <pre><code>tcpdump -ni any host 192.168.20.50 and port 8080</code></pre>
+
+        <p>
+            The capture can reveal whether packets arrive, whether responses
+            are generated and whether the TCP connection is successfully
+            established.
+        </p>
+
+        <div class="insight">
+            <div class="insight-title">INSIGHT</div>
+            <p>
+                The objective of troubleshooting is not to execute as many
+                commands as possible. The objective is to progressively
+                eliminate possible causes until the remaining explanation is
+                supported by evidence.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         COMMAND REFERENCE
+         ===================================================== -->
+
+    <section class="chapter-section" id="command-reference">
+
+        <h2>Essential Command Reference</h2>
+
+        <div class="table-container">
+
+            <table class="command-table">
+
+                <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Purpose</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td><code>pwd</code></td>
+                        <td>Show current directory</td>
+                        <td><code>pwd</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>ls</code></td>
+                        <td>List files</td>
+                        <td><code>ls -lah</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>cd</code></td>
+                        <td>Change directory</td>
+                        <td><code>cd /var/log</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>cp</code></td>
+                        <td>Copy files</td>
+                        <td><code>cp file1 file2</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>mv</code></td>
+                        <td>Move or rename</td>
+                        <td><code>mv old new</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>rm</code></td>
+                        <td>Remove files</td>
+                        <td><code>rm file</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>cat</code></td>
+                        <td>Display file contents</td>
+                        <td><code>cat file</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>less</code></td>
+                        <td>Read large files</td>
+                        <td><code>less logfile</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>grep</code></td>
+                        <td>Search text</td>
+                        <td><code>grep -i error log</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>find</code></td>
+                        <td>Find files</td>
+                        <td><code>find /var -name "*.log"</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>ps</code></td>
+                        <td>List processes</td>
+                        <td><code>ps aux</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>top</code></td>
+                        <td>Monitor processes</td>
+                        <td><code>top</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>kill</code></td>
+                        <td>Send process signals</td>
+                        <td><code>kill -TERM PID</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>systemctl</code></td>
+                        <td>Manage services</td>
+                        <td><code>systemctl status service</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>journalctl</code></td>
+                        <td>Read systemd logs</td>
+                        <td><code>journalctl -u service</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>ip</code></td>
+                        <td>Manage network configuration</td>
+                        <td><code>ip addr</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>ss</code></td>
+                        <td>Inspect sockets</td>
+                        <td><code>ss -tulnp</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>ping</code></td>
+                        <td>Test IP reachability</td>
+                        <td><code>ping -c 4 host</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>traceroute</code></td>
+                        <td>Trace packet paths</td>
+                        <td><code>traceroute host</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>dig</code></td>
+                        <td>Query DNS</td>
+                        <td><code>dig example.com</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>tcpdump</code></td>
+                        <td>Capture packets</td>
+                        <td><code>tcpdump -ni eth0</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>curl</code></td>
+                        <td>Test application protocols</td>
+                        <td><code>curl -v URL</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>df</code></td>
+                        <td>Check filesystem usage</td>
+                        <td><code>df -h</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>du</code></td>
+                        <td>Check directory usage</td>
+                        <td><code>du -sh /var/log</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>free</code></td>
+                        <td>Check memory</td>
+                        <td><code>free -h</code></td>
+                    </tr>
+
+                    <tr>
+                        <td><code>ssh</code></td>
+                        <td>Remote access</td>
+                        <td><code>ssh user@host</code></td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         KEY TAKEAWAYS
+         ===================================================== -->
+
+    <section class="chapter-section" id="key-takeaways">
+
+        <h2>Key Takeaways</h2>
+
+        <ul class="takeaways">
+
+            <li>
+                Linux provides direct visibility into the operating system,
+                processes, interfaces, sockets, routes and logs.
+            </li>
+
+            <li>
+                The command line becomes significantly more powerful when
+                commands are combined using pipes and filters.
+            </li>
+
+            <li>
+                <code>ip</code> is the primary tool for inspecting interfaces,
+                addresses and routes.
+            </li>
+
+            <li>
+                <code>ss</code> provides visibility into TCP and UDP sockets
+                and listening services.
+            </li>
+
+            <li>
+                <code>systemctl</code> and <code>journalctl</code> are central
+                tools for investigating systemd-managed services.
+            </li>
+
+            <li>
+                <code>tcpdump</code> allows network behavior to be observed
+                directly at the packet level.
+            </li>
+
+            <li>
+                DNS, routing, sockets, processes and applications should be
+                investigated as separate layers.
+            </li>
+
+            <li>
+                Effective troubleshooting is based on evidence rather than
+                assumptions.
+            </li>
+
+        </ul>
+
+        <div class="insight">
+            <div class="insight-title">ENGINEERING INSIGHT</div>
+
+            <p>
+                Linux troubleshooting is fundamentally an exercise in
+                observation.
+            </p>
+
+            <p>
+                Instead of asking:
+                <strong>"What command should I run?"</strong>
+            </p>
+
+            <p>
+                ask:
+                <strong>"What evidence would confirm or eliminate this
+                hypothesis?"</strong>
+            </p>
+
+            <p>
+                Once that mindset is established, Linux commands stop being a
+                collection of memorized syntax and become instruments for
+                investigating complex systems.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         END OF SECTION
+         ===================================================== -->
+
+    <footer class="chapter-footer">
+
+        <p>
+            <strong>Chapter 02 complete.</strong>
+        </p>
+
+        <p>
+            The next section introduces Cisco routers and the practical
+            troubleshooting techniques used to understand IP connectivity
+            across routed networks.
+        </p>
+
+    </footer>
+
+</section>
+
 
 <p>
 <strong>Architecture, hardware families, CLI, routing, IP/MPLS, and integration with 4G/5G networks</strong>
 </p>
+    
 
 <p>
 Routers are often introduced as devices that connect different IP networks. That definition is technically correct, but it is insufficient for understanding how routers operate in enterprise networks, service provider backbones, data centers, and mobile networks.
